@@ -5,23 +5,26 @@ import android.content.Context;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
-
 public class BatchNetworking {
 
 	private final static BatchNetworking INSTANCE = new BatchNetworking();
 	private GroupPriorityQueue groupPriorityQueue;
 	private Context applicationContext;
-    private RequestQueue requestQueue;
+	private RequestQueue requestQueue;
+	private DBManager dbInstance;
 
 	public RequestQueue getRequestQueue() throws Exception {
 		if (requestQueue == null) {
-			if (null == getApplicationContext())
-			{
-				throw new Exception("Application context not set");
+			if (null == getApplicationContext()) {
+				throw new Exception("initialize method not called");
 			}
 			requestQueue = Volley.newRequestQueue(getApplicationContext());
-        }
+		}
 		return requestQueue;
+	}
+
+	public void initialize(Context applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 
 	public GroupPriorityQueue getGroupPriorityQueue() {
@@ -36,16 +39,23 @@ public class BatchNetworking {
 
 		// initialize priority queue
 		groupPriorityQueue = new GroupPriorityQueue();
+	}
 
-		// load unsynced data
-		DBManager dbInstance = DBManager.getInstance();
-		dbInstance.loadCachedDataInBatchNetworkingInstance(this);
+	DBManager getDBManagerInstance() throws Exception {
+		if (dbInstance == null) {
+			if (null == getApplicationContext()) {
+				throw new Exception("initialize method not called");
+			}
+			DBManager dbInstance = new DBManager(applicationContext);
+			// load unsynced data
+			dbInstance.loadCachedDataInBatchNetworkingInstance(this);
+		}
+		return dbInstance;
 	}
 
 	public void setGroupDataHandler(GroupDataHandler groupDataHandler) {
 		Group group = new Group(groupDataHandler);
-		groupPriorityQueue.addGroup(group,
-				groupDataHandler.getGroupId());
+		groupPriorityQueue.addGroup(group, groupDataHandler.getGroupId());
 	}
 
 	/**
@@ -83,9 +93,5 @@ public class BatchNetworking {
 
 	public Context getApplicationContext() {
 		return applicationContext;
-	}
-
-	public void setApplicationContext(Context applicationContext) {
-		this.applicationContext = applicationContext;
 	}
 }

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 
 public abstract class GroupDataHandler {
@@ -44,23 +43,7 @@ public abstract class GroupDataHandler {
 		elementCountToDeleteOnBatchFull = 5;
 	}
 
-	protected Response.Listener<String> listener = new Response.Listener<String>() {
-	    @Override
-	    public void onResponse(String response) {
-	        // TODO implement the method
-	    }
-	};
-
-	protected Response.ErrorListener errorListener = new Response.ErrorListener() {
-	    @Override
-	    public void onErrorResponse(VolleyError error) {
-	        if (error.networkResponse != null) {
-	        	// TODO implement the method
-	        }
-	    }
-	};
-	
-	protected void syncBatch(final ArrayList<Data> currentDataForSyncing, Group group) throws Exception
+	protected void syncBatch(final ArrayList<Data> currentDataForSyncing, Response.Listener<String> listener, Response.ErrorListener errorListener) throws Exception
 	{
 		StringRequest request = new StringRequest(Request.Method.POST,
 				getUrl(), listener, errorListener) {
@@ -125,5 +108,11 @@ public abstract class GroupDataHandler {
 
 	protected abstract byte[] getPackedDataForNetworkPush(
 			ArrayList<Data> currentDataForSyncing);
+	
+	public abstract byte[] serializeIndividualData(
+			Object data) throws Exception;
+	
+	public abstract Object deSerializeIndividualData(
+			byte[] data) throws Exception;
 
 }

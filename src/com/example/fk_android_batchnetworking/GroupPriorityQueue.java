@@ -3,6 +3,9 @@ package com.example.fk_android_batchnetworking;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -45,8 +48,6 @@ public class GroupPriorityQueue {
 	public GroupPriorityQueue() {
 		_queue = new ArrayList<Group>();
 		_groupMap = new HashMap<String, Group>();
-
-		// TODO handle network based poking
 	}
 
 	/**
@@ -111,11 +112,16 @@ public class GroupPriorityQueue {
 	}
 
 	private void pokeDataBatchesForSyncing() {
-		// TODO uncomment the following code
-		// if ([[Reachability reachabilityForInternetConnection]
-		// currentReachabilityStatus] == NotReachable) {
-		// return;
-		// }
+		ConnectivityManager cm = (ConnectivityManager) BatchNetworking
+				.getDefaultInstance().getApplicationContext()
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+		NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+		boolean isConnected = activeNetwork != null
+				&& activeNetwork.isConnectedOrConnecting();
+		if (!isConnected) {
+			return;
+		}
 
 		for (Group dataTypeBatch : _queue) {
 			if (dataTypeBatch.handleSyncPoke()) {

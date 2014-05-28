@@ -13,6 +13,11 @@ public class Data {
 	private long expiry;
 	private DataCacheState cacheState;
 
+	public Data() {
+		setEventId(System.currentTimeMillis() + System.nanoTime());
+        setCacheState(DataCacheState.CSTATE_NOT_CACHED);
+	}
+	
 	public Data(Object dataToPush) {
 		setEventId(System.currentTimeMillis() + System.nanoTime());
 		setData(dataToPush);

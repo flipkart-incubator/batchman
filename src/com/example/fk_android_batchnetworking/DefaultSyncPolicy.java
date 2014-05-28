@@ -1,6 +1,5 @@
 package com.example.fk_android_batchnetworking;
 
-import com.example.fk_android_batchnetworking.Group.DataSyncState;
 
 public class DefaultSyncPolicy implements GroupSyncPolicy {
 
@@ -9,14 +8,14 @@ public class DefaultSyncPolicy implements GroupSyncPolicy {
 
 	@Override
 	public boolean elegibleForSyncing(Group group) {
-		if (group.getCurrentSyncState() != DataSyncState.NOT_SYNCED)
+		if (group.getCurrentSyncState() != Group.NOT_SYNCED)
 	        return false;
 	        
-	    // check time based elegibility
+	    // check time based eligibility
 	    boolean eligible  = ((System.currentTimeMillis() - group.getLastSyncTryTime()) > (syncIdleTime() *1000)) && (group.size() > 0);
 	    
 	    if (!eligible){
-	        // check number based elegibility
+	        // check number based eligibility
 	        eligible = (group.size() >= syncBatchSize());
 	    }
 	    return eligible;  
