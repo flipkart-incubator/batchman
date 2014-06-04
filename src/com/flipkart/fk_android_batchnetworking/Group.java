@@ -1,4 +1,4 @@
-package com.example.fk_android_batchnetworking;
+package com.flipkart.fk_android_batchnetworking;
 
 import java.util.ArrayList;
 
@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.example.fk_android_batchnetworking.Data.DataCacheState;
+import com.flipkart.fk_android_batchnetworking.Data.DataCacheState;
 
 public class Group {
 	private static final String TAG = "Group";

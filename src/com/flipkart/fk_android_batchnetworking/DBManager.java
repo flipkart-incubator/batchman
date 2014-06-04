@@ -1,4 +1,4 @@
-package com.example.fk_android_batchnetworking;
+package com.flipkart.fk_android_batchnetworking;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
-import com.example.fk_android_batchnetworking.Data.DataCacheState;
+import com.flipkart.fk_android_batchnetworking.Data.DataCacheState;
 
 class DBManager {
 	private static final String TAG = "dbmanager";

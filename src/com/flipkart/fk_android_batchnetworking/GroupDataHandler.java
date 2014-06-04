@@ -1,4 +1,4 @@
-package com.example.fk_android_batchnetworking;
+package com.flipkart.fk_android_batchnetworking;
 
 import java.util.ArrayList;
 
