@@ -2,13 +2,31 @@ package com.example.fk_android_batchnetworking;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+//import org.json.JSONArray;
+//import org.json.JSONObject;
+import android.util.Log;
+
+import com.google.mygson.Gson;
+import com.google.mygson.JsonArray;
+import com.google.mygson.JsonElement;
+
 public class JSONDataHandler extends GroupDataHandler {
 
-	String characterSetName = "UTF-8";
+	private static final String TAG = "JSONDataHandler";
+
+	/** Charset for request. */
+	private static final String PROTOCOL_CHARSET = "utf-8";
+
+	/** Content type for request. */
+	private static final String PROTOCOL_CONTENT_TYPE = String.format(
+			"application/json; charset=%s", PROTOCOL_CHARSET);
+
 	public JSONDataHandler(String groupId, String url) {
 		super(groupId, url);
 	}
@@ -21,10 +39,24 @@ public class JSONDataHandler extends GroupDataHandler {
 	@Override
 	public byte[] getPackedDataForNetworkPush(
 			ArrayList<Data> currentDataForSyncing) {
-		JSONArray jsonAray = new JSONArray(currentDataForSyncing);
+
 		byte[] body = null;
 		try {
-			body = jsonAray.toString().getBytes("UTF-8");
+			Enumeration<Data> enumeration = Collections
+					.enumeration(currentDataForSyncing);
+
+			JsonArray jsonAray = new JsonArray();
+			System.out.println("Enumerating through ArrayList");
+			while (enumeration.hasMoreElements()) {
+				Data data = enumeration.nextElement();
+				jsonAray.add((JsonElement) data.getData());
+			}
+
+			Gson gson = new Gson();
+			body = gson.toJson(jsonAray).getBytes("UTF-8");
+			// Log.i(TAG,
+			// "getPackedDataForNetworkPush string = "
+			// + jsonAray.toString());
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -57,12 +89,17 @@ public class JSONDataHandler extends GroupDataHandler {
 		// Add the type prefix to denote the data type. This will be eventually
 		// during deserialization.
 		result = type + result;
-		return result.getBytes(characterSetName);
+		return result.getBytes(PROTOCOL_CHARSET);
+	}
+
+	@Override
+	public String getContentType() {
+		return PROTOCOL_CONTENT_TYPE;
 	}
 
 	@Override
 	public Object deSerializeIndividualData(byte[] data) throws Exception {
-		String strdata = new String(data, characterSetName);
+		String strdata = new String(data, PROTOCOL_CHARSET);
 		char type = strdata.charAt(0);
 		if (type == 'O') {
 			return new JSONObject(strdata);

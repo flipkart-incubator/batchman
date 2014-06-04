@@ -9,6 +9,8 @@ import com.android.volley.toolbox.StringRequest;
 
 public abstract class GroupDataHandler {
 
+	private static final String TAG = "GroupDataHandler";
+
 	public final int PRIORITY_BATCH_LOWEST = Integer.MAX_VALUE;
 	public final int PRIORITY_BATCH_DEFAULT = PRIORITY_BATCH_LOWEST / 2;
 	public final int PRIORITY_BATCH_HIGHEST = Integer.MIN_VALUE;
@@ -43,18 +45,30 @@ public abstract class GroupDataHandler {
 		elementCountToDeleteOnBatchFull = 5;
 	}
 
-	protected void syncBatch(final ArrayList<Data> currentDataForSyncing, Response.Listener<String> listener, Response.ErrorListener errorListener) throws Exception
-	{
+	protected void syncBatch(final ArrayList<Data> currentDataForSyncing,
+			Response.Listener<String> listener,
+			Response.ErrorListener errorListener) throws Exception {
 		StringRequest request = new StringRequest(Request.Method.POST,
 				getUrl(), listener, errorListener) {
 			@Override
 			public byte[] getBody() throws AuthFailureError {
-		        return getPackedDataForNetworkPush(currentDataForSyncing);
-		    }
+				return getPackedDataForNetworkPush(currentDataForSyncing);
+			}
+
+			@Override
+			public String getBodyContentType() {
+				if (getContentType() != null)
+					return getContentType();
+				return super.getBodyContentType();
+			}
 		};
 
 		// add the request object to the queue to be executed
 		BatchNetworking.getDefaultInstance().getRequestQueue().add(request);
+	}
+
+	public String getContentType() {
+		return null;
 	}
 
 	public int getPriority() {
@@ -108,11 +122,11 @@ public abstract class GroupDataHandler {
 
 	protected abstract byte[] getPackedDataForNetworkPush(
 			ArrayList<Data> currentDataForSyncing);
-	
-	public abstract byte[] serializeIndividualData(
-			Object data) throws Exception;
-	
-	public abstract Object deSerializeIndividualData(
-			byte[] data) throws Exception;
+
+	public abstract byte[] serializeIndividualData(Object data)
+			throws Exception;
+
+	public abstract Object deSerializeIndividualData(byte[] data)
+			throws Exception;
 
 }

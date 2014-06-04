@@ -26,45 +26,59 @@ class DBManager {
 	// private SQLiteStatement insertStmt;
 	// private SQLiteStatement insertStmt;
 	public DBManager(Context context) {
+		Log.i(TAG, "In Constructor 1");
 		openHelper = new OpenHelper(context);
-
+		Log.i(TAG, "In Constructor 2");
 		String strInsert = "insert into " + CACHE_TABLE + " ("
 				+ COL_NAME_EVENTID + ", " + COL_NAME_GROUPID + ", "
 				+ COL_NAME_GROUPID + ", " + COL_NAME_EXPIRY
 				+ ") values (?, ?, ?, ?)";
 		insertStmt = openHelper.getDatabase().compileStatement(strInsert);
+		Log.i(TAG, "In Constructor 3");
 
 	}
 
 	public void loadCachedDataInBatchNetworkingInstance(
 			BatchNetworking batchNetworking) {
+		Log.i(TAG, "In loadCachedDataInBatchNetworkingInstance 0");
+
 		if (null == batchNetworking) {
 			return;
 		}
+		Log.i(TAG, "In loadCachedDataInBatchNetworkingInstance 1");
 
 		Cursor cursor = openHelper.getDatabase().query(
 				CACHE_TABLE,
 				new String[] { COL_NAME_EVENTID, COL_NAME_GROUPID,
 						COL_NAME_DATA, COL_NAME_EXPIRY }, null, null, null,
 				null, COL_NAME_EVENTID);
-		
+
+		Log.i(TAG, "In loadCachedDataInBatchNetworkingInstance: got the cursor");
+
 		if (cursor.moveToFirst()) {
+			Log.i(TAG,
+					"In loadCachedDataInBatchNetworkingInstance: There is data to load");
 			do {
 				try {
 					String groupId = cursor.getString(1);
-					Group group = batchNetworking.getGroupPriorityQueue().getGroupForGroupId(groupId);
+					Group group = batchNetworking.getGroupPriorityQueue()
+							.getGroupForGroupId(groupId);
 					if (null == group) {
 						continue;
 					}
-					
+
 					Data data = new Data();
 					data.setEventId(cursor.getLong(0));
-					data.setData(group.getBatchDataHandler().deSerializeIndividualData(cursor.getBlob(2)));
+					data.setData(group.getBatchDataHandler()
+							.deSerializeIndividualData(cursor.getBlob(2)));
 					data.setCacheState(DataCacheState.CSTATE_CACHED);
 					group.push(data);
 				} catch (Exception e) {
 				}
 			} while (cursor.moveToNext());
+		} else {
+			Log.i(TAG,
+					"In loadCachedDataInBatchNetworkingInstance: No data to load");
 		}
 		if (cursor != null && !cursor.isClosed()) {
 			cursor.close();
@@ -100,7 +114,7 @@ class DBManager {
 	}
 
 	public void removeData(long eventId) {
-		openHelper.getDatabase().delete(CACHE_TABLE, "name=?",
+		openHelper.getDatabase().delete(CACHE_TABLE, COL_NAME_EVENTID + "=?",
 				new String[] { "" + eventId });
 	}
 

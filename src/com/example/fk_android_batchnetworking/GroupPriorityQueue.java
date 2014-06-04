@@ -9,8 +9,11 @@ import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.util.Log;
 
 public class GroupPriorityQueue {
+
+	private static final String TAG = "GroupPriorityQueue";
 
 	public static final int NOTIFICATION_POKE_ME = 0;
 	public static final int NOTIFICATION_SYNC_SUCCESSFUL = 1;
@@ -30,12 +33,12 @@ public class GroupPriorityQueue {
 				@Override
 				public void handleMessage(Message msg) {
 					switch (msg.what) {
-					case NOTIFICATION_SYNC_FAILED:
 					case NOTIFICATION_SYNC_SUCCESSFUL:
 					case NOTIFICATION_POKE_ME:
 						this.removeMessages(NOTIFICATION_POKE_ME);
 						pokeDataBatchesForSyncing();
 						break;
+					case NOTIFICATION_SYNC_FAILED:
 					default:
 						break;
 					}
@@ -62,17 +65,23 @@ public class GroupPriorityQueue {
 	}
 
 	public Group getGroupForGroupId(String groupIdentifier) {
+		Log.i(TAG, "All the groups " + _groupMap);
 		return _groupMap.get(groupIdentifier);
 	}
 
 	public boolean addGroup(Group group, String groupIdentifier) {
+
+		Log.i(TAG, "In addGroup");
+
 		// remove if old object exists
-		if (getGroupForGroupId(groupIdentifier) == null) {
+		if (getGroupForGroupId(groupIdentifier) != null) {
+			Log.i(TAG, "group already exists for " + groupIdentifier);
 			return false;
 		}
 
 		// add object to map
 		_groupMap.put(groupIdentifier, group);
+		Log.i(TAG, "Added the group to the map");
 
 		// add object to queue
 		if (_queue.size() > 0) {
@@ -103,12 +112,10 @@ public class GroupPriorityQueue {
 					}
 				}
 			}
-
 			_queue.add(mid, group);
-		}
-		_queue.add(group);
+		} else
+			_queue.add(group);
 		return true;
-
 	}
 
 	private void pokeDataBatchesForSyncing() {

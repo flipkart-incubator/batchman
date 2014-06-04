@@ -2,16 +2,17 @@ package com.example.fk_android_batchnetworking;
 
 import java.util.ArrayList;
 
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
+import android.util.Log;
+
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.example.fk_android_batchnetworking.Data.DataCacheState;
 
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Message;
-
 public class Group {
-
+	private static final String TAG = "Group";
 	public static final int NOT_SYNCED = 0;
 	public static final int QUEUED_FOR_SYNCING = 1;
 	public static final int SYNC_SUCCESSFUL = 2;
@@ -95,6 +96,8 @@ public class Group {
 	}
 
 	private void sync() {
+		Log.i(TAG, "In sync method");
+		
 		// get a batch for syncing
 		int numOfElementsToSync = batchDataHandler.getSyncPolicy()
 				.syncBatchSize();
@@ -163,6 +166,7 @@ public class Group {
 		if (null == batchDatum)
 			return;
 
+		Log.i(TAG, "In push data 1");
 		normalizeData();
 		groupData.add(batchDatum);
 
@@ -174,21 +178,28 @@ public class Group {
 				public void run() {
 					// persist in db
 					try {
+						Log.i(TAG, "Before persisting data");
 						BatchNetworking.getDefaultInstance().getDBManagerInstance().persistData(batchDatum.getEventId(),
 								batchDataHandler.getGroupId(), batchDataHandler.serializeIndividualData(batchDatum.getData()), batchDatum.getExpiry());
 					} catch (Exception e) {
+						Log.i(TAG, "Error in persisting data");
 						e.printStackTrace();
 					}
 
+					Log.i(TAG, "Before trying to send to network");
 					// if eligible for syncing, let people know
 					if (batchDataHandler.getSyncPolicy().elegibleForSyncing(
 							group)) {
+						Log.i(TAG, "Before sending data to volley priority queue");
 						BatchNetworking
 								.getDefaultInstance()
 								.getGroupPriorityQueue()
 								.getNotificationHandler()
 								.sendEmptyMessage(
 										GroupPriorityQueue.NOTIFICATION_POKE_ME);
+					}else
+					{
+						Log.i(TAG, "Not elegible for syncing");
 					}
 				}
 			});
