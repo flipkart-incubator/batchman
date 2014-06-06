@@ -8,17 +8,13 @@ import java.util.Enumeration;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-//import org.json.JSONArray;
-//import org.json.JSONObject;
-import android.util.Log;
-
 import com.google.mygson.Gson;
 import com.google.mygson.JsonArray;
 import com.google.mygson.JsonElement;
+//import org.json.JSONArray;
+//import org.json.JSONObject;
 
 public class JSONDataHandler extends GroupDataHandler {
-
-	private static final String TAG = "JSONDataHandler";
 
 	/** Charset for request. */
 	private static final String PROTOCOL_CHARSET = "utf-8";
