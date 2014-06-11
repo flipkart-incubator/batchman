@@ -25,7 +25,6 @@ public class BatchNetworking {
 	}
 
 	public void initialize(Context applicationContext) {
-		Log.i(TAG, "In initialize, applicationContext = " + applicationContext);
 		this.applicationContext = applicationContext;
 	}
 
@@ -44,14 +43,12 @@ public class BatchNetworking {
 	}
 
 	DBManager getDBManagerInstance() throws Exception {
-		Log.i(TAG, "In getDBManagerInstance dbInstance = " + dbInstance);
 		if (dbInstance == null) {
 			if (null == getApplicationContext()) {
 				throw new Exception("initialize method not called");
 			}
 			dbInstance = new DBManager(getApplicationContext());
 			
-			Log.i(TAG, "In getDBManagerInstance get dbInstance = " + dbInstance);
 			// load unsynced data
 			dbInstance.loadCachedDataInBatchNetworkingInstance(this);
 		}
@@ -60,9 +57,6 @@ public class BatchNetworking {
 
 	public void setGroupDataHandler(GroupDataHandler groupDataHandler) {
 		Group group = new Group(groupDataHandler);
-		Log.i(TAG,
-				"Setting group handler for group id = "
-						+ groupDataHandler.getGroupId());
 		groupPriorityQueue.addGroup(group, groupDataHandler.getGroupId());
 	}
 
@@ -91,7 +85,6 @@ public class BatchNetworking {
 			throws IllegalArgumentException {
 		Group group = groupPriorityQueue.getGroupForGroupId(groupId);
 		if (null == group) {
-			Log.i(TAG, "No group found for the id " + groupId);
 			// A group is created as soon as a GroupDataHandler is provided for
 			// the group
 			throw new IllegalArgumentException(
@@ -101,8 +94,6 @@ public class BatchNetworking {
 	}
 
 	public Context getApplicationContext() {
-		Log.i(TAG, "In getApplicationContext, applicationContext = "
-				+ applicationContext);
 		return applicationContext;
 	}
 }

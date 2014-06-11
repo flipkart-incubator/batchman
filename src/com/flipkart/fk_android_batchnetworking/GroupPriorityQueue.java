@@ -65,23 +65,19 @@ public class GroupPriorityQueue {
 	}
 
 	public Group getGroupForGroupId(String groupIdentifier) {
-		Log.i(TAG, "All the groups " + _groupMap);
 		return _groupMap.get(groupIdentifier);
 	}
 
 	public boolean addGroup(Group group, String groupIdentifier) {
 
-		Log.i(TAG, "In addGroup");
 
 		// remove if old object exists
 		if (getGroupForGroupId(groupIdentifier) != null) {
-			Log.i(TAG, "group already exists for " + groupIdentifier);
 			return false;
 		}
 
 		// add object to map
 		_groupMap.put(groupIdentifier, group);
-		Log.i(TAG, "Added the group to the map");
 
 		// add object to queue
 		if (_queue.size() > 0) {

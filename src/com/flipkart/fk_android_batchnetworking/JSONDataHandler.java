@@ -42,7 +42,6 @@ public class JSONDataHandler extends GroupDataHandler {
 					.enumeration(currentDataForSyncing);
 
 			JsonArray jsonAray = new JsonArray();
-			System.out.println("Enumerating through ArrayList");
 			while (enumeration.hasMoreElements()) {
 				Data data = enumeration.nextElement();
 				jsonAray.add((JsonElement) data.getData());
@@ -50,9 +49,6 @@ public class JSONDataHandler extends GroupDataHandler {
 
 			Gson gson = new Gson();
 			body = gson.toJson(jsonAray).getBytes("UTF-8");
-			// Log.i(TAG,
-			// "getPackedDataForNetworkPush string = "
-			// + jsonAray.toString());
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}

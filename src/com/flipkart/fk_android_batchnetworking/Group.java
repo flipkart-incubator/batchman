@@ -36,6 +36,7 @@ public class Group {
 		_syncState = NOT_SYNCED;
 
 		HandlerThread thread = new HandlerThread("GroupHandler");
+		thread.setPriority(Thread.NORM_PRIORITY - 2);
 		thread.start();
 		groupHandler = new Handler(thread.getLooper()) {
 			@Override
@@ -46,25 +47,37 @@ public class Group {
 						for (int i = 0; i < currentDataForSyncing.size(); i++) {
 							Data data = currentDataForSyncing.get(i);
 							groupData.remove(data);
-							
-							 if (data.getCacheState() == Data.DataCacheState.CSTATE_CACHED) {
-								 try {
-									BatchNetworking.getDefaultInstance().getDBManagerInstance().removeData(data.getEventId());
+
+							if (data.getCacheState() == Data.DataCacheState.CSTATE_CACHED) {
+								try {
+									BatchNetworking.getDefaultInstance()
+											.getDBManagerInstance()
+											.removeData(data.getEventId());
 								} catch (Exception e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
-							 }
+							}
 						}
 						_syncState = NOT_SYNCED;
 						currentDataForSyncing.clear();
 					}
-					BatchNetworking.getDefaultInstance().getGroupPriorityQueue().getNotificationHandler().sendEmptyMessage(GroupPriorityQueue.NOTIFICATION_SYNC_SUCCESSFUL);
+					BatchNetworking
+							.getDefaultInstance()
+							.getGroupPriorityQueue()
+							.getNotificationHandler()
+							.sendEmptyMessage(
+									GroupPriorityQueue.NOTIFICATION_SYNC_SUCCESSFUL);
 					break;
 				case SYNC_FAILED:
 					_syncState = NOT_SYNCED;
 					currentDataForSyncing.clear();
-					BatchNetworking.getDefaultInstance().getGroupPriorityQueue().getNotificationHandler().sendEmptyMessage(GroupPriorityQueue.NOTIFICATION_SYNC_FAILED);
+					BatchNetworking
+							.getDefaultInstance()
+							.getGroupPriorityQueue()
+							.getNotificationHandler()
+							.sendEmptyMessage(
+									GroupPriorityQueue.NOTIFICATION_SYNC_FAILED);
 					break;
 				default:
 					break;
@@ -96,8 +109,7 @@ public class Group {
 	}
 
 	private void sync() {
-		Log.i(TAG, "In sync method");
-		
+
 		// get a batch for syncing
 		int numOfElementsToSync = batchDataHandler.getSyncPolicy()
 				.syncBatchSize();
@@ -115,24 +127,25 @@ public class Group {
 		lastSyncTryTime = System.currentTimeMillis();
 
 		Response.Listener<String> listener = new Response.Listener<String>() {
-		    @Override
-		    public void onResponse(String response) {
-		        groupHandler.sendEmptyMessage(SYNC_SUCCESSFUL);
-		    }
+			@Override
+			public void onResponse(String response) {
+				groupHandler.sendEmptyMessage(SYNC_SUCCESSFUL);
+			}
 		};
 
 		Response.ErrorListener errorListener = new Response.ErrorListener() {
-		    @Override
-		    public void onErrorResponse(VolleyError error) {
-		        if (error.networkResponse != null) {
-		        	groupHandler.sendEmptyMessage(SYNC_FAILED);
-		        }
-		    }
+			@Override
+			public void onErrorResponse(VolleyError error) {
+				if (error.networkResponse != null) {
+					groupHandler.sendEmptyMessage(SYNC_FAILED);
+				}
+			}
 		};
-		
+
 		// send the batch for syncing
 		try {
-			batchDataHandler.syncBatch(currentDataForSyncing, listener, errorListener);
+			batchDataHandler.syncBatch(currentDataForSyncing, listener,
+					errorListener);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -152,7 +165,9 @@ public class Group {
 				// remove data from cache
 				if (data.getCacheState() == DataCacheState.CSTATE_CACHED) {
 					try {
-						BatchNetworking.getDefaultInstance().getDBManagerInstance().removeData(data.getEventId());
+						BatchNetworking.getDefaultInstance()
+								.getDBManagerInstance()
+								.removeData(data.getEventId());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -166,7 +181,6 @@ public class Group {
 		if (null == batchDatum)
 			return;
 
-		Log.i(TAG, "In push data 1");
 		normalizeData();
 		groupData.add(batchDatum);
 
@@ -178,28 +192,32 @@ public class Group {
 				public void run() {
 					// persist in db
 					try {
-						Log.i(TAG, "Before persisting data");
-						BatchNetworking.getDefaultInstance().getDBManagerInstance().persistData(batchDatum.getEventId(),
-								batchDataHandler.getGroupId(), batchDataHandler.serializeIndividualData(batchDatum.getData()), batchDatum.getExpiry());
+						BatchNetworking
+								.getDefaultInstance()
+								.getDBManagerInstance()
+								.persistData(
+										batchDatum.getEventId(),
+										batchDataHandler.getGroupId(),
+										batchDataHandler
+												.serializeIndividualData(batchDatum
+														.getData()),
+										batchDatum.getExpiry());
 					} catch (Exception e) {
 						Log.i(TAG, "Error in persisting data");
 						e.printStackTrace();
 					}
 
-					Log.i(TAG, "Before trying to send to network");
 					// if eligible for syncing, let people know
 					if (batchDataHandler.getSyncPolicy().elegibleForSyncing(
 							group)) {
-						Log.i(TAG, "Before sending data to volley priority queue");
 						BatchNetworking
 								.getDefaultInstance()
 								.getGroupPriorityQueue()
 								.getNotificationHandler()
 								.sendEmptyMessage(
 										GroupPriorityQueue.NOTIFICATION_POKE_ME);
-					}else
-					{
-						Log.i(TAG, "Not elegible for syncing");
+					} else {
+						// Log.i(TAG, "Not elegible for syncing");
 					}
 				}
 			});
