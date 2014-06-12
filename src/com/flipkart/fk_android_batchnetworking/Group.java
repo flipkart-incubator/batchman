@@ -71,7 +71,8 @@ public class Group {
 					break;
 				case SYNC_FAILED:
 					_syncState = NOT_SYNCED;
-					currentDataForSyncing.clear();
+					if (null != currentDataForSyncing)
+						currentDataForSyncing.clear();
 					BatchNetworking
 							.getDefaultInstance()
 							.getGroupPriorityQueue()
@@ -136,9 +137,9 @@ public class Group {
 		Response.ErrorListener errorListener = new Response.ErrorListener() {
 			@Override
 			public void onErrorResponse(VolleyError error) {
-				if (error.networkResponse != null) {
-					groupHandler.sendEmptyMessage(SYNC_FAILED);
-				}
+				// if (error.networkResponse != null) {
+				groupHandler.sendEmptyMessage(SYNC_FAILED);
+				// }
 			}
 		};
 
