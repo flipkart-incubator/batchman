@@ -1,8 +1,11 @@
 package com.flipkart.fk_android_batchnetworking;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.toolbox.StringRequest;
@@ -22,6 +25,7 @@ public abstract class GroupDataHandler {
 
 	private int maxBatchSize;
 	private int elementCountToDeleteOnBatchFull;
+	private String userAgent;
 
 	public GroupDataHandler(String groupId, String url) {
 		this.groupId = groupId;
@@ -61,7 +65,22 @@ public abstract class GroupDataHandler {
 					return getContentType();
 				return super.getBodyContentType();
 			}
+
+			@Override
+			protected Map<String, String> getParams() throws AuthFailureError {
+				// TODO Auto-generated method stub
+				Map<String, String> headers = super.getParams();
+				if (getUserAgent() != null) {
+					if (headers == null)
+						headers = new HashMap<String, String>(1);
+					headers.put("User-Agent", getUserAgent());
+				}
+				return super.getParams();
+			}
 		};
+
+		request.setRetryPolicy(new DefaultRetryPolicy(
+				DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, 0, 1f));
 
 		// add the request object to the queue to be executed
 		BatchNetworking.getDefaultInstance().getRequestQueue().add(request);
@@ -128,5 +147,13 @@ public abstract class GroupDataHandler {
 
 	public abstract Object deSerializeIndividualData(byte[] data)
 			throws Exception;
+
+	public String getUserAgent() {
+		return userAgent;
+	}
+
+	public void setUserAgent(String userAgent) {
+		this.userAgent = userAgent;
+	}
 
 }

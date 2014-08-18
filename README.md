@@ -34,14 +34,16 @@ An object of a child class of ```GroupDataHandler``` has to be provided for each
 
 	BatchNetworking.getDefaultInstance().initialize(getApplicationContext());
 	try {
-		BatchNetworking.getDefaultInstance().setGroupDataHandler(new JSONDataHandler(PERFORMANCE_EVENTS,
-											BASE_URL_STRING));
+		JSONDataHandler jdh = new JSONDataHandler(PERFORMANCE_EVENTS, BASE_URL_STRING);
+		BatchNetworking.getDefaultInstance().setGroupDataHandler(jdh);
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
 
 JSONDataHandler uses ```DefaultSyncPolicy``` for syncing. You can set your own sync policy.
-You can also set the priority of the group in the data policy.
+You can also set the priority of the group in the data policy. You can set the ```User-Agent``` by using the following method:
+
+	public void setUserAgent(String userAgent)
 
 #### Push data with groupid
 
