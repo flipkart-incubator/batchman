@@ -67,15 +67,14 @@ public abstract class GroupDataHandler {
 			}
 
 			@Override
-			protected Map<String, String> getParams() throws AuthFailureError {
-				// TODO Auto-generated method stub
-				Map<String, String> headers = super.getParams();
+			public Map<String, String> getHeaders() throws AuthFailureError {
+				Map<String, String> headers = super.getHeaders();
 				if (getUserAgent() != null) {
 					if (headers == null)
 						headers = new HashMap<String, String>(1);
 					headers.put("User-Agent", getUserAgent());
 				}
-				return super.getParams();
+				return headers;
 			}
 		};
 
