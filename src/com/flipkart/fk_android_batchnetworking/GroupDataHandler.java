@@ -68,13 +68,12 @@ public abstract class GroupDataHandler {
 
 			@Override
 			public Map<String, String> getHeaders() throws AuthFailureError {
-				Map<String, String> headers = super.getHeaders();
 				if (getUserAgent() != null) {
-					if (headers == null)
-						headers = new HashMap<String, String>(1);
+					Map<String, String> headers = new HashMap<String, String>();
 					headers.put("User-Agent", getUserAgent());
-				}
-				return headers;
+					return headers;
+				} else
+					return super.getHeaders();
 			}
 		};
 
