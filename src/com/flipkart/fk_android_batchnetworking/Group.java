@@ -160,8 +160,12 @@ public class Group {
 		if (size() > batchDataHandler.getMaxBatchSize()) {
 			int numberOfElementsToRemove = batchDataHandler
 					.getElementCountToDeleteOnBatchFull();
+			if(numberOfElementsToRemove>size())
+            {
+                numberOfElementsToRemove = size() - batchDataHandler.getMaxBatchSize();
+            }
 			for (int i = 0; i < numberOfElementsToRemove; i++) {
-				Data data = groupData.remove(i);
+				Data data = groupData.remove(0);
 
 				// remove data from cache
 				if (data.getCacheState() == DataCacheState.CSTATE_CACHED) {

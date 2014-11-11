@@ -9,13 +9,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.google.mygson.Gson;
-import com.google.mygson.JsonArray;
-import com.google.mygson.JsonElement;
-//import org.json.JSONArray;
-//import org.json.JSONObject;
 
 public class JSONDataHandler extends GroupDataHandler {
 
+	private static Gson gson = new Gson();
+	
 	/** Charset for request. */
 	private static final String PROTOCOL_CHARSET = "utf-8";
 
@@ -41,13 +39,12 @@ public class JSONDataHandler extends GroupDataHandler {
 			Enumeration<Data> enumeration = Collections
 					.enumeration(currentDataForSyncing);
 
-			JsonArray jsonAray = new JsonArray();
+			JSONArray jsonAray = new JSONArray();
 			while (enumeration.hasMoreElements()) {
 				Data data = enumeration.nextElement();
-				jsonAray.add((JsonElement) data.getData());
+				jsonAray.put(data.getData());
 			}
 
-			Gson gson = new Gson();
 			body = gson.toJson(jsonAray).getBytes("UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
