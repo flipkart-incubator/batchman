@@ -25,7 +25,7 @@ public abstract class GroupDataHandler {
 
 	private int maxBatchSize;
 	private int elementCountToDeleteOnBatchFull;
-	private String userAgent;
+	private HashMap<String, String> httpHeaders;
 
 	public GroupDataHandler(String groupId, String url) {
 		this.groupId = groupId;
@@ -68,12 +68,10 @@ public abstract class GroupDataHandler {
 
 			@Override
 			public Map<String, String> getHeaders() throws AuthFailureError {
-				if (getUserAgent() != null) {
-					Map<String, String> headers = new HashMap<String, String>();
-					headers.put("User-Agent", getUserAgent());
-					return headers;
-				} else
-					return super.getHeaders();
+				if (httpHeaders != null && httpHeaders.size() > 0) {
+                    return httpHeaders;
+                } else
+                    return super.getHeaders();
 			}
 		};
 
@@ -146,12 +144,42 @@ public abstract class GroupDataHandler {
 	public abstract Object deSerializeIndividualData(byte[] data)
 			throws Exception;
 
+	/**
+	 * Get custom User-Agent, if set.
+	 * 
+	 * @deprecated Deprecated since 1.2.0 use {@link #getCustomHttpHeaders()}
+	 *             instead.
+	 */
 	public String getUserAgent() {
-		return userAgent;
+		if (httpHeaders != null) {
+			return httpHeaders.get("User-Agent");
+		}
+		return null;
 	}
 
+	/**
+	 * @deprecated Deprecated since 1.2.0 Use
+	 *             {@link #setCustomHttpHeaders(java.util.HashMap)} instead.
+	 */
 	public void setUserAgent(String userAgent) {
-		this.userAgent = userAgent;
+		if (httpHeaders == null && userAgent == null)
+			return;
+
+		if (httpHeaders == null)
+			httpHeaders = new HashMap<String, String>();
+		if (userAgent == null)
+			httpHeaders.remove("User-Agent");
+		else
+			httpHeaders.put("User-Agent", userAgent);
 	}
 
+	public HashMap<String, String> getCustomHttpHeaders() {
+		if (httpHeaders == null)
+			httpHeaders = new HashMap<String, String>();
+		return httpHeaders;
+	}
+
+	public void setCustomHttpHeaders(HashMap<String, String> httpHeaders) {
+		this.httpHeaders = httpHeaders;
+	}
 }
