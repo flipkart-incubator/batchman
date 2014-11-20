@@ -11,8 +11,6 @@ import org.json.JSONObject;
 import com.google.mygson.Gson;
 
 public class JSONDataHandler extends GroupDataHandler {
-
-	private static Gson gson = new Gson();
 	
 	/** Charset for request. */
 	private static final String PROTOCOL_CHARSET = "utf-8";
@@ -45,7 +43,7 @@ public class JSONDataHandler extends GroupDataHandler {
 				jsonAray.put(data.getData());
 			}
 
-			body = gson.toJson(jsonAray).getBytes("UTF-8");
+			body = jsonAray.toString().getBytes("UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
