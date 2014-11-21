@@ -1,11 +1,13 @@
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
         maven { url 'http://repo1.maven.org/maven2' }
     }
-
     dependencies {
         classpath 'com.android.tools.build:gradle:0.14.0'
+        classpath 'com.github.dcendents:android-maven-plugin:1.+'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
     }
 }
 
@@ -13,10 +15,29 @@ repositories {
     mavenCentral()
 }
 
+group = ARTIFACTORY_GROUP
+version = VERSION_NAME
+status = STATUS
+
 apply plugin: 'android-library'
+apply plugin: 'artifactory'
+apply plugin: 'android-maven'
+
+dependencies {
+    compile 'com.google.code.gson:gson:2.3'
+    compile 'com.mcxiaoke.volley:library:1.+'
+}
+
 android {
     compileSdkVersion 21
     buildToolsVersion '19.1.0'
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 21
+        versionCode = 1
+        versionName = VERSION_NAME
+    }
 
     sourceSets {
         main {
@@ -26,11 +47,89 @@ android {
             aidl.srcDirs = ['src']
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
-            //assets.srcDirs = ['assets']
+            assets.srcDirs = ['assets']
         }
     }
-    dependencies {
-        compile 'com.google.code.gson:gson:2.3'
-        compile 'com.mcxiaoke.volley:library:1.+'
+
+    signingConfigs {
+        release {
+            storeFile file("keys/android.keystore")
+            keyAlias "flipkart_android_batchnetworking"
+            storePassword "androidfkbn"
+            keyPassword "androidfkbn"
+        }
+        debug {
+            storeFile file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+        debug {
+            signingConfig signingConfigs.debug
+        }
+    }
+
+}
+
+configurations {
+    published
+}
+
+task sourceJar(type: Jar) {
+    from 'src/java'
+    classifier "sources"
+}
+
+artifactoryPublish {
+    dependsOn sourceJar
+}
+
+artifacts {
+    published sourceJar
+}
+
+configure(install.repositories.mavenInstaller) {
+    pom.project {
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+    }
+}
+
+artifactory {
+    contextUrl = ARTIFACTORY_REPO_URL
+    publish {
+        repository {
+            repoKey = RELEASE_REPO_KEY //The Artifactory repository key to publish to
+            //username = artifactory_user //The publisher user name, property taken from gradle.properties
+            //password = artifactory_password //The publisher password, property taken from gradle.properties
+        }
+        defaults {
+            publishConfigs('archives', 'published')
+            properties = ['build.status': "$it.project.status".toString()]
+            publishPom = true //Publish generated POM files to Artifactory (true by default)
+            publishIvy = false //Publish generated Ivy descriptor files to Artifactory (true by default)
+        }
+    }
+    resolve {
+        repository {
+            repoKey = RELEASE_REPO_KEY //The Artifactory (preferably virtual) repository key to resolve from
+            //username = artifactory_user //Optional resolver user name (leave out to use anonymous resolution), property taken from gradle.properties
+            //password = artifactory_password //The resolver password, property taken from gradle.properties
+        }
+    }
+}
+
+assembleRelease {
+    dependsOn artifactoryPublish
 }
