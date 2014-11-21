@@ -6,3 +6,5 @@ bin
 build
 local.properties
 gen
+.idea/
+*.iml

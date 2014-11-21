@@ -1,14 +1,14 @@
 package com.flipkart.fk_android_batchnetworking;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.google.mygson.Gson;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 
 public class JSONDataHandler extends GroupDataHandler {
 
