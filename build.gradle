@@ -3,16 +3,19 @@ buildscript {
         mavenCentral()
         jcenter()
         maven { url 'http://repo1.maven.org/maven2' }
+        maven { url 'http://artifactory.nm.flipkart.com:8081/artifactory/libs-release-local' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:0.14.0'
         classpath 'com.github.dcendents:android-maven-plugin:1.+'
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
+        classpath 'com.flipkart.android.fkvolley:library:1.0.+'
     }
 }
 
 repositories {
     mavenCentral()
+    maven { url 'http://artifactory.nm.flipkart.com:8081/artifactory/libs-release-local' }
 }
 
 group = ARTIFACTORY_GROUP
@@ -25,7 +28,7 @@ apply plugin: 'android-maven'
 
 dependencies {
     compile 'com.google.code.gson:gson:2.3'
-    compile 'com.mcxiaoke.volley:library:1.+'
+    compile 'com.flipkart.android.fkvolley:library:1.0.+'
 }
 
 android {
@@ -110,7 +113,7 @@ artifactory {
     contextUrl = ARTIFACTORY_REPO_URL
     publish {
         repository {
-            repoKey = RELEASE_REPO_KEY //The Artifactory repository key to publish to
+            repoKey = REPO_KEY //The Artifactory repository key to publish to
             //username = artifactory_user //The publisher user name, property taken from gradle.properties
             //password = artifactory_password //The publisher password, property taken from gradle.properties
         }
@@ -123,7 +126,7 @@ artifactory {
     }
     resolve {
         repository {
-            repoKey = RELEASE_REPO_KEY //The Artifactory (preferably virtual) repository key to resolve from
+            repoKey = REPO_KEY //The Artifactory (preferably virtual) repository key to resolve from
             //username = artifactory_user //Optional resolver user name (leave out to use anonymous resolution), property taken from gradle.properties
             //password = artifactory_password //The resolver password, property taken from gradle.properties
         }
