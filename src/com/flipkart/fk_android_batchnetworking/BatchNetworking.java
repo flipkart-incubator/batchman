@@ -2,8 +2,8 @@ package com.flipkart.fk_android_batchnetworking;
 
 import android.content.Context;
 
-import com.flipkart.fkvolley.RequestQueue;
-import com.flipkart.fkvolley.toolbox.Volley;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 
 public class BatchNetworking {
 	private static final String TAG = "BatchNetworking";
@@ -47,7 +47,7 @@ public class BatchNetworking {
 				throw new Exception("initialize method not called");
 			}
 			dbInstance = new DBManager(getApplicationContext());
-			
+
 			// load unsynced data
 			dbInstance.loadCachedDataInBatchNetworkingInstance(this);
 		}

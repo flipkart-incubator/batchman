@@ -1,14 +1,12 @@
 package com.flipkart.fk_android_batchnetworking;
 
-import com.google.gson.Gson;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class JSONDataHandler extends GroupDataHandler {
 	
@@ -88,6 +86,7 @@ public class JSONDataHandler extends GroupDataHandler {
 	public Object deSerializeIndividualData(byte[] data) throws Exception {
 		String strdata = new String(data, PROTOCOL_CHARSET);
 		char type = strdata.charAt(0);
+		strdata = strdata.substring(1);	
 		if (type == 'O') {
 			return new JSONObject(strdata);
 		} else if (type == 'A') {

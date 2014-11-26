@@ -29,7 +29,7 @@ class DBManager {
 		openHelper = new OpenHelper(context);
 		String strInsert = "insert into " + CACHE_TABLE + " ("
 				+ COL_NAME_EVENTID + ", " + COL_NAME_GROUPID + ", "
-				+ COL_NAME_GROUPID + ", " + COL_NAME_EXPIRY
+				+ COL_NAME_DATA + ", " + COL_NAME_EXPIRY
 				+ ") values (?, ?, ?, ?)";
 		insertStmt = openHelper.getDatabase().compileStatement(strInsert);
 	}
