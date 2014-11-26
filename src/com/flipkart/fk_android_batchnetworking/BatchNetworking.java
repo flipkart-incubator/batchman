@@ -1,10 +1,9 @@
 package com.flipkart.fk_android_batchnetworking;
 
 import android.content.Context;
-import android.util.Log;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
+import com.flipkart.fkvolley.RequestQueue;
+import com.flipkart.fkvolley.toolbox.Volley;
 
 public class BatchNetworking {
 	private static final String TAG = "BatchNetworking";
