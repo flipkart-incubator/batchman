@@ -132,7 +132,3 @@ artifactory {
         }
     }
 }
-
-assembleRelease {
-    dependsOn artifactoryPublish
-}
