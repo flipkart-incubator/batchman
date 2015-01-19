@@ -1,14 +1,14 @@
 package com.flipkart.fk_android_batchnetworking;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.toolbox.StringRequest;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class GroupDataHandler {
 
@@ -25,7 +25,6 @@ public abstract class GroupDataHandler {
 
 	private int maxBatchSize;
 	private int elementCountToDeleteOnBatchFull;
-	private HashMap<String, String> httpHeaders;
 
 	public GroupDataHandler(String groupId, String url) {
 		this.groupId = groupId;
@@ -34,7 +33,7 @@ public abstract class GroupDataHandler {
 		this.priority = PRIORITY_BATCH_DEFAULT;
 		this.maxBatchSize = 50;
 		elementCountToDeleteOnBatchFull = 5;
-	}
+ 	}
 
 	public GroupDataHandler(String groupId, String url, GroupSyncPolicy policy,
 			int priority) {
@@ -47,7 +46,7 @@ public abstract class GroupDataHandler {
 		this.priority = priority;
 		this.maxBatchSize = 50;
 		elementCountToDeleteOnBatchFull = 5;
-	}
+  	}
 
 	protected void syncBatch(final ArrayList<Data> currentDataForSyncing,
 			Response.Listener<String> listener,
@@ -68,8 +67,9 @@ public abstract class GroupDataHandler {
 
 			@Override
 			public Map<String, String> getHeaders() throws AuthFailureError {
-				if (httpHeaders != null && httpHeaders.size() > 0) {
-                    return httpHeaders;
+				Map<String,String> httpHeader = getCustomHttpHeaders();
+                if (httpHeader != null && httpHeader.size() > 0) {
+                    return httpHeader;
                 } else
                     return super.getHeaders();
 			}
@@ -144,42 +144,6 @@ public abstract class GroupDataHandler {
 	public abstract Object deSerializeIndividualData(byte[] data)
 			throws Exception;
 
-	/**
-	 * Get custom User-Agent, if set.
-	 * 
-	 * @deprecated Deprecated since 1.2.0 use {@link #getCustomHttpHeaders()}
-	 *             instead.
-	 */
-	public String getUserAgent() {
-		if (httpHeaders != null) {
-			return httpHeaders.get("User-Agent");
-		}
-		return null;
-	}
+    protected abstract HashMap<String, String> getCustomHttpHeaders() ;
 
-	/**
-	 * @deprecated Deprecated since 1.2.0 Use
-	 *             {@link #setCustomHttpHeaders(java.util.HashMap)} instead.
-	 */
-	public void setUserAgent(String userAgent) {
-		if (httpHeaders == null && userAgent == null)
-			return;
-
-		if (httpHeaders == null)
-			httpHeaders = new HashMap<String, String>();
-		if (userAgent == null)
-			httpHeaders.remove("User-Agent");
-		else
-			httpHeaders.put("User-Agent", userAgent);
-	}
-
-	public HashMap<String, String> getCustomHttpHeaders() {
-		if (httpHeaders == null)
-			httpHeaders = new HashMap<String, String>();
-		return httpHeaders;
-	}
-
-	public void setCustomHttpHeaders(HashMap<String, String> httpHeaders) {
-		this.httpHeaders = httpHeaders;
-	}
 }
