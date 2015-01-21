@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 
 public class JSONDataHandler extends GroupDataHandler {
 	
@@ -17,13 +18,15 @@ public class JSONDataHandler extends GroupDataHandler {
 	private static final String PROTOCOL_CONTENT_TYPE = String.format(
 			"application/json; charset=%s", PROTOCOL_CHARSET);
 
+    private HashMap<String, String> httpHeaders;
+
 	public JSONDataHandler(String groupId, String url,boolean isCompressData) {
 		super(groupId, url,isCompressData);
 	}
 
 	public JSONDataHandler(String groupId, String url, GroupSyncPolicy policy,
-			int priority) {
-		super(groupId, url, policy, priority);
+			int priority , boolean isCompressData) {
+		super(groupId, url, policy, priority , isCompressData);
 	}
 
 	@Override
@@ -95,4 +98,11 @@ public class JSONDataHandler extends GroupDataHandler {
 		}
 		return strdata;
 	}
+
+    public HashMap<String,String> getCustomHttpHeaders() {
+        if(httpHeaders == null) {
+            httpHeaders = new HashMap<String,String>();
+        }
+        return httpHeaders;
+    }
 }
