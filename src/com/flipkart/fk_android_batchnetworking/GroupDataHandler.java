@@ -50,12 +50,8 @@ public abstract class GroupDataHandler {
 		if (null == syncPolicy) {
 			this.syncPolicy = new GroupSyncPolicy();
 		}
-        if(priority != -1) {
-            this.priority = priority;
-        } else {
-            this.priority = PRIORITY_BATCH_DEFAULT;
-        }
-		this.maxBatchSize = 50;
+        this.priority = priority;
+       	this.maxBatchSize = 50;
 		elementCountToDeleteOnBatchFull = 5;
   	}
 
