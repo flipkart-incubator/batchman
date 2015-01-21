@@ -29,7 +29,6 @@ public abstract class GroupDataHandler {
 	private int maxBatchSize;
 	private int elementCountToDeleteOnBatchFull;
     private boolean isCompressData = false;
-    private HashMap<String, String> httpHeaders;
 
 	public GroupDataHandler(String groupId, String url , boolean isCompressData) {
 		this.groupId = groupId;
@@ -86,14 +85,15 @@ public abstract class GroupDataHandler {
 
 			@Override
 			public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> header = getCustomHttpHeaders();
                 if(isCompressData) {
-                    if (httpHeaders == null) {
-                        httpHeaders = new HashMap<String, String>();
+                    if(header == null) {
+                        header = new HashMap<String,String>();
                     }
-                    httpHeaders.put("Content-Encoding","gzip");
+                    header.put("Content-Encoding","gzip");
                 }
-			    if (httpHeaders != null && httpHeaders.size() > 0) {
-                    return httpHeaders;
+                if (header != null && header.size() > 0) {
+                    return header;
                 } else
                     return super.getHeaders();
 			}
@@ -161,6 +161,8 @@ public abstract class GroupDataHandler {
 
 	protected abstract byte[] getPackedDataForNetworkPush(
 			ArrayList<Data> currentDataForSyncing);
+
+    protected abstract HashMap<String,String> getCustomHttpHeaders();
 
 	public abstract byte[] serializeIndividualData(Object data)
 			throws Exception;
