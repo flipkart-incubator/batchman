@@ -22,8 +22,8 @@ public class JSONDataHandler extends GroupDataHandler {
 	}
 
 	public JSONDataHandler(String groupId, String url, GroupSyncPolicy policy,
-			int priority) {
-		super(groupId, url, policy, priority);
+			int priority , boolean isCompressData) {
+		super(groupId, url, policy, priority , isCompressData);
 	}
 
 	@Override

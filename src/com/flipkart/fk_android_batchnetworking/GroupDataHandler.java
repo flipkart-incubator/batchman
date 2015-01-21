@@ -35,21 +35,26 @@ public abstract class GroupDataHandler {
 		this.groupId = groupId;
 		this.url = url;
         this.isCompressData = isCompressData;
-		this.syncPolicy = new DefaultSyncPolicy();
+		this.syncPolicy = new GroupSyncPolicy();
 		this.priority = PRIORITY_BATCH_DEFAULT;
 		this.maxBatchSize = 50;
 		elementCountToDeleteOnBatchFull = 5;
  	}
 
 	public GroupDataHandler(String groupId, String url, GroupSyncPolicy policy,
-			int priority) {
+			int priority,boolean isCompressData) {
 		this.groupId = groupId;
 		this.url = url;
 		this.syncPolicy = policy;
+        this.isCompressData = isCompressData;
 		if (null == syncPolicy) {
-			this.syncPolicy = new DefaultSyncPolicy();
+			this.syncPolicy = new GroupSyncPolicy();
 		}
-		this.priority = priority;
+        if(priority != -1) {
+            this.priority = priority;
+        } else {
+            this.priority = PRIORITY_BATCH_DEFAULT;
+        }
 		this.maxBatchSize = 50;
 		elementCountToDeleteOnBatchFull = 5;
   	}

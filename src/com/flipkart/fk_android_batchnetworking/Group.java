@@ -1,7 +1,5 @@
 package com.flipkart.fk_android_batchnetworking;
 
-import java.util.ArrayList;
-
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -10,6 +8,8 @@ import android.util.Log;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.flipkart.fk_android_batchnetworking.Data.DataCacheState;
+
+import java.util.ArrayList;
 
 public class Group {
 	private static final String TAG = "Group";
@@ -96,7 +96,7 @@ public class Group {
 	}
 
 	public synchronized boolean handleSyncPoke() {
-		if (batchDataHandler.getSyncPolicy().elegibleForSyncing(this)) {
+		if (batchDataHandler.getSyncPolicy().eligibleForSyncing(this)) {
 			_syncState = QUEUED_FOR_SYNCING;
 			groupHandler.post(new Runnable() {
 				@Override
@@ -113,7 +113,7 @@ public class Group {
 
 		// get a batch for syncing
 		int numOfElementsToSync = batchDataHandler.getSyncPolicy()
-				.syncBatchSize();
+				.getSyncBatchSize();
 		if (numOfElementsToSync > groupData.size()) {
 			numOfElementsToSync = groupData.size();
 		}
@@ -213,7 +213,7 @@ public class Group {
 					}
 
 					// if eligible for syncing, let people know
-					if (batchDataHandler.getSyncPolicy().elegibleForSyncing(
+					if (batchDataHandler.getSyncPolicy().eligibleForSyncing(
 							group)) {
 						BatchNetworking
 								.getDefaultInstance()
@@ -228,7 +228,7 @@ public class Group {
 			});
 		} else {
 			// if eligible for syncing, let people know
-			if (batchDataHandler.getSyncPolicy().elegibleForSyncing(this)) {
+			if (batchDataHandler.getSyncPolicy().eligibleForSyncing(this)) {
 				BatchNetworking
 						.getDefaultInstance()
 						.getGroupPriorityQueue()
