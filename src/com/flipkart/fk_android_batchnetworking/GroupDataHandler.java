@@ -6,9 +6,12 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.toolbox.StringRequest;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.GZIPOutputStream;
 
 public abstract class GroupDataHandler {
 
@@ -25,10 +28,13 @@ public abstract class GroupDataHandler {
 
 	private int maxBatchSize;
 	private int elementCountToDeleteOnBatchFull;
+    private boolean isCompressData = false;
+    private HashMap<String, String> httpHeaders;
 
-	public GroupDataHandler(String groupId, String url) {
+	public GroupDataHandler(String groupId, String url , boolean isCompressData) {
 		this.groupId = groupId;
 		this.url = url;
+        this.isCompressData = isCompressData;
 		this.syncPolicy = new DefaultSyncPolicy();
 		this.priority = PRIORITY_BATCH_DEFAULT;
 		this.maxBatchSize = 50;
@@ -55,7 +61,19 @@ public abstract class GroupDataHandler {
 				getUrl(), listener, errorListener) {
 			@Override
 			public byte[] getBody() throws AuthFailureError {
-				return getPackedDataForNetworkPush(currentDataForSyncing);
+                byte[] body = getPackedDataForNetworkPush(currentDataForSyncing);
+                if(body != null && isCompressData) {
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    try{
+                        GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream);
+                        gzipOutputStream.write(body);
+                        gzipOutputStream.close();
+                        return byteArrayOutputStream.toByteArray();
+                    } catch(IOException e){
+                        throw new RuntimeException(e);
+                    }
+                }
+				return body;
 			}
 
 			@Override
@@ -67,9 +85,14 @@ public abstract class GroupDataHandler {
 
 			@Override
 			public Map<String, String> getHeaders() throws AuthFailureError {
-				Map<String,String> httpHeader = getCustomHttpHeaders();
-                if (httpHeader != null && httpHeader.size() > 0) {
-                    return httpHeader;
+                if(isCompressData) {
+                    if (httpHeaders == null) {
+                        httpHeaders = new HashMap<String, String>();
+                    }
+                    httpHeaders.put("Content-Encoding","gzip");
+                }
+			    if (httpHeaders != null && httpHeaders.size() > 0) {
+                    return httpHeaders;
                 } else
                     return super.getHeaders();
 			}
@@ -143,7 +166,5 @@ public abstract class GroupDataHandler {
 
 	public abstract Object deSerializeIndividualData(byte[] data)
 			throws Exception;
-
-    protected abstract HashMap<String, String> getCustomHttpHeaders() ;
 
 }
