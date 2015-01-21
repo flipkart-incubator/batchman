@@ -3,14 +3,10 @@ package com.flipkart.fk_android_batchnetworking;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.zip.GZIPOutputStream;
 
 public class JSONDataHandler extends GroupDataHandler {
 	
@@ -21,8 +17,8 @@ public class JSONDataHandler extends GroupDataHandler {
 	private static final String PROTOCOL_CONTENT_TYPE = String.format(
 			"application/json; charset=%s", PROTOCOL_CHARSET);
 
-	public JSONDataHandler(String groupId, String url) {
-		super(groupId, url);
+	public JSONDataHandler(String groupId, String url,boolean isCompressData) {
+		super(groupId, url,isCompressData);
 	}
 
 	public JSONDataHandler(String groupId, String url, GroupSyncPolicy policy,
@@ -47,15 +43,6 @@ public class JSONDataHandler extends GroupDataHandler {
 
 			body = jsonAray.toString().getBytes("UTF-8");
 
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            try{
-                GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream);
-                gzipOutputStream.write(body);
-                gzipOutputStream.close();
-                body = byteArrayOutputStream.toByteArray();
-            } catch(IOException e){
-                throw new RuntimeException(e);
-            }
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -108,13 +95,4 @@ public class JSONDataHandler extends GroupDataHandler {
 		}
 		return strdata;
 	}
-    @Override
-    public HashMap<String, String> getCustomHttpHeaders() {
-        HashMap<String, String> httpHeaders = null;
-        if (httpHeaders == null) {
-            httpHeaders = new HashMap<String, String>();
-        }
-        httpHeaders.put("Content-Encoding","gzip");
-        return httpHeaders;
-    }
 }
