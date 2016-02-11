@@ -58,6 +58,7 @@ public class SizeBatchingStrategy extends BaseBatchingStrategy {
      *
      * @return boolean type batch ready state
      */
+    protected boolean isBatchReady() {
         return currentBatchSize >= maxBatchSize;
     }
 }
