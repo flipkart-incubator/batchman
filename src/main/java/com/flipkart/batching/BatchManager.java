@@ -35,7 +35,6 @@ public class BatchManager implements BatchController {
         }
 
         initialize(this, context, onBatchReadyListener, handler);
-
     }
 
     @Override
