@@ -19,16 +19,32 @@ public class TagBasedPersistenceStrategy implements PersistenceStrategy {
         if (tag == null) {
             throw new IllegalArgumentException("Tag cannot be null");
         }
+        if (persistenceStrategy == null) {
+            throw new IllegalArgumentException("PersistenceStrategy cannot be null");
+        }
     }
 
     @Override
-    public void add(Collection<Data> data) {
-        persistenceStrategy.add(data);
+    public void add(Collection<Data> allData) {
+        filterByTag(allData);
+        persistenceStrategy.add(allData);
     }
+
 
     @Override
     public Collection<Data> getData() {
         Collection<Data> allData = persistenceStrategy.getData();
+        filterByTag(allData);
+        return allData;
+    }
+
+    @Override
+    public void removeData(Collection<Data> allData) {
+        filterByTag(allData);
+        persistenceStrategy.removeData(allData);
+    }
+
+    private void filterByTag(Collection<Data> allData) {
         Iterator<Data> iterator = allData.iterator();
         while (iterator.hasNext()) {
             Data data = iterator.next();
@@ -36,11 +52,5 @@ public class TagBasedPersistenceStrategy implements PersistenceStrategy {
                 iterator.remove();
             }
         }
-        return allData;
-    }
-
-    @Override
-    public void removeData(Collection<Data> dataArrayList) {
-        persistenceStrategy.removeData(dataArrayList);
     }
 }
