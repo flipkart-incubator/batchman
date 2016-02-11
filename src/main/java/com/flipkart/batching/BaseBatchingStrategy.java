@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.data.Data;
+import com.flipkart.exception.PersistenceNullException;
 import com.flipkart.persistence.PersistenceStrategy;
 
 import java.util.Collection;
@@ -15,8 +16,12 @@ public abstract class BaseBatchingStrategy implements BatchingStrategy {
     private BatchController batchController;
     private Context context;
 
-    public BaseBatchingStrategy(PersistenceStrategy persistenceStrategy) {
-        this.persistenceStrategy = persistenceStrategy;
+    public BaseBatchingStrategy(PersistenceStrategy persistenceStrategy) throws PersistenceNullException {
+        if (persistenceStrategy != null) {
+            this.persistenceStrategy = persistenceStrategy;
+        } else {
+            throw new PersistenceNullException("Persistence Strategy cannot be null.");
+        }
     }
 
     public Context getContext() {

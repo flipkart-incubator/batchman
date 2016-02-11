@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.data.Data;
+import com.flipkart.exception.IllegalArgumentException;
+import com.flipkart.exception.PersistenceNullException;
 import com.flipkart.persistence.PersistenceStrategy;
 
 import org.junit.Before;
@@ -23,36 +25,44 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by kushal.sharma on 09/02/16.
- */
 public class SizeBatchingTest {
 
     @Mock
     private PersistenceStrategy persistenceStrategy;
     @Mock
-    Data eventData;
+    private Data eventData;
     @Mock
-    Context context;
+    private Context context;
     @Mock
-    BatchController controller;
+    private BatchController controller;
     @Mock
-    OnBatchReadyListener onBatchReadyListener;
+    private OnBatchReadyListener onBatchReadyListener;
     @Mock
-    Handler handler;
+    private Handler handler;
+    @Mock
+    private IllegalArgumentException illegalArgumentException;
+    @Mock
+    private PersistenceNullException persistenceNullException;
 
     private SizeBatchingStrategy sizeBatchingStrategy;
+
     protected int BATCH_SIZE = 5;
 
+    /**
+     * Setting up the test environment.
+     *
+     * @throws PersistenceNullException
+     * @throws IllegalArgumentException
+     */
     @Before
-    public void setUp() {
+    public void setUp() throws PersistenceNullException, IllegalArgumentException {
         MockitoAnnotations.initMocks(this);
         sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
         sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
     }
 
     /**
-     * This test is to check the working of {@link SizeBatchingStrategy#onDataPushed(Collection)} )
+     * This test is to ensure the working of {@link SizeBatchingStrategy#onDataPushed(Collection)} )
      */
     @Test
     public void testOnDataPushed() {
@@ -61,7 +71,7 @@ public class SizeBatchingTest {
     }
 
     /**
-     * This test is to check the working of {@link SizeBatchingStrategy#flush(boolean)}
+     * This test is to ensure the working of {@link SizeBatchingStrategy#flush(boolean)}
      * Whenever this method is invoked, {@link com.flipkart.persistence.PersistenceStrategy#removeData(Collection)} should be called
      */
     @Test
@@ -144,7 +154,7 @@ public class SizeBatchingTest {
 
     /**
      * This test is to check the {@link OnBatchReadyListener#onReady(Collection)} callback.
-     * This test matches the data on the onReadyCallback.
+     * This test ensures the integrity of the data.
      */
     @Test
     public void testOnReadyCallbackData() {
@@ -189,11 +199,38 @@ public class SizeBatchingTest {
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
-
         //verify that onReady is NOT called since the data list is empty.
         verify(onBatchReadyListener, times(0)).onReady(data);
     }
 
+    /**
+     * This test is to throw an exception whenever the batch size is less than or equal to 0.
+     *
+     * @throws IllegalArgumentException
+     * @throws PersistenceNullException
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testIfBatchSizeIsZero() throws IllegalArgumentException, PersistenceNullException {
+        sizeBatchingStrategy = new SizeBatchingStrategy(0, persistenceStrategy);
+    }
+
+    /**
+     * This test is to throw an exception whenever the persistence strategy is null.
+     *
+     * @throws IllegalArgumentException
+     * @throws PersistenceNullException
+     */
+    @Test(expected = PersistenceNullException.class)
+    public void testIfPersistenceNull() throws IllegalArgumentException, PersistenceNullException {
+        sizeBatchingStrategy = new SizeBatchingStrategy(5, null);
+    }
+
+    /**
+     * Method to create fake array list of Data.
+     *
+     * @param size
+     * @return
+     */
     protected ArrayList<Data> fakeCollection(int size) {
         ArrayList<Data> datas = new ArrayList<>();
         for (int i = 0; i < size; i++) {
@@ -201,6 +238,4 @@ public class SizeBatchingTest {
         }
         return datas;
     }
-
-
 }
