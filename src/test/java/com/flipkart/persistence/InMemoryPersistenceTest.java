@@ -47,7 +47,7 @@ public class InMemoryPersistenceTest {
         data.add(eventData4);
         persistenceStrategy.add(data);
 
-        Assert.assertEquals(persistenceStrategy.getData().size(), data.size());
+        Assert.assertEquals(persistenceStrategy.getData(), data);
     }
 
     /**

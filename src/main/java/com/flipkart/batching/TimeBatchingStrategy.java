@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.data.Data;
-import com.flipkart.exception.PersistenceNullException;
 import com.flipkart.persistence.PersistenceStrategy;
 
 import java.util.Collection;
@@ -17,9 +16,13 @@ public class TimeBatchingStrategy extends BaseBatchingStrategy {
     private long timeOut;
     private Handler handler;
 
-    public TimeBatchingStrategy(long time, PersistenceStrategy persistenceStrategy) throws PersistenceNullException {
+    public TimeBatchingStrategy(long time, PersistenceStrategy persistenceStrategy) {
         super(persistenceStrategy);
-        timeOut = time;
+        if (time <= 0) {
+            throw new IllegalArgumentException("TIME OUT duration should be greater than 0");
+        } else {
+            timeOut = time;
+        }
     }
 
     @Override

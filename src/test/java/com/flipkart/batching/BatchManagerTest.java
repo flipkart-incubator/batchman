@@ -10,6 +10,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 /**
  * Created by anirudh.r on 12/02/16.
  */
@@ -44,5 +48,11 @@ public class BatchManagerTest {
     @Test
     public void testAddtoBatch() {
         batchController.addToBatch(eventData);
+        batchController.addToBatch(eventData);
+        batchController.addToBatch(eventData);
+        batchController.addToBatch(eventData);
+        batchController.addToBatch(eventData);
+
+        verify(onBatchReadyListener,times(1)).onReady(anyCollection());
     }
 }

@@ -3,9 +3,8 @@ package com.flipkart.batching;
 import android.content.Context;
 import android.os.Handler;
 
+import com.flipkart.Utils;
 import com.flipkart.data.Data;
-import com.flipkart.exception.IllegalArgumentException;
-import com.flipkart.exception.PersistenceNullException;
 import com.flipkart.persistence.PersistenceStrategy;
 
 import org.junit.Before;
@@ -18,7 +17,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -39,26 +37,15 @@ public class SizeBatchingTest {
     private OnBatchReadyListener onBatchReadyListener;
     @Mock
     private Handler handler;
-    @Mock
-    private IllegalArgumentException illegalArgumentException;
-    @Mock
-    private PersistenceNullException persistenceNullException;
 
-    private SizeBatchingStrategy sizeBatchingStrategy;
-
-    protected int BATCH_SIZE = 5;
+    private int BATCH_SIZE = 5;
 
     /**
      * Setting up the test environment.
-     *
-     * @throws PersistenceNullException
-     * @throws IllegalArgumentException
      */
     @Before
-    public void setUp() throws PersistenceNullException, IllegalArgumentException {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
-        sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
-        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
     }
 
     /**
@@ -66,8 +53,11 @@ public class SizeBatchingTest {
      */
     @Test
     public void testOnDataPushed() {
-        sizeBatchingStrategy.onDataPushed(Collections.singleton(eventData));
-        verify(persistenceStrategy, times(1)).add(anyCollection());
+        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        ArrayList<Data> fakeCollection = Utils.fakeCollection(1);
+        sizeBatchingStrategy.onDataPushed(fakeCollection);
+        verify(persistenceStrategy, times(1)).add(eq(fakeCollection));
     }
 
     /**
@@ -76,8 +66,13 @@ public class SizeBatchingTest {
      */
     @Test
     public void testFlush() {
+        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        ArrayList<Data> fakeCollection = Utils.fakeCollection(1);
+        sizeBatchingStrategy.onDataPushed(fakeCollection);
+        when(persistenceStrategy.getData()).thenReturn(fakeCollection);
         sizeBatchingStrategy.flush(true);
-        verify(persistenceStrategy, times(1)).removeData(anyCollection());
+        verify(persistenceStrategy, times(1)).removeData(eq(fakeCollection));
     }
 
     /**
@@ -86,42 +81,47 @@ public class SizeBatchingTest {
      */
     @Test
     public void testOnReadyCallbackFlushFalse() {
+        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
 
         //pushed 1 data, onReady should NOT get called.
-        reset(onBatchReadyListener);
-        ArrayList<Data> data = fakeCollection(1);
+        ArrayList<Data> data = Utils.fakeCollection(1);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
         verify(onBatchReadyListener, times(0)).onReady(data);
 
         //pushed 2 data, onReady should NOT get called.
-        reset(onBatchReadyListener);
-        data = fakeCollection(2);
+        sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        data = Utils.fakeCollection(2);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
         verify(onBatchReadyListener, times(0)).onReady(data);
 
         //pushed 3 data, onReady should NOT get called.
-        reset(onBatchReadyListener);
-        data = fakeCollection(3);
+        sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        data = Utils.fakeCollection(3);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
         verify(onBatchReadyListener, times(0)).onReady(data);
 
         //pushed 4 data, onReady should NOT get called.
-        reset(onBatchReadyListener);
-        data = fakeCollection(4);
+        sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        data = Utils.fakeCollection(4);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
         verify(onBatchReadyListener, times(0)).onReady(data);
 
         //pushed 5 data, onReady should GET called.
-        reset(onBatchReadyListener);
-        data = fakeCollection(5);
+        sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        data = Utils.fakeCollection(5);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
@@ -135,21 +135,23 @@ public class SizeBatchingTest {
     @Test
     public void testOnReadyCallbackFlushTrue() {
 
+        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
         //pushed 1 data, onReady should be called with flush true
-        reset(onBatchReadyListener);
-        ArrayList<Data> data = fakeCollection(1);
+        ArrayList<Data> data = Utils.fakeCollection(1);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(true);
-        verify(onBatchReadyListener, times(1)).onReady(data);
+        verify(onBatchReadyListener, times(1)).onReady(eq(data));
 
         //pushed 2 data, onReady should be called with flush true
-        reset(onBatchReadyListener);
-        data = fakeCollection(2);
+        sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        data = Utils.fakeCollection(2);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(true);
-        verify(onBatchReadyListener, times(1)).onReady(data);
+        verify(onBatchReadyListener, times(1)).onReady(eq(data));
     }
 
     /**
@@ -158,14 +160,15 @@ public class SizeBatchingTest {
      */
     @Test
     public void testOnReadyCallbackData() {
+        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
 
-        reset(onBatchReadyListener);
-        ArrayList<Data> data = fakeCollection(BATCH_SIZE - 1);
+        ArrayList<Data> data = Utils.fakeCollection(BATCH_SIZE - 1);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
         //verify that onReady DID NOT get called since we have pushed less than batch size events.
-        verify(onBatchReadyListener, times(0)).onReady(data);
+        verify(onBatchReadyListener, times(0)).onReady(eq(data));
         List<Data> singleData = Collections.singletonList(eventData);
         data.addAll(singleData);
 
@@ -193,8 +196,8 @@ public class SizeBatchingTest {
      */
     @Test
     public void testOnReadyForEmptyData() {
-
-        reset(onBatchReadyListener);
+        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
         ArrayList<Data> data = new ArrayList<>();
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
@@ -204,38 +207,26 @@ public class SizeBatchingTest {
     }
 
     /**
-     * This test is to throw an exception whenever the batch size is less than or equal to 0.
-     *
-     * @throws IllegalArgumentException
-     * @throws PersistenceNullException
+     * This test is to check if it throws an exception whenever the batch size is 0.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testIfBatchSizeIsZero() throws IllegalArgumentException, PersistenceNullException {
-        sizeBatchingStrategy = new SizeBatchingStrategy(0, persistenceStrategy);
+    public void testIfBatchSizeIsZero() {
+        new SizeBatchingStrategy(0, persistenceStrategy);
+    }
+
+    /**
+     * This test is to check if it throws an exception whenever the batch size is less than 0.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testIfBatchSizeNegative() {
+        new SizeBatchingStrategy(-4, persistenceStrategy);
     }
 
     /**
      * This test is to throw an exception whenever the persistence strategy is null.
-     *
-     * @throws IllegalArgumentException
-     * @throws PersistenceNullException
      */
-    @Test(expected = PersistenceNullException.class)
-    public void testIfPersistenceNull() throws IllegalArgumentException, PersistenceNullException {
-        sizeBatchingStrategy = new SizeBatchingStrategy(5, null);
-    }
-
-    /**
-     * Method to create fake array list of Data.
-     *
-     * @param size
-     * @return
-     */
-    protected ArrayList<Data> fakeCollection(int size) {
-        ArrayList<Data> datas = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            datas.add(eventData);
-        }
-        return datas;
+    @Test(expected = IllegalArgumentException.class)
+    public void testIfPersistenceNull() {
+        new SizeBatchingStrategy(5, null);
     }
 }

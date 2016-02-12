@@ -2,7 +2,10 @@ package com.flipkart.persistence;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 
+import com.flipkart.batching.BuildConfig;
 import com.flipkart.data.Data;
 import com.flipkart.data.EventData;
 import com.flipkart.data.Tag;
@@ -11,7 +14,13 @@ import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.Shadows;
+import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLooper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,24 +28,26 @@ import java.util.Collection;
 /**
  * Created by anirudh.r on 11/02/16.
  */
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class)
 public class SQLPersistenceTest {
 
     private PersistenceStrategy persistenceStrategy;
 
     @Mock
     private Data eventData;
-    @Mock
-    private SerializationStrategy serializationStrategy;
-    @Mock
-    private Context context;
-    @Mock
-    private Handler handler;
+
     @Mock
     private DatabaseHelper databaseHelper;
+    private ShadowLooper shadowLooper;
 
     @Before
     public void setUp() {
-        persistenceStrategy = new SQLPersistenceStrategy(serializationStrategy, context, handler);
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        shadowLooper = Shadows.shadowOf(looper);
+
     }
 
     /**
@@ -44,6 +55,14 @@ public class SQLPersistenceTest {
      */
     @Test
     public void testIfDataInMemory() {
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        shadowLooper = Shadows.shadowOf(looper);
+        Handler handler = new Handler(looper);
+        Context context = RuntimeEnvironment.application;
+        persistenceStrategy = new SQLPersistenceStrategy(new GsonSerializationStrategy(), context, handler);
+
         Data eventData = new EventData(new Tag("1"), "e1");
         Data eventData1 = new EventData(new Tag("2"), "e2");
         Data eventData2 = new EventData(new Tag("3"), "e3");
@@ -57,7 +76,9 @@ public class SQLPersistenceTest {
         data.add(eventData3);
         data.add(eventData4);
         persistenceStrategy.add(data);
-
-        Assert.assertEquals(persistenceStrategy.getData().size(), data.size());
+        shadowLooper.runToEndOfTasks();
+        persistenceStrategy = new SQLPersistenceStrategy(new GsonSerializationStrategy(), context, handler);
+        shadowLooper.runToEndOfTasks();
+        Assert.assertEquals(data.size(),persistenceStrategy.getData().size());
     }
 }
