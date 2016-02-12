@@ -3,12 +3,15 @@ package com.flipkart.batching;
 import android.content.Context;
 import android.os.Handler;
 
+import com.flipkart.Utils;
 import com.flipkart.data.Data;
 import com.flipkart.persistence.SerializationStrategy;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import java.util.ArrayList;
 
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Mockito.times;
@@ -47,12 +50,8 @@ public class BatchManagerTest {
 
     @Test
     public void testAddtoBatch() {
-        batchController.addToBatch(eventData);
-        batchController.addToBatch(eventData);
-        batchController.addToBatch(eventData);
-        batchController.addToBatch(eventData);
-        batchController.addToBatch(eventData);
-
+        ArrayList<Data> fakeCollection = Utils.fakeCollection(5);
+        batchController.addToBatch(fakeCollection);
         verify(onBatchReadyListener,times(1)).onReady(anyCollection());
     }
 }
