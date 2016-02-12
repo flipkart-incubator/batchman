@@ -7,8 +7,12 @@ import com.flipkart.exception.SerializeException;
 import com.google.gson.Gson;
 
 /**
- * Created by anirudh.r on 02/02/16.
+ * Implementation of {@link SerializationStrategy}.
+ *
+ * @see SerializationStrategy
+ * @see ByteArraySerializationStrategy
  */
+
 public class GsonSerializationStrategy implements SerializationStrategy {
 
     @Override

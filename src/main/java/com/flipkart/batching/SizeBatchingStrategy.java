@@ -9,8 +9,11 @@ import com.flipkart.persistence.PersistenceStrategy;
 import java.util.Collection;
 
 /**
- * Created by kushal.sharma on 07/02/16.
- * SizeBatchingStrategy
+ * SizeBatchingStrategy extends abstract class {@link BaseBatchingStrategy} which is an
+ * implementation of {@link BatchingStrategy}. This class takes maxBatchSize and persistenceStrategy
+ * as parameters in constructor. This strategy persist data according to the provided
+ * {@link PersistenceStrategy} and calls {@link #onReadyListener} when the batch reaches the
+ * maxBatchSize limit.
  */
 
 public class SizeBatchingStrategy extends BaseBatchingStrategy {
@@ -44,11 +47,17 @@ public class SizeBatchingStrategy extends BaseBatchingStrategy {
     }
 
     @Override
-    public void onInitialized(BatchController controller, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler) {
+    public void onInitialized(BatchController controller, Context context,
+                              OnBatchReadyListener onBatchReadyListener, Handler handler) {
         super.onInitialized(controller, context, onBatchReadyListener, handler);
     }
 
     protected boolean isBatchReady() {
+    /**
+     * Returns true if currentBatch reaches the defined maxBatchSize.
+     *
+     * @return boolean type batch ready state
+     */
         return currentBatchSize >= maxBatchSize;
     }
 }

@@ -10,12 +10,14 @@ import com.flipkart.exception.SerializeException;
 import java.util.Collection;
 
 /**
- * Created by anirudh.r on 27/01/16.
- * SQL Persistence Strategy
+ * SQLPersistenceStrategy extends {@link InMemoryPersistenceStrategy} which is an implementation
+ * of {@link PersistenceStrategy}. This persistence strategy persists the data in SQL Database and
+ * sync the data on initialization of this strategy using the {@link #syncData()} method. Constructor
+ * and all the overridden methods must call super method, to initialize and perform operations on
+ * InMemory data list.
  */
 
 public class SQLPersistenceStrategy extends InMemoryPersistenceStrategy {
-
     private final Handler handler;
     private DatabaseHelper databaseHelper;
 
@@ -26,30 +28,27 @@ public class SQLPersistenceStrategy extends InMemoryPersistenceStrategy {
         syncData();
     }
 
-    /**
-     * This method adds the data event to the database and arraylist
-     *
-     * @param data
-     */
     @Override
-    public void add(final Collection<Data> data) {
-        super.add(data);
+    public void add(final Collection<Data> dataCollection) {
+        super.add(dataCollection);
         handler.post(new Runnable() {
             @Override
             public void run() {
                 try {
-                    databaseHelper.addData(data);
+                    databaseHelper.addData(dataCollection);
                 } catch (SerializeException e) {
                     e.printStackTrace();
-                    //TODO enable logging
                 }
             }
         });
     }
 
     /**
-     * This method gets called , whenever the app gets launched, the in memory list gets snyced from all the events stored in db.
+     * This method is called from constructor, when instance of {@link SQLPersistenceStrategy} is
+     * initialized. The InMemory data list is updated with the persisted {@link Data} objects
+     * which were not batched before.
      */
+
     private void syncData() {
         handler.post(new Runnable() {
             @Override
@@ -64,8 +63,8 @@ public class SQLPersistenceStrategy extends InMemoryPersistenceStrategy {
     }
 
     @Override
-    public void removeData(final Collection<Data> syncedData) {
-        super.removeData(syncedData);
+    public void removeData(final Collection<Data> dataCollection) {
+        super.removeData(dataCollection);
         handler.post(new Runnable() {
             @Override
             public void run() {

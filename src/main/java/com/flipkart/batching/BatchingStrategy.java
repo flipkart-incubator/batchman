@@ -8,35 +8,41 @@ import com.flipkart.data.Data;
 import java.util.Collection;
 
 /**
- * Interface class for BatchingStrategy. A custom implementation of BatchingStrategy must
+ * Interface class for BatchingStrategy. An implementation of BatchingStrategy must
  * implement this interface and override all it's methods.
- * <p/>
- * BatchingStrategy provides an interface to access callback when data is pushed for making a
- * batch and to initialize {@link BatchController} and Context.
+ *
  */
 
 public interface BatchingStrategy {
+
     /**
-     * This callback is called when dataCollection is pushed to a BatchManager that implements
-     * {@link BatchController}.
-     * <p/>
-     * The logic for making batches resides here. fireOnReadyCallback is called if the batch
-     * is ready to serve. Also, dataCollection that is already served to the client must be removed here.
+     * This method tells the BatchingStrategy about added data. This method should send the
+     * provided {@link Collection} of {@link Data} objects to the provided implementation of
+     * {@link com.flipkart.persistence.PersistenceStrategy}.
      *
-     * @param dataCollection
+     * @param dataCollection collection of {@link Data} objects
      */
 
     void onDataPushed(Collection<Data> dataCollection);
 
-    void flush(boolean forced);
     /**
-     * Initialize the BatchController and Context to be used by the Batching Strategy.
-     * @param controller instance of batchController
-     * @param context    context
-     * @param onBatchReadyListener
-     * @param handler
+     * This method fires the {@link OnBatchReadyListener} when a batch is ready, depending on the
+     * provided BatchingStrategy.
+     *
+     * @param forced boolean type if isForced
+     */
+
+    void flush(boolean forced);
+
+    /**
+     * Instance of {@link BatchController}, {@link Context}, {@link OnBatchReadyListener},
+     * and {@link Handler} from {@link BatchController}.
+     *
+     * @param controller           instance of {@link BatchController}
+     * @param context              context
+     * @param onBatchReadyListener instance of {@link OnBatchReadyListener}
+     * @param handler              instance of {@link Handler}
      */
 
     void onInitialized(BatchController controller, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler);
-
 }

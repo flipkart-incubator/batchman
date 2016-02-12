@@ -1,12 +1,14 @@
 package com.flipkart.persistence;
 
-import android.content.Context;
-
-import com.flipkart.batching.BatchController;
 import com.flipkart.data.Data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+/**
+ * This is a simple implementation of {@link PersistenceStrategy}.
+ * This strategy persist data in an InMemory {@link ArrayList}.
+ */
 
 public class InMemoryPersistenceStrategy implements PersistenceStrategy {
     private ArrayList<Data> dataList = new ArrayList<>();

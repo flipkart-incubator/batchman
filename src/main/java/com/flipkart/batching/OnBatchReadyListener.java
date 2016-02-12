@@ -12,5 +12,11 @@ import java.util.Collection;
 
 public interface OnBatchReadyListener {
 
-    void onReady(Collection<Data> data);
+    /**
+     * This method is called when a batch is ready.
+     *
+     * @param dataCollection collection of {@link Data} objects
+     */
+
+    void onReady(Collection<Data> dataCollection);
 }
