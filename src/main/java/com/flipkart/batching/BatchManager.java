@@ -46,7 +46,7 @@ public class BatchManager implements BatchController {
     }
 
     @Override
-    public void addToBatch(Collection<Data> dataCollection) {
+    public void addToBatch(final Collection<Data> dataCollection) {
         this.handler.post(new Runnable() {
             @Override
             public void run() {

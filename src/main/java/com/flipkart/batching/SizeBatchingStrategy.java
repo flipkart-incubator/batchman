@@ -52,7 +52,6 @@ public class SizeBatchingStrategy extends BaseBatchingStrategy {
         super.onInitialized(controller, context, onBatchReadyListener, handler);
     }
 
-    protected boolean isBatchReady() {
     /**
      * Returns true if currentBatch reaches the defined maxBatchSize.
      *

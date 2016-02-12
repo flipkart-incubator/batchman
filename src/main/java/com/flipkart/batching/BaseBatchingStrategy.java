@@ -29,6 +29,7 @@ public abstract class BaseBatchingStrategy implements BatchingStrategy {
             this.persistenceStrategy = persistenceStrategy;
         } else {
             throw new IllegalArgumentException("Persistence Strategy cannot be null.");
+        }
     }
 
     @Override
