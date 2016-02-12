@@ -35,15 +35,14 @@ public class BatchManager implements BatchController {
         }
 
         initialize(this, context, onBatchReadyListener, handler);
-
     }
 
     @Override
-    public void addToBatch(Data data) {
-        this.batchingStrategy.onDataPushed(Collections.singleton(data));
+    public void addToBatch(final Data data) {
         this.handler.post(new Runnable() {
             @Override
             public void run() {
+                batchingStrategy.onDataPushed(Collections.singleton(data));
                 batchingStrategy.flush(false);
             }
         });

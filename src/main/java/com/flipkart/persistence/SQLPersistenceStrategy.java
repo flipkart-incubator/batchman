@@ -70,7 +70,6 @@ public class SQLPersistenceStrategy extends InMemoryPersistenceStrategy {
             @Override
             public void run() {
                 databaseHelper.deleteAll();
-                //  databaseHelper.deleteAll();//todo :kirrrrraaannnnn helpppp db delete
             }
         });
     }

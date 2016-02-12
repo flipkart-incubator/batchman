@@ -2,7 +2,6 @@ package com.flipkart.batching;
 
 import android.content.Context;
 import android.os.Handler;
-import android.util.Log;
 
 import com.flipkart.data.Data;
 import com.flipkart.persistence.PersistenceStrategy;
@@ -21,20 +20,26 @@ public class SizeBatchingStrategy extends BaseBatchingStrategy {
     public SizeBatchingStrategy(int maxBatchSize, PersistenceStrategy persistenceStrategy) {
         super(persistenceStrategy);
         currentBatchSize = 0;
-        this.maxBatchSize = maxBatchSize;
+        if (maxBatchSize <= 0) {
+            throw new IllegalArgumentException("Max. Batch Size should be greater than 0");
+        } else {
+            this.maxBatchSize = maxBatchSize;
+        }
     }
 
     @Override
     public void onDataPushed(Collection<Data> dataCollection) {
         super.onDataPushed(dataCollection);
-        refreshBatchDataAndCurrentBatchSize();
+        currentBatchSize = getPersistenceStrategy().getData().size();
     }
 
     @Override
     public void flush(boolean forced) {
-        refreshBatchDataAndCurrentBatchSize();
-        if (forced || isBatchReady()) {
-            removeBatchedDataAndFireOnReady();
+        currentBatchSize = getPersistenceStrategy().getData().size();
+        if ((forced || isBatchReady()) && currentBatchSize > 0) {
+            Collection<Data> data = getPersistenceStrategy().getData();
+            getOnReadyListener().onReady(data);
+            getPersistenceStrategy().removeData(data);
         }
     }
 
@@ -43,18 +48,7 @@ public class SizeBatchingStrategy extends BaseBatchingStrategy {
         super.onInitialized(controller, context, onBatchReadyListener, handler);
     }
 
-    boolean isBatchReady() {
+    protected boolean isBatchReady() {
         return currentBatchSize >= maxBatchSize;
-    }
-
-    void refreshBatchDataAndCurrentBatchSize() {
-        currentBatchSize = getPersistenceStrategy().getData().size();
-    }
-
-    void removeBatchedDataAndFireOnReady() {
-        Collection<Data> data = getPersistenceStrategy().getData();
-        getOnReadyListener().onReady(data);
-        getPersistenceStrategy().removeData(data);
-        Log.e("DatList Size", data.size() + "");
     }
 }

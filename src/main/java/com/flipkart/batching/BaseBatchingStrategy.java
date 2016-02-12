@@ -16,7 +16,11 @@ public abstract class BaseBatchingStrategy implements BatchingStrategy {
     private Context context;
 
     public BaseBatchingStrategy(PersistenceStrategy persistenceStrategy) {
-        this.persistenceStrategy = persistenceStrategy;
+        if (persistenceStrategy != null) {
+            this.persistenceStrategy = persistenceStrategy;
+        } else {
+            throw new IllegalArgumentException("Persistence Strategy cannot be null.");
+        }
     }
 
     public Context getContext() {

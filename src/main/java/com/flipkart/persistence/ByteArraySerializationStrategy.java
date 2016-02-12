@@ -38,6 +38,11 @@ public class ByteArraySerializationStrategy implements SerializationStrategy {
         return bos.toByteArray();
     }
 
+    /**
+     * @param data
+     * @return
+     * @throws DeserializeException
+     */
     @Override
     public Object deserialize(byte[] data) throws DeserializeException {
         ByteArrayInputStream bis = new ByteArrayInputStream(data);
