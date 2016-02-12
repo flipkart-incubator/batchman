@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.data.Data;
-import com.flipkart.exception.PersistenceNullException;
 import com.flipkart.persistence.PersistenceStrategy;
 
 import java.util.Collection;

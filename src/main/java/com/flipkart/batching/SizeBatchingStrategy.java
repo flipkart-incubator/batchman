@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.data.Data;
-import com.flipkart.exception.IllegalArgumentException;
-import com.flipkart.exception.PersistenceNullException;
 import com.flipkart.persistence.PersistenceStrategy;
 
 import java.util.Collection;
@@ -22,8 +20,7 @@ public class SizeBatchingStrategy extends BaseBatchingStrategy {
     private int currentBatchSize;
     private int maxBatchSize;
 
-    public SizeBatchingStrategy(int maxBatchSize, PersistenceStrategy persistenceStrategy)
-            throws IllegalArgumentException, PersistenceNullException {
+    public SizeBatchingStrategy(int maxBatchSize, PersistenceStrategy persistenceStrategy) {
         super(persistenceStrategy);
         currentBatchSize = 0;
         if (maxBatchSize <= 0) {

@@ -5,8 +5,6 @@ import android.os.Handler;
 
 import com.flipkart.Utils;
 import com.flipkart.data.Data;
-import com.flipkart.exception.IllegalArgumentException;
-import com.flipkart.exception.PersistenceNullException;
 import com.flipkart.persistence.PersistenceStrategy;
 
 import org.junit.Before;
@@ -46,7 +44,7 @@ public class SizeBatchingTest {
      * Setting up the test environment.
      */
     @Before
-    public void setUp() throws PersistenceNullException, IllegalArgumentException {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
