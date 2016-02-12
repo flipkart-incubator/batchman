@@ -9,19 +9,23 @@ import com.flipkart.persistence.PersistenceStrategy;
 import java.util.Collection;
 
 /**
- * Created by kushal.sharma on 09/02/16.
+ * TimeBatchingStrategy extends abstract class {@link BaseBatchingStrategy} which is an
+ * implementation of {@link BatchingStrategy}. This class takes timeOut and persistenceStrategy
+ * as parameters in constructor. This strategy persist data according to the provided
+ * {@link PersistenceStrategy}, starts/reset the timer whenever {@link Data} objects are pushed
+ * and calls {@link #onReadyListener} when timeOut happens.
  */
+
 public class TimeBatchingStrategy extends BaseBatchingStrategy {
-    private String simpleClassName = this.getClass().getSimpleName();
     private long timeOut;
     private Handler handler;
 
-    public TimeBatchingStrategy(long time, PersistenceStrategy persistenceStrategy) {
+    public TimeBatchingStrategy(long timeOut, PersistenceStrategy persistenceStrategy) {
         super(persistenceStrategy);
-        if (time <= 0) {
-            throw new IllegalArgumentException("TIME OUT duration should be greater than 0");
+        if (timeOut <= 0) {
+            throw new IllegalArgumentException("TimeOut duration should be greater than 0");
         } else {
-            timeOut = time;
+            this.timeOut = timeOut;
         }
     }
 
@@ -48,10 +52,16 @@ public class TimeBatchingStrategy extends BaseBatchingStrategy {
         this.handler = handler;
     }
 
+    /**
+     * This method starts the timer.
+     */
     private void startTimer() {
         handler.postDelayed(runnable, timeOut);
     }
 
+    /**
+     * This method stops the timer.
+     */
     private void stopTimer() {
         handler.removeCallbacks(runnable);
     }

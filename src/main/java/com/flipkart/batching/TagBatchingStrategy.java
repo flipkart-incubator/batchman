@@ -12,7 +12,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by kushal.sharma on 09/02/16.
+ * TagBatchingStrategy is an implementation of {@link BatchingStrategy}.
+ * {@link #addTagStrategy(Tag, BatchingStrategy)} map the provided tag with the desired
+ * {@link BatchingStrategy}. Whenever {@link Data} objects are pushed, this strategy will
+ * check the tag of added object and pass it to the defined batching strategy.
+ *
+ * @see BatchingStrategy
+ * @see BaseBatchingStrategy
+ * @see SizeBatchingStrategy
+ * @see TimeBatchingStrategy
+ * @see TagBatchingStrategy
  */
 
 public class TagBatchingStrategy implements BatchingStrategy {

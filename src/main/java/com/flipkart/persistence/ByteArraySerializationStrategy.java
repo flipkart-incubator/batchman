@@ -13,17 +13,14 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
 /**
- * Created by anirudh.r on 01/02/16.
+ * Implementation of {@link SerializationStrategy}.
+ *
+ * @see SerializationStrategy
+ * @see GsonSerializationStrategy
  */
+
 public class ByteArraySerializationStrategy implements SerializationStrategy {
 
-    /**
-     * Serialize the data before being stored in the db.
-     *
-     * @param data
-     * @return
-     * @throws Exception
-     */
     @Override
     public byte[] serialize(Data data) throws SerializeException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();

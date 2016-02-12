@@ -16,8 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Created by kushal.sharma on 27/01/16.
- * Database Helper Class
+ * Database Helper class that extends {@link SQLiteOpenHelper}.
  */
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -51,13 +50,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void addData(Collection<Data> data) throws SerializeException {
+    /**
+     * This method serialize the provided collection of {@link Data} objects and save them to
+     * the database.
+     *
+     * @param dataCollection collection of {@link Data} objects.
+     * @throws SerializeException
+     */
+
+    public void addData(Collection<Data> dataCollection) throws SerializeException {
         SQLiteDatabase db = this.getWritableDatabase();
-        for (Data mData : data) {
-            if (!isDataInDB(String.valueOf(mData.getEventId()))) {
+        for (Data data : dataCollection) {
+            if (!isDataInDB(String.valueOf(data.getEventId()))) {
                 ContentValues values = new ContentValues();
-                values.put(KEY_ID, mData.getEventId());
-                values.put(KEY_DATA, serializationStrategy.serialize(mData));
+                values.put(KEY_ID, data.getEventId());
+                values.put(KEY_DATA, serializationStrategy.serialize(data));
                 values.put(KEY_EXPIRY, 0);
                 db.insert(TABLE_EVENT_DATA, null, values);
             }
@@ -65,6 +72,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
 
     }
+
+    /**
+     * This method gets all the data in database and return them after deserialize.
+     *
+     * @return collection of {@link Data} objects
+     * @throws DeserializeException
+     */
 
     public Collection<Data> getAllData() throws DeserializeException {
         ArrayList<Data> allEventData = new ArrayList<>();
@@ -85,6 +99,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return null;
     }
 
+    /**
+     * This method returns the count of {@link Data} objects stored in database.
+     *
+     * @return int type count
+     */
+
     public int getDataCount() {
         String countQuery = "SELECT * FROM " + TABLE_EVENT_DATA;
         SQLiteDatabase db = this.getWritableDatabase();
@@ -96,27 +116,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public void deleteDataList(Collection<Data> dataList) {
-        Log.d("db delete", "Deleted data from db " + dataList.size());
+    /**
+     * This method deletes the provided {@link Collection} of {@link Data} objects from the
+     * database.
+     *
+     * @param dataCollection collection of {@link Data} objects to be deleted
+     */
+
+    public void deleteDataList(Collection<Data> dataCollection) {
+        Log.d("db delete", "Deleted data from db " + dataCollection.size());
 
         SQLiteDatabase db = getWritableDatabase();
-        for (Data data : dataList) {
-            // db.execSQL("delete from " + TABLE_EVENT_DATA + " where " + KEY_ID + " = " + data.getEventId());
+        for (Data data : dataCollection) {
             db.delete(TABLE_EVENT_DATA, KEY_ID + "=" + data.getEventId(), null);
         }
-
-        Log.d("db delete", "Deleted data from db " + dataList.size());
-
-//        ArrayList<String> eventIds = new ArrayList<>();
-//        for (Data d : dataList) eventIds.add(String.valueOf(d.getEventId()));
-//        String ids = TextUtils.join(",", eventIds.toArray());
-//        if (db != null) db.delete(TABLE_EVENT_DATA, KEY_ID + " IN (?)", new String[]{ids});
     }
+
+    /**
+     * This method deletes all the data in the database.
+     */
 
     public void deleteAll() {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_EVENT_DATA, null, null);
     }
+
+    /**
+     * This method returns true if the given id is present in the database.
+     *
+     * @param id eventId of {@link Data} object
+     * @return true is {@link Data} object is in database
+     */
 
     public boolean isDataInDB(String id) {
         SQLiteDatabase db = getReadableDatabase();

@@ -8,12 +8,21 @@ import com.flipkart.persistence.PersistenceStrategy;
 
 import java.util.Collection;
 
-public abstract class BaseBatchingStrategy implements BatchingStrategy {
+/**
+ * This abstract class implements {@link BatchingStrategy} interface. BaseBatchingStrategy
+ * hold an instance of provided {@link PersistenceStrategy}, {@link OnBatchReadyListener},
+ * {@link BatchController} and {@link Context}.
+ * <p/>
+ * A class extending BaseBatchingStrategy must call super from it's constructor,
+ * {@link #onDataPushed(Collection)} and {@link #onInitialized(BatchController, Context,
+ * OnBatchReadyListener, Handler)} methods.
+ */
 
-    private PersistenceStrategy persistenceStrategy;
-    private OnBatchReadyListener onReadyListener;
-    private BatchController batchController;
+public abstract class BaseBatchingStrategy implements BatchingStrategy {
     private Context context;
+    private BatchController batchController;
+    private OnBatchReadyListener onReadyListener;
+    private PersistenceStrategy persistenceStrategy;
 
     public BaseBatchingStrategy(PersistenceStrategy persistenceStrategy) {
         if (persistenceStrategy != null) {
@@ -21,22 +30,6 @@ public abstract class BaseBatchingStrategy implements BatchingStrategy {
         } else {
             throw new IllegalArgumentException("Persistence Strategy cannot be null.");
         }
-    }
-
-    public Context getContext() {
-        return context;
-    }
-
-    public OnBatchReadyListener getOnReadyListener() {
-        return onReadyListener;
-    }
-
-    public PersistenceStrategy getPersistenceStrategy() {
-        return persistenceStrategy;
-    }
-
-    public BatchController getBatchController() {
-        return batchController;
     }
 
     @Override
@@ -48,10 +41,29 @@ public abstract class BaseBatchingStrategy implements BatchingStrategy {
     public abstract void flush(boolean forced);
 
     @Override
-    public void onInitialized(BatchController controller, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler) {
+    public void onInitialized(BatchController controller, Context context,
+                              OnBatchReadyListener onBatchReadyListener, Handler handler) {
         this.onReadyListener = onBatchReadyListener;
         this.batchController = controller;
         this.context = context;
     }
+
+
+    public Context getContext() {
+        return context;
+    }
+
+    public BatchController getBatchController() {
+        return batchController;
+    }
+
+    public OnBatchReadyListener getOnReadyListener() {
+        return onReadyListener;
+    }
+
+    public PersistenceStrategy getPersistenceStrategy() {
+        return persistenceStrategy;
+    }
+
 
 }

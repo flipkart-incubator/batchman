@@ -1,8 +1,11 @@
 package com.flipkart.exception;
 
 /**
- * Created by anirudh.r on 02/02/16.
+ * SerializationException class that extends {@link Exception}.
+ * <p/>
+ * To get the real exception use {@link #getRealException()}.
  */
+
 public class SerializeException extends Exception {
 
     private final Exception realException;

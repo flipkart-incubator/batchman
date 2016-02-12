@@ -1,36 +1,40 @@
 package com.flipkart.persistence;
 
-import android.content.Context;
-
-import com.flipkart.batching.BatchController;
 import com.flipkart.data.Data;
 
 import java.util.Collection;
 
 /**
- * Created by kushal.sharma on 25/01/16.
- * Interface for Persistence Strategy
+ * Interface for PersistenceStrategy. A persistence strategy must implement this interface
+ * and override all it's methods. Persistence strategy is responsible for persisting the.
  */
 
 public interface PersistenceStrategy {
 
     /**
-     * Adds data to in memory list as well as in the persistence (db or tape ) used.
+     * This method tells the persistence strategy about the added {@link Collection} of {@link Data}
+     * and persist it according to the provided implementation of persistenceStrategy.
      *
-     * @param data
+     * @param dataCollection collection of {@link Data} objects
      */
-    void add(Collection<Data> data);
+
+    void add(Collection<Data> dataCollection);
 
     /**
-     * Retrieve all the event data from the array list. Should return a copy.
+     * This method returns {@link Collection} of persisted {@link Data} objects.
      *
-     * @return
+     * @return collection of {@link Data} objects
      */
+
     Collection<Data> getData();
 
     /**
-     * Whenever the batch is ready, this method gets called and removes the event data from persistence and the in memory list
+     * This method removes the provided {@link Collection} of {@link Data} objects from
+     * the provided implementation of {@link PersistenceStrategy}.
+     *
+     * @param dataCollection collection of {@link Data} objects
      */
-    void removeData(Collection<Data> dataArrayList);
+
+    void removeData(Collection<Data> dataCollection);
 
 }

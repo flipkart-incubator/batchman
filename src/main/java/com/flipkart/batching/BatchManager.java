@@ -5,44 +5,52 @@ import android.os.Handler;
 import android.os.HandlerThread;
 
 import com.flipkart.data.Data;
-import com.flipkart.persistence.PersistenceStrategy;
 import com.flipkart.persistence.SerializationStrategy;
 
-import java.util.Collections;
+import java.util.Collection;
 
 /**
- * Created by kushal.sharma on 07/02/16.
+ * BatchManager that implements {@link BatchController} interface. BatchManager uses builder pattern
+ * to initialize an implementation of {@link BatchingStrategy}, {@link SerializationStrategy},
+ * {@link Handler} and {@link OnBatchReadyListener}.
+ * <p/>
+ * BatchManager sends the initialized {@link BatchController}, {@link Context},
+ * {@link OnBatchReadyListener} and {@link Handler} to the initialized object of BatchingStrategy.
+ * <p/>
+ * {@link #addToBatch(Collection)} tells the BatchingStrategy about the input dataCollection.
+ * <p/>
+ * {@link #getSerializationStrategy()} returns the SerializationStrategy provided while building
+ * the BatchManger instance.
+ * <p/>
+ * {@link #getHandler()} returns the Handler provided while building the BatchManger instance.
+ *
+ * @see BatchController
  */
 
 public class BatchManager implements BatchController {
-
-    private OnBatchReadyListener onBatchReadyListener;
-    private BatchingStrategy batchingStrategy;
     private Handler handler;
+    private BatchingStrategy batchingStrategy;
     private SerializationStrategy serializationStrategy;
 
-
     protected BatchManager(Builder builder, Context context) {
-        this.onBatchReadyListener = builder.getOnBatchReadyListener();
+        OnBatchReadyListener onBatchReadyListener = builder.getOnBatchReadyListener();
         this.batchingStrategy = builder.getBatchingStrategy();
         this.serializationStrategy = builder.getSerializationStrategy();
         this.handler = builder.getHandler();
-
         if (handler == null) {
             HandlerThread handlerThread = new HandlerThread("HandlerThread");
             handlerThread.start();
             this.handler = new Handler(handlerThread.getLooper());
         }
-
         initialize(this, context, onBatchReadyListener, handler);
     }
 
     @Override
-    public void addToBatch(final Data data) {
+    public void addToBatch(final Collection<Data> dataCollection) {
         this.handler.post(new Runnable() {
             @Override
             public void run() {
-                batchingStrategy.onDataPushed(Collections.singleton(data));
+        		batchingStrategy.onDataPushed(dataCollection);
                 batchingStrategy.flush(false);
             }
         });
@@ -59,22 +67,25 @@ public class BatchManager implements BatchController {
     }
 
     /**
-     * This method takes {@link BatchController} and {@link Context} as parameters and initialize
-     * the provided {@link PersistenceStrategy} and {@link BatchingStrategy}.
+     * This method takes {@link BatchController}, {@link Context}, {@link Handler} and
+     * {@link OnBatchReadyListener} as parameters, after building the BatchManager and passes
+     * it to the instance of provided {@link BatchingStrategy}.
      *
-     * @param batchController instance of batch controller
-     * @param context         context
+     * @param batchController      instance of {@link BatchController}
+     * @param context              context
+     * @param onBatchReadyListener instance of {@link OnBatchReadyListener}
+     * @param handler              instance of {@link Handler}
      */
 
-    private void initialize(BatchController batchController, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler) {
+    private void initialize(BatchController batchController, Context context,
+                            OnBatchReadyListener onBatchReadyListener, Handler handler) {
         batchingStrategy.onInitialized(batchController, context, onBatchReadyListener, handler);
     }
 
-
     public static class Builder {
-        private OnBatchReadyListener onBatchReadyListener;
-        private BatchingStrategy batchingStrategy;
         private Handler handler;
+        private BatchingStrategy batchingStrategy;
+        private OnBatchReadyListener onBatchReadyListener;
         private SerializationStrategy serializationStrategy;
 
         public SerializationStrategy getSerializationStrategy() {
