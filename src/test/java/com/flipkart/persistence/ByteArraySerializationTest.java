@@ -11,6 +11,8 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by anirudh.r on 12/02/16.
@@ -56,6 +58,8 @@ public class ByteArraySerializationTest {
     }
 
     private class CustomData extends Data {
+        HashMap<String, String> stringHashMap;
+        ArrayList<String> stringArrayList;
 
         /**
          * Constructor for Data object. This constructor takes {@link Tag} and {@link Object} as
@@ -64,8 +68,31 @@ public class ByteArraySerializationTest {
          * @param tag  tag associated with data
          * @param data data object
          */
-        public CustomData(Tag tag, Object data) {
+        public CustomData(Tag tag, HashMap<String, String> data) {
             super(tag, data);
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof CustomData) {
+                return ((CustomData) o).getTag().equals(getTag()) && ((CustomData) o).getEventId() == getEventId() && ((CustomData) o).getData().equals(getData());
+            } else {
+                return super.equals(o);
+            }
+        }
     }
+
+//    @Test
+//    public void testByteArraySerializationForCustomData() throws SerializeException, DeserializeException {
+//        serializationStrategy = new ByteArraySerializationStrategy();
+//        HashMap<String, String> hashMap = new HashMap<>();
+//        hashMap.put("key", "value");
+//        ArrayList<String> arrayList = new ArrayList<>();
+//        arrayList.add("value1");
+//
+//        Data eventData = new CustomData(new Tag("u1"), hashMap);
+//        byte[] serializedData = serializationStrategy.serialize(eventData);
+//        Data data = (Data) serializationStrategy.deserialize(serializedData);
+//        Assert.assertEquals(eventData, data);
+//    }
 }

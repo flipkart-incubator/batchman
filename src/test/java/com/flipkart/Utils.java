@@ -27,4 +27,13 @@ public class Utils {
         }
         return datas;
     }
+
+    public static ArrayList<Data> fakeAdsCollection(int size) {
+        ArrayList<Data> datas = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            eventData = new EventData(new Tag("AD"), "Event " + i);
+            datas.add(eventData);
+        }
+        return datas;
+    }
 }

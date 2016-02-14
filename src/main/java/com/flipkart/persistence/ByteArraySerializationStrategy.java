@@ -28,6 +28,7 @@ public class ByteArraySerializationStrategy implements SerializationStrategy {
         try {
             out = new ObjectOutputStream(bos);
             out.writeObject(data);
+            out.close();
         } catch (IOException e) {
             throw new SerializeException(e);
         }

@@ -100,23 +100,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * This method returns the count of {@link Data} objects stored in database.
-     *
-     * @return int type count
-     */
-
-    public int getDataCount() {
-        String countQuery = "SELECT * FROM " + TABLE_EVENT_DATA;
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(countQuery, null);
-
-        int count = cursor.getCount();
-        cursor.close();
-
-        return count;
-    }
-
-    /**
      * This method deletes the provided {@link Collection} of {@link Data} objects from the
      * database.
      *

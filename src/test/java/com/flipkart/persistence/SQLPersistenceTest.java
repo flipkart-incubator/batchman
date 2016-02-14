@@ -5,17 +5,14 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 
+import com.flipkart.Utils;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.data.Data;
-import com.flipkart.data.EventData;
-import com.flipkart.data.Tag;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
@@ -33,52 +30,60 @@ import java.util.Collection;
 public class SQLPersistenceTest {
 
     private PersistenceStrategy persistenceStrategy;
-
-    @Mock
-    private Data eventData;
-
-    @Mock
-    private DatabaseHelper databaseHelper;
     private ShadowLooper shadowLooper;
+    private Handler handler;
+    private Context context;
 
-    @Before
-    public void setUp() {
-        HandlerThread handlerThread = new HandlerThread("test");
-        handlerThread.start();
-        Looper looper = handlerThread.getLooper();
-        shadowLooper = Shadows.shadowOf(looper);
-
-    }
 
     /**
      * Test to verify that data is retained in InMemoryList after {@link PersistenceStrategy#add(Collection)} is called.
+     * It also verifies the {@link SQLPersistenceStrategy#syncData()}
      */
     @Test
-    public void testIfDataInMemory() {
-        HandlerThread handlerThread = new HandlerThread("test");
-        handlerThread.start();
-        Looper looper = handlerThread.getLooper();
-        shadowLooper = Shadows.shadowOf(looper);
-        Handler handler = new Handler(looper);
-        Context context = RuntimeEnvironment.application;
-        persistenceStrategy = new SQLPersistenceStrategy(new GsonSerializationStrategy(), context, handler);
+    public void testIfDataIsPersisted() {
 
-        Data eventData = new EventData(new Tag("1"), "e1");
-        Data eventData1 = new EventData(new Tag("2"), "e2");
-        Data eventData2 = new EventData(new Tag("3"), "e3");
-        Data eventData3 = new EventData(new Tag("4"), "e4");
-        Data eventData4 = new EventData(new Tag("5"), "e5");
-
-        ArrayList<Data> data = new ArrayList<>();
-        data.add(eventData);
-        data.add(eventData1);
-        data.add(eventData2);
-        data.add(eventData3);
-        data.add(eventData4);
+        initializeSQLPersistence();
+        ArrayList<Data> data = Utils.fakeCollection(5);
         persistenceStrategy.add(data);
         shadowLooper.runToEndOfTasks();
         persistenceStrategy = new SQLPersistenceStrategy(new GsonSerializationStrategy(), context, handler);
         shadowLooper.runToEndOfTasks();
-        Assert.assertEquals(data.size(),persistenceStrategy.getData().size());
+        //verify that the data that was added, has been persisted and it correct form
+        Assert.assertEquals(data, persistenceStrategy.getData());
+    }
+
+    /**
+     * Test to verify that the data has been deleted from the db
+     * Also verifies that {@link SQLPersistenceStrategy#syncData()} should not contain any data
+     */
+    @Test
+    public void testIfDataIsRemoved() {
+        initializeSQLPersistence();
+        ArrayList<Data> dataArrayList = Utils.fakeCollection(5);
+        persistenceStrategy.add(dataArrayList);
+        shadowLooper.runToEndOfTasks();
+
+        //verify that the data that was added, has been persisted and it correct form
+        persistenceStrategy = new SQLPersistenceStrategy(new GsonSerializationStrategy(), context, handler);
+        shadowLooper.runToEndOfTasks();
+        Assert.assertEquals(dataArrayList, persistenceStrategy.getData());
+
+        persistenceStrategy.removeData(dataArrayList);
+        shadowLooper.runToEndOfTasks();
+        //verify that the data has been deleted from the persistence layer
+        Assert.assertEquals(persistenceStrategy.getData().size(), 0);
+    }
+
+    /**
+     * Initialize the SQLPersistence
+     */
+    private void initializeSQLPersistence() {
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        shadowLooper = Shadows.shadowOf(looper);
+        handler = new Handler(looper);
+        context = RuntimeEnvironment.application;
+        persistenceStrategy = new SQLPersistenceStrategy(new GsonSerializationStrategy(), context, handler);
     }
 }
