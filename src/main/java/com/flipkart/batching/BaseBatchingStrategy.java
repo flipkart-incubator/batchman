@@ -71,6 +71,4 @@ public abstract class BaseBatchingStrategy implements BatchingStrategy {
     public PersistenceStrategy getPersistenceStrategy() {
         return persistenceStrategy;
     }
-
-
 }

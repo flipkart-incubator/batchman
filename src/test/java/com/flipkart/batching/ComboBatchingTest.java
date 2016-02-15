@@ -9,6 +9,8 @@ import com.flipkart.Utils;
 import com.flipkart.data.Data;
 import com.flipkart.persistence.PersistenceStrategy;
 
+import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -158,6 +160,20 @@ public class ComboBatchingTest {
         verify(onBatchReadyListener, times(2)).onReady(eq(data));
     }
 
+    /**
+     * Test to verify that {@link BatchingStrategy#isInitialized()} is working
+     */
+    @Test
+    public void testOnInitialized() {
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        Handler handler = new Handler(looper);
+        ComboBatchingStrategy comboBatchingStrategy = new ComboBatchingStrategy();
+        comboBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+
+        Assert.assertTrue(comboBatchingStrategy.isInitialized());
+    }
     /**
      * Initialize the ComboBatchingStrategy
      */

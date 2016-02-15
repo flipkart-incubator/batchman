@@ -34,8 +34,8 @@ public class TimeBatchingStrategy extends BaseBatchingStrategy {
         Collection<Data> data = getPersistenceStrategy().getData();
         if (forced) {
             if (!data.isEmpty()) {
-                getPersistenceStrategy().removeData(data);
                 getOnReadyListener().onReady(data);
+                getPersistenceStrategy().removeData(data);
             }
             stopTimer();
         } else {

@@ -60,11 +60,7 @@ public class BatchManager implements BatchController {
                     batchingStrategy.onDataPushed(dataCollection);
                     batchingStrategy.flush(false);
                 } else {
-                    try {
-                        throw new Exception("Batching Strategy not initialized");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    throw new IllegalAccessError("BatchingStrategy is not initialized");
                 }
             }
         });

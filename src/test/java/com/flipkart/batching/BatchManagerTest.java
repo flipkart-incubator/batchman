@@ -10,6 +10,8 @@ import com.flipkart.data.Data;
 import com.flipkart.persistence.PersistenceStrategy;
 import com.flipkart.persistence.SerializationStrategy;
 
+import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,12 +47,10 @@ public class BatchManagerTest {
     Context context;
     @Mock
     Data eventData;
-    private ShadowLooper shadowLooper;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-
     }
 
     /**
@@ -61,7 +61,7 @@ public class BatchManagerTest {
         HandlerThread handlerThread = new HandlerThread("test");
         handlerThread.start();
         Looper looper = handlerThread.getLooper();
-        shadowLooper = Shadows.shadowOf(looper);
+        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
         SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
         BatchController batchController = new BatchManager.Builder()
@@ -78,8 +78,9 @@ public class BatchManagerTest {
         verify(onBatchReadyListener, times(1)).onReady(eq(fakeCollection));
     }
 
-//    @Test(expected = Exception.class)
+//    @Test(expected = IllegalAccessError.class)
 //    public void testIfBatchStrategyNotInitialized() {
+//        BatchingStrategy batchingStrategy = mock(SizeBatchingStrategy.class);
 //        HandlerThread handlerThread = new HandlerThread("test");
 //        handlerThread.start();
 //        Looper looper = handlerThread.getLooper();
@@ -87,11 +88,41 @@ public class BatchManagerTest {
 //        Handler handler = new Handler(looper);
 //        BatchController batchController = new BatchManager.Builder()
 //                .setSerializationStrategy(serializationStrategy)
-//                .setBatchingStrategy(null)
+//                .setBatchingStrategy(batchingStrategy)
 //                .setHandler(handler)
 //                .setOnBatchReadyListener(onBatchReadyListener)
 //                .build(context);
+//        when(batchingStrategy.isInitialized()).thenReturn(false);
 //        ArrayList<Data> fakeCollection = Utils.fakeCollection(5);
 //        batchController.addToBatch(fakeCollection);
 //    }
+
+    /**
+     * Test to verify that handler is not null
+     */
+    @Test
+    public void testHandlerNotNull() {
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        Handler handler = new Handler(looper);
+        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
+        BatchController batchController = new BatchManager.Builder()
+                .setSerializationStrategy(serializationStrategy)
+                .setBatchingStrategy(sizeBatchingStrategy)
+                .setHandler(handler)
+                .setOnBatchReadyListener(onBatchReadyListener)
+                .build(context);
+
+        Assert.assertNotNull(batchController.getHandler());
+
+        batchController = new BatchManager.Builder()
+                .setSerializationStrategy(serializationStrategy)
+                .setBatchingStrategy(sizeBatchingStrategy)
+                .setHandler(null)
+                .setOnBatchReadyListener(onBatchReadyListener)
+                .build(context);
+
+        Assert.assertNotNull(batchController.getHandler());
+    }
 }
