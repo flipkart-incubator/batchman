@@ -27,6 +27,7 @@ import java.util.Collection;
 
 public class ComboBatchingStrategy implements BatchingStrategy {
     private BatchingStrategy[] batchingStrategies;
+    private boolean initialized = false;
 
     public ComboBatchingStrategy(BatchingStrategy... batchingStrategies) {
         this.batchingStrategies = batchingStrategies;
@@ -34,6 +35,7 @@ public class ComboBatchingStrategy implements BatchingStrategy {
 
     @Override
     public void onInitialized(BatchController controller, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler) {
+        initialized =true;
         for (BatchingStrategy batchingStrategy : batchingStrategies) {
             batchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
         }
@@ -51,5 +53,10 @@ public class ComboBatchingStrategy implements BatchingStrategy {
         for (BatchingStrategy batchingStrategy : batchingStrategies) {
             batchingStrategy.flush(forced);
         }
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return initialized;
     }
 }

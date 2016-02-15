@@ -30,4 +30,9 @@ public class InMemoryPersistenceStrategy implements PersistenceStrategy {
         dataList.removeAll(dataCollection);
     }
 
+    @Override
+    public void onInitialized() {
+
+    }
+
 }

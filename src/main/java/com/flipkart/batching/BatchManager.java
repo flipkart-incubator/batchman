@@ -32,8 +32,8 @@ public class BatchManager implements BatchController {
     private BatchingStrategy batchingStrategy;
     private SerializationStrategy serializationStrategy;
 
-    protected BatchManager(Builder builder, Context context) {
-        OnBatchReadyListener onBatchReadyListener = builder.getOnBatchReadyListener();
+    protected BatchManager(Builder builder, final Context context) {
+        final OnBatchReadyListener onBatchReadyListener = builder.getOnBatchReadyListener();
         this.batchingStrategy = builder.getBatchingStrategy();
         this.serializationStrategy = builder.getSerializationStrategy();
         this.handler = builder.getHandler();
@@ -42,16 +42,30 @@ public class BatchManager implements BatchController {
             handlerThread.start();
             this.handler = new Handler(handlerThread.getLooper());
         }
-        initialize(this, context, onBatchReadyListener, handler);
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                initialize(BatchManager.this, context, onBatchReadyListener, handler);
+            }
+        });
     }
 
     @Override
     public void addToBatch(final Collection<Data> dataCollection) {
-        this.handler.post(new Runnable() {
+        handler.post(new Runnable() {
             @Override
             public void run() {
-        		batchingStrategy.onDataPushed(dataCollection);
-                batchingStrategy.flush(false);
+                if (batchingStrategy.isInitialized()) {
+                    batchingStrategy.onDataPushed(dataCollection);
+                    batchingStrategy.flush(false);
+                } else {
+                    try {
+                        throw new Exception("Batching Strategy not initialized");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
     }
@@ -76,7 +90,6 @@ public class BatchManager implements BatchController {
      * @param onBatchReadyListener instance of {@link OnBatchReadyListener}
      * @param handler              instance of {@link Handler}
      */
-
     private void initialize(BatchController batchController, Context context,
                             OnBatchReadyListener onBatchReadyListener, Handler handler) {
         batchingStrategy.onInitialized(batchController, context, onBatchReadyListener, handler);

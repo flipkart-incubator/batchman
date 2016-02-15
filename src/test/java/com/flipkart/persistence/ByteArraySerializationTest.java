@@ -57,10 +57,7 @@ public class ByteArraySerializationTest {
         serializationStrategy.deserialize(serializedData);
     }
 
-    private class CustomData extends Data {
-        HashMap<String, String> stringHashMap;
-        ArrayList<String> stringArrayList;
-
+    private static class CustomData extends Data {
         /**
          * Constructor for Data object. This constructor takes {@link Tag} and {@link Object} as
          * parameter and generates an eventId = (System.currentTimeMillis() + System.nanoTime())
@@ -68,8 +65,12 @@ public class ByteArraySerializationTest {
          * @param tag  tag associated with data
          * @param data data object
          */
-        public CustomData(Tag tag, HashMap<String, String> data) {
+        public CustomData(Tag tag, HashMap<String, Object> data) {
             super(tag, data);
+        }
+
+        public CustomData(Tag tag, ArrayList<String> strings) {
+            super(tag, strings);
         }
 
         @Override
@@ -82,17 +83,31 @@ public class ByteArraySerializationTest {
         }
     }
 
-//    @Test
-//    public void testByteArraySerializationForCustomData() throws SerializeException, DeserializeException {
-//        serializationStrategy = new ByteArraySerializationStrategy();
-//        HashMap<String, String> hashMap = new HashMap<>();
-//        hashMap.put("key", "value");
-//        ArrayList<String> arrayList = new ArrayList<>();
-//        arrayList.add("value1");
-//
-//        Data eventData = new CustomData(new Tag("u1"), hashMap);
-//        byte[] serializedData = serializationStrategy.serialize(eventData);
-//        Data data = (Data) serializationStrategy.deserialize(serializedData);
-//        Assert.assertEquals(eventData, data);
-//    }
+    /**
+     * Test the working of {@link ByteArraySerializationStrategy} for Custom Data
+     *
+     * @throws SerializeException
+     * @throws DeserializeException
+     */
+    @Test
+    public void testByteArraySerializationForCustomData() throws SerializeException, DeserializeException {
+        //test to serialize hashmap
+        ByteArraySerializationStrategy serializationStrategy = new ByteArraySerializationStrategy();
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("key", "value");
+        Data customData = new CustomData(new Tag("u1"), hashMap);
+        byte[] serializedData = serializationStrategy.serialize(customData);
+        Data data = (Data) serializationStrategy.deserialize(serializedData);
+        Assert.assertEquals(customData, data);
+        //test to serialize arraylist
+        serializationStrategy = new ByteArraySerializationStrategy();
+        ArrayList<String> arrayList = new ArrayList<>();
+        arrayList.add("Event1");
+        arrayList.add("Event2");
+        arrayList.add("Event3");
+        customData = new CustomData(new Tag("u1"), arrayList);
+        serializedData = serializationStrategy.serialize(customData);
+        data = (Data) serializationStrategy.deserialize(serializedData);
+        Assert.assertEquals(customData, data);
+    }
 }

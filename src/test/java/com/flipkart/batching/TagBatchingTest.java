@@ -5,10 +5,11 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 
+import com.flipkart.Utils;
 import com.flipkart.data.Data;
-import com.flipkart.data.EventData;
 import com.flipkart.data.Tag;
-import com.flipkart.persistence.PersistenceStrategy;
+import com.flipkart.persistence.InMemoryPersistenceStrategy;
+import com.flipkart.persistence.SQLPersistenceStrategy;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,13 +21,15 @@ import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLooper;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by anirudh.r on 13/02/16.
@@ -40,16 +43,17 @@ public class TagBatchingTest {
     Tag DEBUG_TAG = new Tag("DEBUG");
     Tag BUISNESS_TAG = new Tag("BUISNESS");
     private TagBatchingStrategy tagBatchingStrategy;
-    private SizeBatchingStrategy sizeBatchingStrategy;
+    ShadowLooper shadowLooper;
     @Mock
-    private PersistenceStrategy persistenceStrategy;
+    private InMemoryPersistenceStrategy inMemoryPersistenceStrategy;
+    @Mock
+    private SQLPersistenceStrategy sqlPersistenceStrategy;
     @Mock
     private BatchController batchController;
     @Mock
     private Context context;
     @Mock
     private OnBatchReadyListener onBatchReadyListener;
-    private ShadowLooper shadowLooper;
 
     @Before
     public void setUp() {
@@ -62,11 +66,85 @@ public class TagBatchingTest {
     @Test
     public void testOnDataPushed() {
         initializeTagBatching();
-        Data eventData = new EventData(AD_TAG, "");
-        Set<Data> singleton = Collections.singleton(eventData);
-        tagBatchingStrategy.onDataPushed(singleton);
-        //verify that add method is called once.
-        verify(persistenceStrategy, times(1)).add(eq(singleton));
+        ArrayList<Data> adsDataArrayList = Utils.fakeAdsCollection(2);
+        ArrayList<Data> debugDataArrayList = Utils.fakeDebugCollection(2);
+        ArrayList<Data> arrayList = new ArrayList<>();
+        arrayList.addAll(adsDataArrayList);
+        arrayList.addAll(debugDataArrayList);
+
+        tagBatchingStrategy.onDataPushed(arrayList);
+        //verify that add method is called once for every data.
+        verify(inMemoryPersistenceStrategy, times(1)).add(Collections.singleton(adsDataArrayList.get(0)));
+        verify(inMemoryPersistenceStrategy, times(1)).add(Collections.singleton(adsDataArrayList.get(1)));
+        verify(sqlPersistenceStrategy, times(1)).add(Collections.singleton(debugDataArrayList.get(0)));
+        verify(sqlPersistenceStrategy, times(1)).add(Collections.singleton(debugDataArrayList.get(1)));
+    }
+
+    /**
+     * Test to verify that {@link TagBatchingStrategy#flush(boolean)} is calling the respective
+     * {@link com.flipkart.persistence.PersistenceStrategy#removeData(Collection)} method
+     */
+    @Test
+    public void testFlush() {
+        initializeTagBatching();
+        ArrayList<Data> adsDataArrayList = Utils.fakeAdsCollection(2);
+        ArrayList<Data> debugDataArrayList = Utils.fakeDebugCollection(2);
+        ArrayList<Data> arrayList = new ArrayList<>();
+        arrayList.addAll(adsDataArrayList);
+        arrayList.addAll(debugDataArrayList);
+
+        tagBatchingStrategy.onDataPushed(arrayList);
+        when(inMemoryPersistenceStrategy.getData()).thenReturn(adsDataArrayList);
+        when(sqlPersistenceStrategy.getData()).thenReturn(debugDataArrayList);
+        tagBatchingStrategy.flush(true);
+
+        verify(inMemoryPersistenceStrategy, times(1)).removeData(eq(adsDataArrayList));
+        verify(sqlPersistenceStrategy, times(1)).removeData(eq(debugDataArrayList));
+    }
+
+    /**
+     * This test is to check the {@link OnBatchReadyListener#onReady(Collection)} callback for various uses cases.
+     * Flush is TRUE for this test. {@link OnBatchReadyListener#onReady(Collection)} should be called every time.
+     */
+    @Test
+    public void testOnReadyCallbackFlushTrue() {
+        initializeTagBatching();
+
+        //verify that onReady is called, as flush force is true
+        ArrayList<Data> adsDataArrayList = Utils.fakeAdsCollection(2);
+        ArrayList<Data> debugDataArrayList = Utils.fakeDebugCollection(2);
+        ArrayList<Data> buisnessDataArrayList = Utils.fakeBuisnessCollection(2);
+        ArrayList<Data> arrayList = new ArrayList<>();
+        arrayList.addAll(adsDataArrayList);
+        arrayList.addAll(debugDataArrayList);
+        tagBatchingStrategy.onDataPushed(arrayList);
+        when(inMemoryPersistenceStrategy.getData()).thenReturn(adsDataArrayList);
+        when(sqlPersistenceStrategy.getData()).thenReturn(debugDataArrayList);
+        tagBatchingStrategy.flush(true);
+        verify(onBatchReadyListener, times(1)).onReady(eq(adsDataArrayList));
+        verify(onBatchReadyListener, times(1)).onReady(eq(debugDataArrayList));
+    }
+
+    /**
+     * This test is to check the {@link OnBatchReadyListener#onReady(Collection)} callback.
+     * This test ensures the integrity of the data.
+     */
+    @Test
+    public void testOnReadyCallbackData() {
+        initializeTagBatching();
+        ArrayList<Data> adsDataList = Utils.fakeAdsCollection(5);
+        tagBatchingStrategy.onDataPushed(adsDataList);
+        when(inMemoryPersistenceStrategy.getData()).thenReturn(adsDataList);
+        tagBatchingStrategy.flush(false);
+        verify(onBatchReadyListener, times(1)).onReady(eq(adsDataList));
+
+        reset(onBatchReadyListener);
+        ArrayList<Data> debugDataList = Utils.fakeAdsCollection(5);
+        tagBatchingStrategy.onDataPushed(debugDataList);
+        when(sqlPersistenceStrategy.getData()).thenReturn(debugDataList);
+        tagBatchingStrategy.flush(false);
+        shadowLooper.idle(5000);
+        verify(onBatchReadyListener, times(1)).onReady(eq(debugDataList));
     }
 
     /**
@@ -79,8 +157,15 @@ public class TagBatchingTest {
         Looper looper = handlerThread.getLooper();
         shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
-        sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
+        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(5, inMemoryPersistenceStrategy);
+        TimeBatchingStrategy timeBatchingStrategy = new TimeBatchingStrategy(5000, sqlPersistenceStrategy);
+        ComboBatchingStrategy comboBatchingStrategy = new ComboBatchingStrategy(
+                new SizeBatchingStrategy(5, sqlPersistenceStrategy)
+                , new TimeBatchingStrategy(5000, sqlPersistenceStrategy));
+        //Add tag strategy
         tagBatchingStrategy.addTagStrategy(AD_TAG, sizeBatchingStrategy);
+        tagBatchingStrategy.addTagStrategy(DEBUG_TAG, timeBatchingStrategy);
+        tagBatchingStrategy.addTagStrategy(BUISNESS_TAG, comboBatchingStrategy);
         tagBatchingStrategy.onInitialized(batchController, context, onBatchReadyListener, handler);
     }
 }

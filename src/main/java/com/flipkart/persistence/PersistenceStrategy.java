@@ -17,7 +17,6 @@ public interface PersistenceStrategy {
      *
      * @param dataCollection collection of {@link Data} objects
      */
-
     void add(Collection<Data> dataCollection);
 
     /**
@@ -25,7 +24,6 @@ public interface PersistenceStrategy {
      *
      * @return collection of {@link Data} objects
      */
-
     Collection<Data> getData();
 
     /**
@@ -34,7 +32,8 @@ public interface PersistenceStrategy {
      *
      * @param dataCollection collection of {@link Data} objects
      */
-
     void removeData(Collection<Data> dataCollection);
+
+    void onInitialized();
 
 }

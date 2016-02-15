@@ -49,6 +49,11 @@ public class TagBasedPersistenceStrategy implements PersistenceStrategy {
         persistenceStrategy.removeData(dataCollection);
     }
 
+    @Override
+    public void onInitialized() {
+
+    }
+
     /**
      * This method filters the provided collection of {@link Data} objects by {@link Tag}.
      *
