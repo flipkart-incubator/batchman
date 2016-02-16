@@ -1,5 +1,7 @@
 package com.flipkart.persistence;
 
+import com.flipkart.batching.BatchInfo;
+import com.flipkart.data.Batch;
 import com.flipkart.data.Data;
 import com.flipkart.exception.DeserializeException;
 import com.flipkart.exception.SerializeException;
@@ -11,6 +13,7 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.util.Collection;
 
 /**
  * Implementation of {@link SerializationStrategy}.
@@ -22,7 +25,26 @@ import java.io.ObjectOutputStream;
 public class ByteArraySerializationStrategy implements SerializationStrategy {
 
     @Override
-    public byte[] serialize(Data data) throws SerializeException {
+    public void registerDataType(Class<? extends Data> subClass) {
+
+    }
+
+    @Override
+    public void registerBatchInfoType(Class<? extends BatchInfo> subClass) {
+
+    }
+
+    @Override
+    public void build() {
+
+    }
+
+    @Override
+    public byte[] serializeData(Data data) throws SerializeException {
+        return getBytes(data);
+    }
+
+    private byte[] getBytes(Object data) throws SerializeException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutput out;
         try {
@@ -36,13 +58,27 @@ public class ByteArraySerializationStrategy implements SerializationStrategy {
         return bos.toByteArray();
     }
 
+    @Override
+    public byte[] serializeCollection(Collection<Data> data) throws SerializeException {
+        return getBytes(data);
+    }
+
+    @Override
+    public byte[] serializeBatch(Batch info) throws SerializeException {
+        return getBytes(info);
+    }
+
     /**
      * @param data
      * @return
      * @throws DeserializeException
      */
     @Override
-    public Object deserialize(byte[] data) throws DeserializeException {
+    public Data deserializeData(byte[] data) throws DeserializeException {
+        return (Data) getObject(data);
+    }
+
+    private Object getObject(byte[] data) throws DeserializeException {
         ByteArrayInputStream bis = new ByteArrayInputStream(data);
         ObjectInput in;
         try {
@@ -56,5 +92,15 @@ public class ByteArraySerializationStrategy implements SerializationStrategy {
         } catch (ClassNotFoundException | IOException e) {
             throw new DeserializeException(e);
         }
+    }
+
+    @Override
+    public Collection<Data> deserializeCollection(byte[] data) throws DeserializeException {
+        return (Collection<Data>) getObject(data);
+    }
+
+    @Override
+    public Batch deserializeBatch(byte[] data) throws DeserializeException {
+        return (Batch) getObject(data);
     }
 }

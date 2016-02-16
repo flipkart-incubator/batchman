@@ -19,6 +19,12 @@ import java.util.Collection;
 public class TimeBatchingStrategy extends BaseBatchingStrategy {
     private long timeOut;
     private Handler handler;
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            flush(true);
+        }
+    };
 
     public TimeBatchingStrategy(long timeOut, PersistenceStrategy persistenceStrategy) {
         super(persistenceStrategy);
@@ -34,8 +40,8 @@ public class TimeBatchingStrategy extends BaseBatchingStrategy {
         Collection<Data> data = getPersistenceStrategy().getData();
         if (forced) {
             if (!data.isEmpty()) {
-                getOnReadyListener().onReady(data);
                 getPersistenceStrategy().removeData(data);
+                getOnReadyListener().onReady(this, new TimeBatchInfo(timeOut), data);
             }
             stopTimer();
         } else {
@@ -66,11 +72,16 @@ public class TimeBatchingStrategy extends BaseBatchingStrategy {
         handler.removeCallbacks(runnable);
     }
 
-    private Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            flush(true);
+    public static class TimeBatchInfo implements BatchInfo {
+        private long timeOut;
+
+        public TimeBatchInfo(long timeOut) {
+            this.timeOut = timeOut;
         }
-    };
+
+        public long getTimeOut() {
+            return timeOut;
+        }
+    }
 }
 

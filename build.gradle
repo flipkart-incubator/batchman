@@ -28,4 +28,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.+'
     compile 'com.google.code.gson:gson:2.4'
     testCompile "org.robolectric:robolectric:3.0"
+    compile 'com.squareup:tape:1.2.3'
 }

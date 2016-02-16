@@ -44,11 +44,29 @@ public class TagBatchingStrategy implements BatchingStrategy {
     }
 
     @Override
-    public void onInitialized(BatchController controller, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler) {
+    public void onInitialized(BatchController controller, Context context, final OnBatchReadyListener parentBatchReadyListener, Handler handler) {
         initialized = true;
+        OnBatchReadyListener childBatchReadyListener = new OnBatchReadyListener() {
+            @Override
+            public void onReady(BatchingStrategy causingStrategy, BatchInfo batchInfo, Collection<Data> dataCollection) {
+                Tag tag = getTagByStrategy(causingStrategy); // todo write a unit test for null tags
+                parentBatchReadyListener.onReady(TagBatchingStrategy.this, new TagBatchInfo(tag, batchInfo), dataCollection); //this listener overrides the causing strategy
+            }
+        };
         for (Tag tag : batchingStrategyMap.keySet()) {
-            batchingStrategyMap.get(tag).onInitialized(controller, context, onBatchReadyListener, handler);
+            batchingStrategyMap.get(tag).onInitialized(controller, context, childBatchReadyListener, handler);
         }
+    }
+
+    private Tag getTagByStrategy(BatchingStrategy causingStrategy) {
+        for (Map.Entry<Tag, BatchingStrategy> entry : batchingStrategyMap.entrySet()) {
+            BatchingStrategy batchingStrategy = entry.getValue();
+            Tag tag = entry.getKey();
+            if (batchingStrategy == causingStrategy) {
+                return tag;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -70,5 +88,27 @@ public class TagBatchingStrategy implements BatchingStrategy {
 
     public void addTagStrategy(Tag tag, BatchingStrategy strategy) {
         batchingStrategyMap.put(tag, strategy);
+    }
+
+
+    public static class TagBatchInfo implements BatchInfo {
+        private Tag tag;
+        private BatchInfo childBatchInfo;
+
+        public TagBatchInfo() {
+        }
+
+        public TagBatchInfo(Tag tag, BatchInfo childBatchInfo) {
+            this.tag = tag;
+            this.childBatchInfo = childBatchInfo;
+        }
+
+        public BatchInfo getChildBatchInfo() {
+            return childBatchInfo;
+        }
+
+        public Tag getTag() {
+            return tag;
+        }
     }
 }
