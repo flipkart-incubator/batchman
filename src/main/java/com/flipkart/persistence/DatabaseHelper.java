@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.flipkart.data.Data;
-import com.flipkart.data.EventData;
 import com.flipkart.exception.DeserializeException;
 import com.flipkart.exception.SerializeException;
 
@@ -64,7 +63,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             if (!isDataInDB(String.valueOf(data.getEventId()))) {
                 ContentValues values = new ContentValues();
                 values.put(KEY_ID, data.getEventId());
-                values.put(KEY_DATA, serializationStrategy.serialize(data));
+                values.put(KEY_DATA, serializationStrategy.serializeData(data));
                 values.put(KEY_EXPIRY, 0);
                 db.insert(TABLE_EVENT_DATA, null, values);
             }
@@ -89,7 +88,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Cursor cursor = db.rawQuery(selectQuery, null);
             if (cursor.moveToFirst()) {
                 do {
-                    event = (EventData) serializationStrategy.deserialize(cursor.getBlob(1));
+                    event = (Data) serializationStrategy.deserializeData(cursor.getBlob(1));
                     allEventData.add(event);
                 } while (cursor.moveToNext());
             }

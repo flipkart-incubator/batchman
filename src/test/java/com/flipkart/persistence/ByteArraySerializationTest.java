@@ -31,8 +31,8 @@ public class ByteArraySerializationTest {
     public void testByteArraySerialization() throws SerializeException, DeserializeException {
         serializationStrategy = new ByteArraySerializationStrategy();
         eventData = new EventData(new Tag("u1"), "Event 1");
-        byte[] serializedData = serializationStrategy.serialize(eventData);
-        Data data = (Data) serializationStrategy.deserialize(serializedData);
+        byte[] serializedData = serializationStrategy.serializeData(eventData);
+        Data data = (Data) serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(eventData, data);
     }
 
@@ -46,7 +46,7 @@ public class ByteArraySerializationTest {
     public void testIfDeserializeExceptionThrown() throws SerializeException, DeserializeException {
         serializationStrategy = new ByteArraySerializationStrategy();
         eventData = new EventData(new Tag("u1"), "Event 1");
-        byte[] serializedData = serializationStrategy.serialize(eventData);
+        byte[] serializedData = serializationStrategy.serializeData(eventData);
         try {
             String foo = new String(serializedData, "UTF-8");
             foo += "a";
@@ -54,7 +54,7 @@ public class ByteArraySerializationTest {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        serializationStrategy.deserialize(serializedData);
+        serializationStrategy.deserializeData(serializedData);
     }
 
     private static class CustomData extends Data {

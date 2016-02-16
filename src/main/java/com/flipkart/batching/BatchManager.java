@@ -5,9 +5,12 @@ import android.os.Handler;
 import android.os.HandlerThread;
 
 import com.flipkart.data.Data;
+import com.flipkart.data.EventData;
 import com.flipkart.persistence.SerializationStrategy;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * BatchManager that implements {@link BatchController} interface. BatchManager uses builder pattern
@@ -49,6 +52,26 @@ public class BatchManager implements BatchController {
                 initialize(BatchManager.this, context, onBatchReadyListener, handler);
             }
         });
+        registerBuiltInTypes(serializationStrategy);
+        registerSuppliedTypes(builder, serializationStrategy);
+        serializationStrategy.build();
+        initialize(this, context, onBatchReadyListener, handler);
+    }
+
+    public static void registerBuiltInTypes(SerializationStrategy serializationStrategy) {
+        serializationStrategy.registerDataType(EventData.class);
+        serializationStrategy.registerBatchInfoType(SizeBatchingStrategy.SizeBatchInfo.class);
+        serializationStrategy.registerBatchInfoType(TimeBatchingStrategy.TimeBatchInfo.class);
+        serializationStrategy.registerBatchInfoType(TagBatchingStrategy.TagBatchInfo.class);
+    }
+
+    private void registerSuppliedTypes(Builder builder, SerializationStrategy serializationStrategy) {
+        for (Class<? extends Data> dataType : builder.dataTypes) {
+            serializationStrategy.registerDataType(dataType);
+        }
+        for (Class<? extends BatchInfo> batchInfoType : builder.batchInfoTypes) {
+            serializationStrategy.registerBatchInfoType(batchInfoType);
+        }
     }
 
     @Override
@@ -96,6 +119,8 @@ public class BatchManager implements BatchController {
         private BatchingStrategy batchingStrategy;
         private OnBatchReadyListener onBatchReadyListener;
         private SerializationStrategy serializationStrategy;
+        private Set<Class<? extends Data>> dataTypes = new HashSet<>();
+        private Set<Class<? extends BatchInfo>> batchInfoTypes = new HashSet<>();
 
         public SerializationStrategy getSerializationStrategy() {
             return serializationStrategy;
@@ -142,6 +167,16 @@ public class BatchManager implements BatchController {
 
         public Builder setHandler(Handler handler) {
             this.handler = handler;
+            return this;
+        }
+
+        public Builder registerDataType(Class<? extends Data> subClass) {
+            dataTypes.add(subClass);
+            return this;
+        }
+
+        public Builder registerBatchInfoType(Class<? extends BatchInfo> subClass) {
+            batchInfoTypes.add(subClass);
             return this;
         }
 

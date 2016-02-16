@@ -1,5 +1,9 @@
 package com.flipkart.persistence;
 
+import com.flipkart.batching.BatchInfo;
+import com.flipkart.batching.BatchManager;
+import com.flipkart.batching.SizeBatchingStrategy;
+import com.flipkart.data.Batch;
 import com.flipkart.data.Data;
 import com.flipkart.data.EventData;
 import com.flipkart.data.Tag;
@@ -9,7 +13,10 @@ import com.google.gson.JsonSyntaxException;
 
 import junit.framework.Assert;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -20,8 +27,30 @@ import java.util.HashMap;
  */
 public class GsonSerializationTest {
 
+    @Mock
+    PersistenceStrategy inMemoryPersistenceStrategy;
     private SerializationStrategy serializationStrategy;
-    private Data eventData;
+    //private SizeBatchingStrategy sizeBatchingStrategy;
+    private BatchInfo batchInfo;
+    private Batch batch;
+    private ArrayList<Data> dataCollection;
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+        batchInfo = new SizeBatchingStrategy.SizeBatchInfo(5);
+        dataCollection = new ArrayList<>();
+        dataCollection.add(new EventData(new Tag("ads"), "Event"));
+        dataCollection.add(new EventData(new Tag("ads"), "Event"));
+        dataCollection.add(new EventData(new Tag("ads"), "Event"));
+        dataCollection.add(new EventData(new Tag("ads"), "Event"));
+
+        batch = new Batch(batchInfo, dataCollection);
+
+    }
 
     /**
      * Test the working of GSONSerializationStrategy
@@ -30,12 +59,17 @@ public class GsonSerializationTest {
      * @throws DeserializeException
      */
     @Test
-    public void testGSONSerialization() throws SerializeException, DeserializeException {
-        serializationStrategy = new GsonSerializationStrategy();
-        eventData = new EventData(new Tag("u1"), "Event 1");
-        byte[] serializedData = serializationStrategy.serialize(eventData);
-        Data data = (Data) serializationStrategy.deserialize(serializedData);
-        Assert.assertEquals(eventData, data);
+    public void testGSONSerialization() {
+        byte[] serializedData;
+        try {
+            serializedData = serializationStrategy.serializeBatch(batch);
+            Batch batchReturned = (Batch) serializationStrategy.deserializeBatch(serializedData);
+            Assert.assertEquals(batch, batchReturned);
+        } catch (SerializeException e) {
+            e.getRealException().printStackTrace();
+        } catch (DeserializeException e) {
+            e.getRealException().printStackTrace();
+        }
     }
 
     /**
@@ -44,11 +78,9 @@ public class GsonSerializationTest {
      * @throws SerializeException
      * @throws DeserializeException
      */
-    @Test(expected = JsonSyntaxException.class)
-    public void testIfDeserializeExceptionThrown() throws SerializeException, DeserializeException {
-        serializationStrategy = new GsonSerializationStrategy();
-        eventData = new EventData(new Tag("u1"), "Event 1");
-        byte[] serializedData = serializationStrategy.serialize(eventData);
+    @Test(expected = Exception.class)
+    public void testIfExceptionThrownWhenCorrupt() throws SerializeException, DeserializeException {
+        byte[] serializedData = serializationStrategy.serializeBatch(batch);
         try {
             String foo = new String(serializedData, "UTF-8");
             foo += "a";
@@ -56,7 +88,7 @@ public class GsonSerializationTest {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        serializationStrategy.deserialize(serializedData);
+        serializationStrategy.deserializeData(serializedData);
     }
 
     private static class CustomData extends Data {

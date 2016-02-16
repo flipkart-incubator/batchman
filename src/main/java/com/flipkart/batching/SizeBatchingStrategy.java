@@ -41,7 +41,7 @@ public class SizeBatchingStrategy extends BaseBatchingStrategy {
         currentBatchSize = getPersistenceStrategy().getData().size();
         if ((forced || isBatchReady()) && currentBatchSize > 0) {
             Collection<Data> data = getPersistenceStrategy().getData();
-            getOnReadyListener().onReady(data);
+            getOnReadyListener().onReady(this, new SizeBatchInfo(maxBatchSize), data);
             getPersistenceStrategy().removeData(data);
         }
     }
@@ -59,5 +59,28 @@ public class SizeBatchingStrategy extends BaseBatchingStrategy {
      */
     protected boolean isBatchReady() {
         return currentBatchSize >= maxBatchSize;
+    }
+
+    public static class SizeBatchInfo implements BatchInfo {
+        private int maxBatchSize;
+
+        public SizeBatchInfo() {
+        }
+
+        public SizeBatchInfo(int maxBatchSize) {
+            this.maxBatchSize = maxBatchSize;
+        }
+
+        public int getMaxBatchSize() {
+            return maxBatchSize;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof SizeBatchInfo) {
+                return ((SizeBatchInfo) o).getMaxBatchSize() == maxBatchSize;
+            }
+            return super.equals(o);
+        }
     }
 }
