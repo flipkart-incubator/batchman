@@ -102,7 +102,11 @@ public class BatchManager implements BatchController {
         }
 
         public Builder setSerializationStrategy(SerializationStrategy serializationStrategy) {
-            this.serializationStrategy = serializationStrategy;
+            if (serializationStrategy != null) {
+                this.serializationStrategy = serializationStrategy;
+            } else {
+                throw new IllegalArgumentException("Serialization Strategy cannot be null");
+            }
             return this;
         }
 
@@ -111,7 +115,11 @@ public class BatchManager implements BatchController {
         }
 
         public Builder setOnBatchReadyListener(OnBatchReadyListener onBatchReadyListener) {
-            this.onBatchReadyListener = onBatchReadyListener;
+            if (onBatchReadyListener != null) {
+                this.onBatchReadyListener = onBatchReadyListener;
+            } else {
+                throw new IllegalArgumentException("OnBatchReadyListener not specified");
+            }
             return this;
         }
 
@@ -120,7 +128,11 @@ public class BatchManager implements BatchController {
         }
 
         public Builder setBatchingStrategy(BatchingStrategy batchingStrategy) {
-            this.batchingStrategy = batchingStrategy;
+            if (batchingStrategy != null) {
+                this.batchingStrategy = batchingStrategy;
+            } else {
+                throw new IllegalArgumentException("BatchingStrategy cannot be null");
+            }
             return this;
         }
 

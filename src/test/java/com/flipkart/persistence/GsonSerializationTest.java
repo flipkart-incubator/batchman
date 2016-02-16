@@ -67,6 +67,7 @@ public class GsonSerializationTest {
          * @param tag  tag associated with data
          * @param data data object
          */
+
         public CustomData(Tag tag, HashMap<String, Object> data) {
             super(tag, data);
         }

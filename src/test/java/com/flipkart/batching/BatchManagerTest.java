@@ -125,4 +125,36 @@ public class BatchManagerTest {
 
         Assert.assertNotNull(batchController.getHandler());
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBatchingStrategyNullException() {
+        BatchController batchController = new BatchManager.Builder()
+                .setSerializationStrategy(serializationStrategy)
+                .setBatchingStrategy(null)
+                .setHandler(null)
+                .setOnBatchReadyListener(onBatchReadyListener)
+                .build(context);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSerializationStrategyNullException() {
+        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
+        BatchController batchController = new BatchManager.Builder()
+                .setSerializationStrategy(null)
+                .setBatchingStrategy(sizeBatchingStrategy)
+                .setHandler(null)
+                .setOnBatchReadyListener(onBatchReadyListener)
+                .build(context);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testOnReadyListenerNullException() {
+        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
+        BatchController batchController = new BatchManager.Builder()
+                .setSerializationStrategy(serializationStrategy)
+                .setBatchingStrategy(sizeBatchingStrategy)
+                .setHandler(null)
+                .setOnBatchReadyListener(null)
+                .build(context);
+    }
 }

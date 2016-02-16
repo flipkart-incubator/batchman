@@ -1,13 +1,19 @@
 package com.flipkart.persistence;
 
+import android.content.Context;
+
 import com.flipkart.Utils;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.data.Data;
 import com.flipkart.data.Tag;
 
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
@@ -21,20 +27,34 @@ import java.util.ArrayList;
 public class TagBasedPersistenceTest {
 
     private TagBasedPersistenceStrategy tagBasedPersistenceStrategy;
-    private PersistenceStrategy persistenceStrategy;
-    private Tag ad_tag = new Tag("ADS");
+    private PersistenceStrategy inMemoryPersistenceStrategy;
+    private PersistenceStrategy sqlPersistenceStrategy;
+    private Tag ad_tag = new Tag("AD");
     private Tag debug_tag = new Tag("DEBUG");
     private Tag buisness_tag = new Tag("BUISNESS");
 
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
     @Test
     public void testAddData() {
-        tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy(ad_tag, new InMemoryPersistenceStrategy());
-        tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy(debug_tag, new InMemoryPersistenceStrategy());
+        Context context = RuntimeEnvironment.application;
+        inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy();
+        sqlPersistenceStrategy = new SQLPersistenceStrategy(new GsonSerializationStrategy(), context);
+        sqlPersistenceStrategy.onInitialized();
+        tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy(ad_tag, inMemoryPersistenceStrategy);
+        tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy(debug_tag, sqlPersistenceStrategy);
 
-        ArrayList<Data> fakeCollection = Utils.fakeCollection(5);
-        tagBasedPersistenceStrategy.add(fakeCollection);
+        ArrayList<Data> fakeAdsCollection = Utils.fakeAdsCollection(4);
+        ArrayList<Data> fakeDebugCollection = Utils.fakeDebugCollection(4);
+        ArrayList<Data> arrayList = new ArrayList<>();
+        arrayList.addAll(fakeAdsCollection);
+        arrayList.addAll(fakeDebugCollection);
+        tagBasedPersistenceStrategy.add(fakeAdsCollection);
 
-//        Assert.assertTrue(tagBasedPersistenceStrategy.getData() == fakeCollection);
+        Assert.assertEquals(inMemoryPersistenceStrategy.getData(), fakeAdsCollection);
     }
 
     private void initializeTagBasedPersistence(Tag tag, PersistenceStrategy persistenceStrategy) {
