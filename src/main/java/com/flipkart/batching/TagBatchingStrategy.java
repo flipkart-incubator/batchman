@@ -26,6 +26,12 @@ import java.util.Map;
 
 public class TagBatchingStrategy implements BatchingStrategy {
     private Map<Tag, BatchingStrategy> batchingStrategyMap = new HashMap<>();
+    private boolean initialized = false;
+
+    @Override
+    public boolean isInitialized() {
+        return initialized;
+    }
 
     @Override
     public void onDataPushed(Collection<Data> dataCollection) {
@@ -39,6 +45,7 @@ public class TagBatchingStrategy implements BatchingStrategy {
 
     @Override
     public void onInitialized(BatchController controller, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler) {
+        initialized = true;
         for (Tag tag : batchingStrategyMap.keySet()) {
             batchingStrategyMap.get(tag).onInitialized(controller, context, onBatchReadyListener, handler);
         }

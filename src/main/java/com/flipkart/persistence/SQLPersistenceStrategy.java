@@ -1,7 +1,6 @@
 package com.flipkart.persistence;
 
 import android.content.Context;
-import android.os.Handler;
 
 import com.flipkart.data.Data;
 import com.flipkart.exception.DeserializeException;
@@ -18,29 +17,24 @@ import java.util.Collection;
  */
 
 public class SQLPersistenceStrategy extends InMemoryPersistenceStrategy {
-    private final Handler handler;
     private DatabaseHelper databaseHelper;
+    private SerializationStrategy serializationStrategy;
+    private Context context;
 
-    public SQLPersistenceStrategy(SerializationStrategy serializationStrategy, Context context, Handler handler) {
+    public SQLPersistenceStrategy(SerializationStrategy serializationStrategy, Context context) {
         super();
-        this.databaseHelper = new DatabaseHelper(serializationStrategy, context);
-        this.handler = handler;
-        syncData();
+        this.serializationStrategy = serializationStrategy;
+        this.context = context;
     }
 
     @Override
     public void add(final Collection<Data> dataCollection) {
         super.add(dataCollection);
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    databaseHelper.addData(dataCollection);
-                } catch (SerializeException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        try {
+            databaseHelper.addData(dataCollection);
+        } catch (SerializeException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -50,26 +44,23 @@ public class SQLPersistenceStrategy extends InMemoryPersistenceStrategy {
      */
 
     private void syncData() {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    SQLPersistenceStrategy.super.add(databaseHelper.getAllData());
-                } catch (DeserializeException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        try {
+            super.add(databaseHelper.getAllData());
+        } catch (DeserializeException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void removeData(final Collection<Data> dataCollection) {
         super.removeData(dataCollection);
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                databaseHelper.deleteAll();
-            }
-        });
+        databaseHelper.deleteAll();
+    }
+
+    @Override
+    public void onInitialized() {
+        super.onInitialized();
+        this.databaseHelper = new DatabaseHelper(serializationStrategy, context);
+        syncData();
     }
 }

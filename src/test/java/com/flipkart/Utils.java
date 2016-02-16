@@ -27,4 +27,33 @@ public class Utils {
         }
         return datas;
     }
+
+    public static ArrayList<Data> fakeAdsCollection(int size) {
+        ArrayList<Data> datas = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            eventData = new EventData(new Tag("AD"), "Event " + i);
+            datas.add(eventData);
+        }
+        return datas;
+    }
+
+    public static ArrayList<Data> fakeDebugCollection(int size) {
+        ArrayList<Data> datas = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            eventData = new EventData(new Tag("DEBUG"), "Event " + i);
+            datas.add(eventData);
+        }
+        return datas;
+    }
+
+    public static ArrayList<Data> fakeBuisnessCollection(int size) {
+        ArrayList<Data> datas = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            eventData = new EventData(new Tag("BUISNESS"), "Event " + i);
+            datas.add(eventData);
+        }
+        return datas;
+    }
+
+
 }

@@ -10,7 +10,6 @@ import java.util.Collection;
 /**
  * Interface class for BatchingStrategy. An implementation of BatchingStrategy must
  * implement this interface and override all it's methods.
- *
  */
 
 public interface BatchingStrategy {
@@ -34,6 +33,8 @@ public interface BatchingStrategy {
 
     void flush(boolean forced);
 
+    boolean isInitialized();
+
     /**
      * Instance of {@link BatchController}, {@link Context}, {@link OnBatchReadyListener},
      * and {@link Handler} from {@link BatchController}.
@@ -45,4 +46,5 @@ public interface BatchingStrategy {
      */
 
     void onInitialized(BatchController controller, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler);
+
 }

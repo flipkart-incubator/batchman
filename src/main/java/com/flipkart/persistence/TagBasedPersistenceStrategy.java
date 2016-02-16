@@ -17,13 +17,16 @@ public class TagBasedPersistenceStrategy implements PersistenceStrategy {
     private final Tag tag;
 
     public TagBasedPersistenceStrategy(Tag tag, PersistenceStrategy persistenceStrategy) {
-        this.tag = tag;
-        this.persistenceStrategy = persistenceStrategy;
         if (tag == null) {
             throw new IllegalArgumentException("Tag cannot be null");
+        } else {
+            this.tag = tag;
         }
+
         if (persistenceStrategy == null) {
             throw new IllegalArgumentException("PersistenceStrategy cannot be null");
+        } else {
+            this.persistenceStrategy = persistenceStrategy;
         }
     }
 
@@ -44,6 +47,11 @@ public class TagBasedPersistenceStrategy implements PersistenceStrategy {
     public void removeData(Collection<Data> dataCollection) {
         filterByTag(dataCollection);
         persistenceStrategy.removeData(dataCollection);
+    }
+
+    @Override
+    public void onInitialized() {
+
     }
 
     /**

@@ -23,6 +23,7 @@ public abstract class BaseBatchingStrategy implements BatchingStrategy {
     private BatchController batchController;
     private OnBatchReadyListener onReadyListener;
     private PersistenceStrategy persistenceStrategy;
+    private boolean initialized = false;
 
     public BaseBatchingStrategy(PersistenceStrategy persistenceStrategy) {
         if (persistenceStrategy != null) {
@@ -30,6 +31,11 @@ public abstract class BaseBatchingStrategy implements BatchingStrategy {
         } else {
             throw new IllegalArgumentException("Persistence Strategy cannot be null.");
         }
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return initialized;
     }
 
     @Override
@@ -43,11 +49,12 @@ public abstract class BaseBatchingStrategy implements BatchingStrategy {
     @Override
     public void onInitialized(BatchController controller, Context context,
                               OnBatchReadyListener onBatchReadyListener, Handler handler) {
+        initialized = true;
         this.onReadyListener = onBatchReadyListener;
         this.batchController = controller;
         this.context = context;
+        this.persistenceStrategy.onInitialized();
     }
-
 
     public Context getContext() {
         return context;
@@ -64,6 +71,4 @@ public abstract class BaseBatchingStrategy implements BatchingStrategy {
     public PersistenceStrategy getPersistenceStrategy() {
         return persistenceStrategy;
     }
-
-
 }
