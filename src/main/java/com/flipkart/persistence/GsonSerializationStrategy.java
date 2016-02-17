@@ -69,20 +69,20 @@ public class GsonSerializationStrategy implements SerializationStrategy {
     @Override
     public byte[] serializeData(Data data) throws SerializeException {
         checkIfBuildCalled();
-        return gson.toJson(data).getBytes();
+        return gson.toJson(data,Data.class).getBytes();
     }
 
 
     @Override
     public byte[] serializeCollection(Collection<Data> data) throws SerializeException {
         checkIfBuildCalled();
-        return gson.toJson(data).getBytes();
+        return gson.toJson(data,Collection.class).getBytes();
     }
 
     @Override
     public byte[] serializeBatch(Batch batch) throws SerializeException {
         checkIfBuildCalled();
-        return gson.toJson(batch).getBytes();
+        return gson.toJson(batch,Batch.class).getBytes();
     }
 
     @Override

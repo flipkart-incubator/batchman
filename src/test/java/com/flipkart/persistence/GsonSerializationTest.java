@@ -49,7 +49,6 @@ public class GsonSerializationTest {
         dataCollection.add(new EventData(new Tag("ads"), "Event"));
 
         batch = new Batch(batchInfo, dataCollection);
-
     }
 
     /**
@@ -119,30 +118,34 @@ public class GsonSerializationTest {
     }
 
     /**
-     * Test the working of {@link ByteArraySerializationStrategy} for Custom Data
+     * Test the working of {@link GsonSerializationStrategy} for Custom Data
      *
      * @throws SerializeException
      * @throws DeserializeException
      */
-    @Test
-    public void testByteArraySerializationForCustomData() throws SerializeException, DeserializeException {
+    @Test//todo:this test not working
+    public void testGSONSerializationForCustomData() throws SerializeException, DeserializeException {
         //test to serialize hashmap
         GsonSerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        serializationStrategy.registerDataType(CustomData.class);
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("key", "value");
         Data customData = new CustomData(new Tag("u1"), hashMap);
-        byte[] serializedData = serializationStrategy.serialize(customData);
-        Data data = (Data) serializationStrategy.deserialize(serializedData);
+        byte[] serializedData = serializationStrategy.serializeData(customData);
+        Data data = serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(customData, data);
         //test to serialize arraylist
-        serializationStrategy = new GsonSerializationStrategy();
+
         ArrayList<String> arrayList = new ArrayList<>();
         arrayList.add("Event1");
         arrayList.add("Event2");
         arrayList.add("Event3");
         customData = new CustomData(new Tag("u1"), arrayList);
-        serializedData = serializationStrategy.serialize(customData);
-        data = (Data) serializationStrategy.deserialize(serializedData);
+        serializedData = serializationStrategy.serializeData(customData);
+        data = (Data) serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(customData, data);
     }
 }

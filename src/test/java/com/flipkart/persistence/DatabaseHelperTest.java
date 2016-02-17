@@ -3,6 +3,7 @@ package com.flipkart.persistence;
 import android.content.Context;
 
 import com.flipkart.Utils;
+import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.data.Data;
 import com.flipkart.data.EventData;
@@ -30,9 +31,9 @@ import static junit.framework.Assert.assertEquals;
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class DatabaseHelperTest {
-
     private DatabaseHelper databaseHelper;
     private Context context;
+    private GsonSerializationStrategy gsonSerializationStrategy;
 
     /**
      * Test to verify the {@link DatabaseHelper#addData(Collection)} adds the data in the db
@@ -42,9 +43,12 @@ public class DatabaseHelperTest {
      */
     @Test
     public void testAddData() throws DeserializeException, SerializeException {
+        gsonSerializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(gsonSerializationStrategy);
+        gsonSerializationStrategy.build();
 
         context = RuntimeEnvironment.application;
-        databaseHelper = new DatabaseHelper(new GsonSerializationStrategy(), context);
+        databaseHelper = new DatabaseHelper(gsonSerializationStrategy, context);
         Collection<Data> dataArrayList = Utils.fakeCollection(5);
         databaseHelper.addData(dataArrayList);
         //verify that the data retrieved from the database is similar to the inserted data.
@@ -59,12 +63,16 @@ public class DatabaseHelperTest {
      */
     @Test
     public void testGetAllData() throws DeserializeException, SerializeException {
+        gsonSerializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(gsonSerializationStrategy);
+        gsonSerializationStrategy.build();
+
         context = RuntimeEnvironment.application;
-        databaseHelper = new DatabaseHelper(new GsonSerializationStrategy(), context);
+        databaseHelper = new DatabaseHelper(gsonSerializationStrategy, context);
         Collection<Data> dataArrayList = Utils.fakeCollection(5);
         databaseHelper.addData(dataArrayList);
 
-        databaseHelper = new DatabaseHelper(new GsonSerializationStrategy(), context);
+        databaseHelper = new DatabaseHelper(gsonSerializationStrategy, context);
         //verify that database contains the data, after reinitializing the DatabaseHelper
         assertEquals(databaseHelper.getAllData(), dataArrayList);
     }
@@ -77,12 +85,15 @@ public class DatabaseHelperTest {
      */
     @Test
     public void testDeleteParticularData() throws SerializeException, DeserializeException {
+        gsonSerializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(gsonSerializationStrategy);
+        gsonSerializationStrategy.build();
         context = RuntimeEnvironment.application;
-        databaseHelper = new DatabaseHelper(new GsonSerializationStrategy(), context);
+        databaseHelper = new DatabaseHelper(gsonSerializationStrategy, context);
         Collection<Data> dataArrayList = Utils.fakeCollection(5);
         databaseHelper.addData(dataArrayList);
 
-        databaseHelper = new DatabaseHelper(new GsonSerializationStrategy(), context);
+        databaseHelper = new DatabaseHelper(gsonSerializationStrategy, context);
         databaseHelper.deleteDataList(dataArrayList);
 
         //verify that the data has been deleted from the database.
@@ -97,12 +108,15 @@ public class DatabaseHelperTest {
      */
     @Test
     public void testDeleteAllData() throws SerializeException, DeserializeException {
+        gsonSerializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(gsonSerializationStrategy);
+        gsonSerializationStrategy.build();
         context = RuntimeEnvironment.application;
-        databaseHelper = new DatabaseHelper(new GsonSerializationStrategy(), context);
+        databaseHelper = new DatabaseHelper(gsonSerializationStrategy, context);
         Collection<Data> dataArrayList = Utils.fakeCollection(5);
         databaseHelper.addData(dataArrayList);
 
-        databaseHelper = new DatabaseHelper(new GsonSerializationStrategy(), context);
+        databaseHelper = new DatabaseHelper(gsonSerializationStrategy, context);
         databaseHelper.deleteAll();
 
         //verify that the data has been deleted from the database.
@@ -116,13 +130,16 @@ public class DatabaseHelperTest {
      */
     @Test
     public void testIfDataInDB() throws SerializeException {
+        gsonSerializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(gsonSerializationStrategy);
+        gsonSerializationStrategy.build();
         context = RuntimeEnvironment.application;
-        databaseHelper = new DatabaseHelper(new GsonSerializationStrategy(), context);
+        databaseHelper = new DatabaseHelper(gsonSerializationStrategy, context);
         ArrayList<Data> dataArrayList = new ArrayList<>();
         Data eventData = new EventData(new Tag("u1"), "");
         dataArrayList.add(eventData);
         databaseHelper.addData(dataArrayList);
-        databaseHelper = new DatabaseHelper(new GsonSerializationStrategy(), context);
+        databaseHelper = new DatabaseHelper(gsonSerializationStrategy, context);
         //verify that data is already present in the database.
         Assert.assertTrue(databaseHelper.isDataInDB(String.valueOf(dataArrayList.get(0).getEventId())));
     }

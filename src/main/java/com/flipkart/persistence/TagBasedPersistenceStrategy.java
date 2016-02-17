@@ -51,7 +51,7 @@ public class TagBasedPersistenceStrategy implements PersistenceStrategy {
 
     @Override
     public void onInitialized() {
-
+        persistenceStrategy.onInitialized();
     }
 
     /**

@@ -2,13 +2,14 @@ package com.flipkart.data;
 
 import com.flipkart.batching.BatchInfo;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
  * Created by kushal.sharma on 15/02/16.
  */
 
-public class Batch {
+public class Batch implements Serializable{
     private BatchInfo batchInfo;
     private Collection<Data> dataCollection;
 

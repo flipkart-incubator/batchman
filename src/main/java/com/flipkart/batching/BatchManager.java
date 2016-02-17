@@ -55,7 +55,6 @@ public class BatchManager implements BatchController {
         registerBuiltInTypes(serializationStrategy);
         registerSuppliedTypes(builder, serializationStrategy);
         serializationStrategy.build();
-        initialize(this, context, onBatchReadyListener, handler);
     }
 
     public static void registerBuiltInTypes(SerializationStrategy serializationStrategy) {
