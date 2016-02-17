@@ -82,6 +82,14 @@ public class TimeBatchingStrategy extends BaseBatchingStrategy {
         public long getTimeOut() {
             return timeOut;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof TimeBatchInfo) {
+                return ((TimeBatchInfo) o).getTimeOut() == timeOut;
+            }
+            return super.equals(o);
+        }
     }
 }
 

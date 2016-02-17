@@ -24,7 +24,9 @@ import org.robolectric.shadows.ShadowLooper;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,7 +50,7 @@ public class ComboBatchingTest {
     private OnBatchReadyListener onBatchReadyListener;
 
     private long TIME_OUT = 5000;
-    private int BACTH_SIZE = 5;
+    private int BATCH_SIZE = 5;
     private ShadowLooper shadowLooper;
     private TimeBatchingStrategy timeBatchingStrategy;
     private SizeBatchingStrategy sizeBatchingStrategy;
@@ -110,8 +112,8 @@ public class ComboBatchingTest {
     }
 
     /**
-     * This test is to check the {@link OnBatchReadyListener#onReady(Collection)} callback for various uses cases.
-     * Flush is False for this test. {@link OnBatchReadyListener#onReady(Collection)} should be called every time.
+     * This test is to check the {@link OnBatchReadyListener#onReady(BatchingStrategy, BatchInfo, Collection)}  callback for various uses cases.
+     * Flush is False for this test. {@link OnBatchReadyListener#onReady(BatchingStrategy, BatchInfo, Collection)}  should be called every time.
      */
     @Test
     public void testOnReadyCallbackFlushFalse() {
@@ -124,7 +126,7 @@ public class ComboBatchingTest {
         comboBatchingStrategy.flush(false);
         shadowLooper.idle(TIME_OUT);
         //verify onReady is called from TimeBatching as size of data is 2.
-        verify(onBatchReadyListener, times(1)).onReady(eq(data));
+        verify(onBatchReadyListener, times(1)).onReady(timeBatchingStrategy, new TimeBatchingStrategy.TimeBatchInfo(TIME_OUT), data);
 
         data.clear();
         data = Utils.fakeCollection(5);
@@ -132,12 +134,13 @@ public class ComboBatchingTest {
         when(persistenceStrategy.getData()).thenReturn(data);
         comboBatchingStrategy.flush(false);
         //verify onReady is called as size of data is equal to BATCH_SIZE
-        verify(onBatchReadyListener, times(1)).onReady(eq(data));
+        verify(onBatchReadyListener, times(1)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(BATCH_SIZE), data);
     }
 
     /**
-     * This test is to check the {@link OnBatchReadyListener#onReady(Collection)} callback for various uses cases.
-     * Flush is True for this test. {@link OnBatchReadyListener#onReady(Collection)} should be called every time.
+     * This test is to check the {@link OnBatchReadyListener#onReady(BatchingStrategy, BatchInfo, Collection)}  callback for various uses cases.
+     * Flush is True for this test. {@link OnBatchReadyListener#onReady(BatchingStrategy, BatchInfo, Collection)}
+     * should be called every time.
      */
     @Test
     public void testOnReadyCallbackFlushTrue() {
@@ -149,7 +152,7 @@ public class ComboBatchingTest {
         when(persistenceStrategy.getData()).thenReturn(data);
         comboBatchingStrategy.flush(true);
         //verify onReady is called from TimeBatching and SizeBatching as flush force is true
-        verify(onBatchReadyListener, times(2)).onReady(eq(data));
+        verify(onBatchReadyListener, atLeastOnce()).onReady(any(BatchingStrategy.class), any(BatchInfo.class), eq(data));
 
         data.clear();
         data = Utils.fakeCollection(6);
@@ -157,7 +160,7 @@ public class ComboBatchingTest {
         when(persistenceStrategy.getData()).thenReturn(data);
         comboBatchingStrategy.flush(true);
         //verify onReady is called from TimeBatching and SizeBatching as flush force is true
-        verify(onBatchReadyListener, times(2)).onReady(eq(data));
+        verify(onBatchReadyListener, atLeastOnce()).onReady(any(BatchingStrategy.class), any(BatchInfo.class), eq(data));
     }
 
     /**
@@ -178,7 +181,7 @@ public class ComboBatchingTest {
      * Initialize the ComboBatchingStrategy
      */
     private void initializeComboBatching() {
-        sizeBatchingStrategy = new SizeBatchingStrategy(BACTH_SIZE, persistenceStrategy);
+        sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
         timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
         comboBatchingStrategy = new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
         HandlerThread handlerThread = new HandlerThread("test");

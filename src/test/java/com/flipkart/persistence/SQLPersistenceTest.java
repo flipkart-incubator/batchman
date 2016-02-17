@@ -1,7 +1,6 @@
 package com.flipkart.persistence;
 
 import android.content.Context;
-import android.os.Handler;
 
 import com.flipkart.Utils;
 import com.flipkart.batching.BuildConfig;
@@ -14,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowLooper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,8 +25,6 @@ import java.util.Collection;
 public class SQLPersistenceTest {
 
     private PersistenceStrategy persistenceStrategy;
-    private ShadowLooper shadowLooper;
-    private Handler handler;
     private Context context;
 
 
@@ -71,7 +67,7 @@ public class SQLPersistenceTest {
      */
     private void initializeSQLPersistence() {
         context = RuntimeEnvironment.application;
-        persistenceStrategy = new SQLPersistenceStrategy(new GsonSerializationStrategy(), context);
+        persistenceStrategy = new SQLPersistenceStrategy(new ByteArraySerializationStrategy(), context);
         persistenceStrategy.onInitialized();
     }
 }
