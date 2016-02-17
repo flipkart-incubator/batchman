@@ -1,5 +1,8 @@
 package com.flipkart.persistence;
 
+import com.flipkart.Utils;
+import com.flipkart.batching.BatchInfo;
+import com.flipkart.data.Batch;
 import com.flipkart.data.Data;
 import com.flipkart.data.EventData;
 import com.flipkart.data.Tag;
@@ -12,6 +15,7 @@ import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -34,6 +38,53 @@ public class ByteArraySerializationTest {
         byte[] serializedData = serializationStrategy.serializeData(eventData);
         Data data = (Data) serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(eventData, data);
+    }
+
+    /**
+     * Test if Collection is getting serialized and deserialized
+     *
+     * @throws SerializeException
+     * @throws DeserializeException
+     */
+    @Test
+    public void testCollectionSerialization() throws SerializeException, DeserializeException {
+        serializationStrategy = new ByteArraySerializationStrategy();
+        ArrayList<Data> arrayList = Utils.fakeCollection(4);
+        byte[] serializedData = serializationStrategy.serializeCollection(arrayList);
+        Collection<Data> data = serializationStrategy.deserializeCollection(serializedData);
+        Assert.assertEquals(arrayList, data);
+    }
+
+    private static class SizeBatchInfo implements BatchInfo {
+        private int maxBatchSize;
+
+        public SizeBatchInfo() {
+        }
+
+        public SizeBatchInfo(int maxBatchSize) {
+            this.maxBatchSize = maxBatchSize;
+        }
+
+        public int getMaxBatchSize() {
+            return maxBatchSize;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof SizeBatchInfo) {
+                return ((SizeBatchInfo) o).getMaxBatchSize() == maxBatchSize;
+            }
+            return super.equals(o);
+        }
+    }
+
+    @Test
+    public void testBatchInfoSerialization() throws DeserializeException, SerializeException {
+        serializationStrategy = new ByteArraySerializationStrategy();
+        Batch batch = new Batch(new SizeBatchInfo(2), Utils.fakeCollection(4));
+        byte[] serializedData = serializationStrategy.serializeBatch(batch);
+        Batch data = serializationStrategy.deserializeBatch(serializedData);
+        Assert.assertEquals(batch, data);
     }
 
     /**
@@ -96,8 +147,8 @@ public class ByteArraySerializationTest {
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("key", "value");
         Data customData = new CustomData(new Tag("u1"), hashMap);
-        byte[] serializedData = serializationStrategy.serialize(customData);
-        Data data = (Data) serializationStrategy.deserialize(serializedData);
+        byte[] serializedData = serializationStrategy.serializeData(customData);
+        Data data = (Data) serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(customData, data);
         //test to serialize arraylist
         serializationStrategy = new ByteArraySerializationStrategy();
@@ -106,8 +157,8 @@ public class ByteArraySerializationTest {
         arrayList.add("Event2");
         arrayList.add("Event3");
         customData = new CustomData(new Tag("u1"), arrayList);
-        serializedData = serializationStrategy.serialize(customData);
-        data = (Data) serializationStrategy.deserialize(serializedData);
+        serializedData = serializationStrategy.serializeData(customData);
+        data = serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(customData, data);
     }
 }

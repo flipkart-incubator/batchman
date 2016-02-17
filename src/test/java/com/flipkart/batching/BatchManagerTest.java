@@ -25,7 +25,6 @@ import org.robolectric.shadows.ShadowLooper;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,7 +53,7 @@ public class BatchManagerTest {
     }
 
     /**
-     * Test to verify {@link OnBatchReadyListener#onReady(Collection)} is called when batch is ready
+     * Test to verify {@link OnBatchReadyListener#onReady(BatchingStrategy, BatchInfo, Collection)} is called when batch is ready
      */
     @Test
     public void testAddToBatch() {
@@ -75,7 +74,7 @@ public class BatchManagerTest {
         when(persistenceStrategy.getData()).thenReturn(fakeCollection);
         batchController.addToBatch(fakeCollection);
         shadowLooper.runToEndOfTasks();
-        verify(onBatchReadyListener, times(1)).onReady(eq(fakeCollection));
+        verify(onBatchReadyListener, times(1)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(5), fakeCollection);
     }
 
 //    @Test(expected = IllegalAccessError.class)

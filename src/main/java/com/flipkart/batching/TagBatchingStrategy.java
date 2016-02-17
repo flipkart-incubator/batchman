@@ -110,5 +110,13 @@ public class TagBatchingStrategy implements BatchingStrategy {
         public Tag getTag() {
             return tag;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof TagBatchInfo) {
+                return ((TagBatchInfo) o).getTag() == tag && ((TagBatchInfo) o).getChildBatchInfo() == childBatchInfo;
+            }
+            return super.equals(o);
+        }
     }
 }
