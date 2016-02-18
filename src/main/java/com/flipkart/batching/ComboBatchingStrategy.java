@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.data.Data;
+import com.flipkart.data.Tag;
 
 import java.util.Collection;
 
@@ -34,10 +35,16 @@ public class ComboBatchingStrategy implements BatchingStrategy {
     }
 
     @Override
-    public void onInitialized(BatchController controller, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler) {
+    public void onInitialized(BatchController controller, Context context, final OnBatchReadyListener parentBatchReadyListener, Handler handler) {
         initialized =true;
+        OnBatchReadyListener childBatchReadyListener = new OnBatchReadyListener() {
+            @Override
+            public void onReady(BatchingStrategy causingStrategy, BatchInfo batchInfo, Collection<Data> dataCollection) {
+                parentBatchReadyListener.onReady(ComboBatchingStrategy.this, new ComboBatchInfo(batchInfo), dataCollection); //this listener overrides the causing strategy
+            }
+        };
         for (BatchingStrategy batchingStrategy : batchingStrategies) {
-            batchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+            batchingStrategy.onInitialized(controller, context, childBatchReadyListener, handler);
         }
     }
 
@@ -58,5 +65,11 @@ public class ComboBatchingStrategy implements BatchingStrategy {
     @Override
     public boolean isInitialized() {
         return initialized;
+    }
+
+
+    public static class ComboBatchInfo implements BatchInfo {
+        public ComboBatchInfo(BatchInfo batchInfo) {
+        }
     }
 }

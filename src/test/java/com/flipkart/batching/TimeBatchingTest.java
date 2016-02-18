@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by anirudh.r on 11/02/16.
  */
+
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class TimeBatchingTest {

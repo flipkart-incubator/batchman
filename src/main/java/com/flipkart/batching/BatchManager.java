@@ -46,15 +46,15 @@ public class BatchManager implements BatchController {
             this.handler = new Handler(handlerThread.getLooper());
         }
 
+        registerBuiltInTypes(serializationStrategy);
+        registerSuppliedTypes(builder, serializationStrategy);
+        serializationStrategy.build();
         handler.post(new Runnable() {
             @Override
             public void run() {
                 initialize(BatchManager.this, context, onBatchReadyListener, handler);
             }
         });
-        registerBuiltInTypes(serializationStrategy);
-        registerSuppliedTypes(builder, serializationStrategy);
-        serializationStrategy.build();
     }
 
     public static void registerBuiltInTypes(SerializationStrategy serializationStrategy) {
@@ -62,6 +62,7 @@ public class BatchManager implements BatchController {
         serializationStrategy.registerBatchInfoType(SizeBatchingStrategy.SizeBatchInfo.class);
         serializationStrategy.registerBatchInfoType(TimeBatchingStrategy.TimeBatchInfo.class);
         serializationStrategy.registerBatchInfoType(TagBatchingStrategy.TagBatchInfo.class);
+        serializationStrategy.registerBatchInfoType(ComboBatchingStrategy.ComboBatchInfo.class);
     }
 
     private void registerSuppliedTypes(Builder builder, SerializationStrategy serializationStrategy) {

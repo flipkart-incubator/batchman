@@ -24,7 +24,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SizeBatchingTest {
-
     @Mock
     private PersistenceStrategy persistenceStrategy;
     @Mock
@@ -32,11 +31,11 @@ public class SizeBatchingTest {
     @Mock
     private Context context;
     @Mock
+    private Handler handler;
+    @Mock
     private BatchController controller;
     @Mock
     private PersistedBatchReadyListener onBatchReadyListener;
-    @Mock
-    private Handler handler;
     @Mock
     private Exception e;
     @Mock
@@ -127,6 +126,7 @@ public class SizeBatchingTest {
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
         verify(onBatchReadyListener, times(1)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(BATCH_SIZE), data);
+        verify(persistenceStrategy, times(1)).removeData(data);
     }
 
     /**

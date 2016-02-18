@@ -12,6 +12,11 @@ import java.util.Collection;
 
 public class InMemoryPersistenceStrategy implements PersistenceStrategy {
     private ArrayList<Data> dataList = new ArrayList<>();
+    private boolean initialized;
+
+    public boolean isInitialized() {
+        return initialized;
+    }
 
     @Override
     public void add(Collection<Data> dataCollection) {
@@ -32,7 +37,7 @@ public class InMemoryPersistenceStrategy implements PersistenceStrategy {
 
     @Override
     public void onInitialized() {
-
+        initialized = true;
     }
 
 }
