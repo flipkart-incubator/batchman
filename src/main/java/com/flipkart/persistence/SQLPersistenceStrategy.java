@@ -19,11 +19,13 @@ import java.util.Collection;
 public class SQLPersistenceStrategy extends InMemoryPersistenceStrategy {
     private DatabaseHelper databaseHelper;
     private SerializationStrategy serializationStrategy;
+    private String databaseName;
     private Context context;
 
-    public SQLPersistenceStrategy(SerializationStrategy serializationStrategy, Context context) {
+    public SQLPersistenceStrategy(SerializationStrategy serializationStrategy, String databaseName, Context context) {
         super();
         this.serializationStrategy = serializationStrategy;
+        this.databaseName = databaseName;
         this.context = context;
     }
 
@@ -59,8 +61,14 @@ public class SQLPersistenceStrategy extends InMemoryPersistenceStrategy {
 
     @Override
     public void onInitialized() {
+        if(!isInitialized()) {
+            this.databaseHelper = new DatabaseHelper(serializationStrategy, databaseName, context);
+            syncData();
+        }
         super.onInitialized();
-        this.databaseHelper = new DatabaseHelper(serializationStrategy, context);
-        syncData();
+    }
+
+    public void close() {
+        this.databaseHelper.close();
     }
 }

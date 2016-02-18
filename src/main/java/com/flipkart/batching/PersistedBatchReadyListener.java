@@ -29,12 +29,6 @@ public abstract class PersistedBatchReadyListener implements OnBatchReadyListene
         this.file = file;
         this.serializationStrategy = serializationStrategy;
         this.handler = handler;
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                //checkPending();
-            }
-        });
     }
 
     public abstract void onPersistSuccess(BatchInfo batchInfo, Collection<Data> batchedData);
@@ -94,19 +88,14 @@ public abstract class PersistedBatchReadyListener implements OnBatchReadyListene
 
     private void checkPending() {
         initializeIfRequired();
-        Log.e("PersistReadyListener", String.valueOf(queueFile.size()));
         if (!queueFile.isEmpty()) {
-
             try {
                 byte[] eldest = queueFile.peek();
                 if (eldest != null) {
-                    Log.e("PersistReadyListener", "eldest is not null");
                     Batch batch = serializationStrategy.deserializeBatch(eldest);
                     callPersistSuccess(batch.getBatchInfo(), batch.getDataCollection());
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (DeserializeException e) {
+            } catch (IOException | DeserializeException e) {
                 e.printStackTrace();
             }
         }

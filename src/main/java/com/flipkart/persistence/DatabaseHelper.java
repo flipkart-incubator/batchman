@@ -21,15 +21,14 @@ import java.util.Collection;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "dataManager";
     public static final String TABLE_EVENT_DATA = "tableEventData";
     public static final String KEY_ID = "id";
     public static final String KEY_DATA = "data";
     public static final String KEY_EXPIRY = "expiry";
     private SerializationStrategy serializationStrategy;
 
-    public DatabaseHelper(SerializationStrategy serializationStrategy, Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    public DatabaseHelper(SerializationStrategy serializationStrategy, String databaseName, Context context) {
+        super(context, databaseName, null, DATABASE_VERSION);
         this.serializationStrategy = serializationStrategy;
     }
 
