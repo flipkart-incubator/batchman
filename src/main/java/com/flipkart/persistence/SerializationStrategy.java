@@ -20,12 +20,14 @@ public interface SerializationStrategy {
 
     /**
      * Register sub classes of {@link Data}
+     *
      * @param subClass The sub class of {@link Data}
      */
     void registerDataType(Class<? extends Data> subClass);
 
     /**
      * Register sub classes of {@link BatchInfo}
+     *
      * @param subClass The sub class of {@link BatchInfo}
      */
     void registerBatchInfoType(Class<? extends BatchInfo> subClass);
@@ -45,7 +47,9 @@ public interface SerializationStrategy {
      */
 
     byte[] serializeData(Data data) throws SerializeException;
+
     byte[] serializeCollection(Collection<Data> data) throws SerializeException;
+
     byte[] serializeBatch(Batch batch) throws SerializeException;
 
     /**
@@ -57,7 +61,9 @@ public interface SerializationStrategy {
      */
 
     Data deserializeData(byte[] data) throws DeserializeException;
+
     Collection<Data> deserializeCollection(byte[] data) throws DeserializeException;
+
     Batch deserializeBatch(byte[] data) throws DeserializeException;
 
 }

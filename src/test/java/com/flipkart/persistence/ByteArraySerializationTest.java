@@ -55,29 +55,6 @@ public class ByteArraySerializationTest {
         Assert.assertEquals(arrayList, data);
     }
 
-    private static class SizeBatchInfo implements BatchInfo {
-        private int maxBatchSize;
-
-        public SizeBatchInfo() {
-        }
-
-        public SizeBatchInfo(int maxBatchSize) {
-            this.maxBatchSize = maxBatchSize;
-        }
-
-        public int getMaxBatchSize() {
-            return maxBatchSize;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof SizeBatchInfo) {
-                return ((SizeBatchInfo) o).getMaxBatchSize() == maxBatchSize;
-            }
-            return super.equals(o);
-        }
-    }
-
     @Test
     public void testBatchInfoSerialization() throws DeserializeException, SerializeException {
         serializationStrategy = new ByteArraySerializationStrategy();
@@ -108,32 +85,6 @@ public class ByteArraySerializationTest {
         serializationStrategy.deserializeData(serializedData);
     }
 
-    private static class CustomData extends Data {
-        /**
-         * Constructor for Data object. This constructor takes {@link Tag} and {@link Object} as
-         * parameter and generates an eventId = (System.currentTimeMillis() + System.nanoTime())
-         *
-         * @param tag  tag associated with data
-         * @param data data object
-         */
-        public CustomData(Tag tag, HashMap<String, Object> data) {
-            super(tag, data);
-        }
-
-        public CustomData(Tag tag, ArrayList<String> strings) {
-            super(tag, strings);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof CustomData) {
-                return ((CustomData) o).getTag().equals(getTag()) && ((CustomData) o).getEventId() == getEventId() && ((CustomData) o).getData().equals(getData());
-            } else {
-                return super.equals(o);
-            }
-        }
-    }
-
     /**
      * Test the working of {@link ByteArraySerializationStrategy} for Custom Data
      *
@@ -160,5 +111,54 @@ public class ByteArraySerializationTest {
         serializedData = serializationStrategy.serializeData(customData);
         data = serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(customData, data);
+    }
+
+    private static class SizeBatchInfo implements BatchInfo {
+        private int maxBatchSize;
+
+        public SizeBatchInfo() {
+        }
+
+        public SizeBatchInfo(int maxBatchSize) {
+            this.maxBatchSize = maxBatchSize;
+        }
+
+        public int getMaxBatchSize() {
+            return maxBatchSize;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof SizeBatchInfo) {
+                return ((SizeBatchInfo) o).getMaxBatchSize() == maxBatchSize;
+            }
+            return super.equals(o);
+        }
+    }
+
+    private static class CustomData extends Data {
+        /**
+         * Constructor for Data object. This constructor takes {@link Tag} and {@link Object} as
+         * parameter and generates an eventId = (System.currentTimeMillis() + System.nanoTime())
+         *
+         * @param tag  tag associated with data
+         * @param data data object
+         */
+        public CustomData(Tag tag, HashMap<String, Object> data) {
+            super(tag, data);
+        }
+
+        public CustomData(Tag tag, ArrayList<String> strings) {
+            super(tag, strings);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof CustomData) {
+                return ((CustomData) o).getTag().equals(getTag()) && ((CustomData) o).getEventId() == getEventId() && ((CustomData) o).getData().equals(getData());
+            } else {
+                return super.equals(o);
+            }
+        }
     }
 }

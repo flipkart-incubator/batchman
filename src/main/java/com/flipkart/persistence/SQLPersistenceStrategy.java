@@ -61,7 +61,7 @@ public class SQLPersistenceStrategy extends InMemoryPersistenceStrategy {
 
     @Override
     public void onInitialized() {
-        if(!isInitialized()) {
+        if (!isInitialized()) {
             this.databaseHelper = new DatabaseHelper(serializationStrategy, databaseName, context);
             syncData();
         }

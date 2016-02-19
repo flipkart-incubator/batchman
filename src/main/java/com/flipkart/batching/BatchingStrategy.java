@@ -46,5 +46,4 @@ public interface BatchingStrategy {
      */
 
     void onInitialized(BatchController controller, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler);
-
 }
