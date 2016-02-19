@@ -42,7 +42,7 @@ public class TagBasedPersistenceTest {
     public void testAddData() {
         Context context = RuntimeEnvironment.application;
         inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy();
-        sqlPersistenceStrategy = new SQLPersistenceStrategy(new GsonSerializationStrategy(), context);
+        sqlPersistenceStrategy = new SQLPersistenceStrategy(new GsonSerializationStrategy(), "test", context);
         sqlPersistenceStrategy.onInitialized();
         tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy(ad_tag, inMemoryPersistenceStrategy);
         tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy(debug_tag, sqlPersistenceStrategy);

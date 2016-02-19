@@ -126,7 +126,7 @@ public class ComboBatchingTest {
         comboBatchingStrategy.flush(false);
         shadowLooper.idle(TIME_OUT);
         //verify onReady is called from TimeBatching as size of data is 2.
-        verify(onBatchReadyListener, times(1)).onReady(timeBatchingStrategy, new TimeBatchingStrategy.TimeBatchInfo(TIME_OUT), data);
+        verify(onBatchReadyListener, times(1)).onReady(eq(comboBatchingStrategy), any(BatchInfo.class), eq(data));
 
         data.clear();
         data = Utils.fakeCollection(5);
@@ -134,7 +134,8 @@ public class ComboBatchingTest {
         when(persistenceStrategy.getData()).thenReturn(data);
         comboBatchingStrategy.flush(false);
         //verify onReady is called as size of data is equal to BATCH_SIZE
-        verify(onBatchReadyListener, times(1)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(BATCH_SIZE), data);
+        verify(onBatchReadyListener, times(1)).onReady(eq(comboBatchingStrategy), any(BatchInfo.class), eq(data))
+        ;
     }
 
     /**
@@ -177,6 +178,7 @@ public class ComboBatchingTest {
 
         Assert.assertTrue(comboBatchingStrategy.isInitialized());
     }
+
     /**
      * Initialize the ComboBatchingStrategy
      */

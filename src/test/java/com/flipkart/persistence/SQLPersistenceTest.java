@@ -67,7 +67,7 @@ public class SQLPersistenceTest {
      */
     private void initializeSQLPersistence() {
         context = RuntimeEnvironment.application;
-        persistenceStrategy = new SQLPersistenceStrategy(new ByteArraySerializationStrategy(), context);
+        persistenceStrategy = new SQLPersistenceStrategy(new ByteArraySerializationStrategy(), "test", context);
         persistenceStrategy.onInitialized();
     }
 }

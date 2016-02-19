@@ -1,7 +1,6 @@
 package com.flipkart.batching;
 
 import android.os.Handler;
-import android.util.Log;
 
 import com.flipkart.data.Batch;
 import com.flipkart.data.Data;
@@ -15,6 +14,7 @@ import java.util.Collection;
 
 /**
  * Created by kushal.sharma on 13/02/16.
+ * Todo Document
  */
 
 public abstract class PersistedBatchReadyListener implements OnBatchReadyListener {

@@ -45,6 +45,8 @@ import static org.mockito.Mockito.when;
 @Config(constants = BuildConfig.class)
 public class TagBatchingTest {
 
+    private static final int BATCH_SIZE = 5;
+    private static final long TIME_OUT = 5000;
     private Tag AD_TAG = new Tag("AD");
     private Tag DEBUG_TAG = new Tag("DEBUG");
     private Tag BUSINESS_TAG = new Tag("BUISNESS");
@@ -53,8 +55,6 @@ public class TagBatchingTest {
     private ComboBatchingStrategy comboBatchingStrategy;
     private TagBatchingStrategy tagBatchingStrategy;
     private ShadowLooper shadowLooper;
-    private static final int BATCH_SIZE = 5;
-    private static final long TIME_OUT = 5000;
     @Mock
     private InMemoryPersistenceStrategy inMemoryPersistenceStrategy;
     @Mock

@@ -9,7 +9,7 @@ import java.util.Collection;
  * Created by kushal.sharma on 15/02/16.
  */
 
-public class Batch implements Serializable{
+public class Batch implements Serializable {
     private BatchInfo batchInfo;
     private Collection<Data> dataCollection;
 
@@ -28,7 +28,7 @@ public class Batch implements Serializable{
 
     @Override
     public boolean equals(Object o) {
-        if(o instanceof Batch) {
+        if (o instanceof Batch) {
             return batchInfo.equals(((Batch) o).batchInfo) && dataCollection.equals(((Batch) o).dataCollection);
         }
         return super.equals(o);

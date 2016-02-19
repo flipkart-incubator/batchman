@@ -90,33 +90,6 @@ public class GsonSerializationTest {
         serializationStrategy.deserializeData(serializedData);
     }
 
-    private static class CustomData extends Data {
-        /**
-         * Constructor for Data object. This constructor takes {@link Tag} and {@link Object} as
-         * parameter and generates an eventId = (System.currentTimeMillis() + System.nanoTime())
-         *
-         * @param tag  tag associated with data
-         * @param data data object
-         */
-
-        public CustomData(Tag tag, HashMap<String, Object> data) {
-            super(tag, data);
-        }
-
-        public CustomData(Tag tag, ArrayList<String> strings) {
-            super(tag, strings);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof CustomData) {
-                return ((CustomData) o).getTag().equals(getTag()) && ((CustomData) o).getEventId() == getEventId() && ((CustomData) o).getData().equals(getData());
-            } else {
-                return super.equals(o);
-            }
-        }
-    }
-
     /**
      * Test the working of {@link GsonSerializationStrategy} for Custom Data
      *
@@ -147,5 +120,32 @@ public class GsonSerializationTest {
         serializedData = serializationStrategy.serializeData(customData);
         data = (Data) serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(customData, data);
+    }
+
+    private static class CustomData extends Data {
+        /**
+         * Constructor for Data object. This constructor takes {@link Tag} and {@link Object} as
+         * parameter and generates an eventId = (System.currentTimeMillis() + System.nanoTime())
+         *
+         * @param tag  tag associated with data
+         * @param data data object
+         */
+
+        public CustomData(Tag tag, HashMap<String, Object> data) {
+            super(tag, data);
+        }
+
+        public CustomData(Tag tag, ArrayList<String> strings) {
+            super(tag, strings);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof CustomData) {
+                return ((CustomData) o).getTag().equals(getTag()) && ((CustomData) o).getEventId() == getEventId() && ((CustomData) o).getData().equals(getData());
+            } else {
+                return super.equals(o);
+            }
+        }
     }
 }
