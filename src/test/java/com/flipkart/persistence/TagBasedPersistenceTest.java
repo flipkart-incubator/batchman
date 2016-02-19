@@ -76,4 +76,58 @@ public class TagBasedPersistenceTest {
     public void testIfPersistenceNullException() {
         initializeTagBasedPersistence(new Tag("u1"), null);
     }
+
+    @Test
+    public void testGetData() {
+        Context context = RuntimeEnvironment.application;
+        inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy();
+        sqlPersistenceStrategy = new SQLPersistenceStrategy(new ByteArraySerializationStrategy(), "test", context);
+        sqlPersistenceStrategy.onInitialized();
+        tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy(ad_tag, inMemoryPersistenceStrategy);
+        tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy(debug_tag, sqlPersistenceStrategy);
+
+        ArrayList<Data> fakeAdsCollection = Utils.fakeAdsCollection(4);
+        ArrayList<Data> fakeDebugCollection = Utils.fakeDebugCollection(4);
+        ArrayList<Data> arrayList = new ArrayList<>();
+        arrayList.addAll(fakeAdsCollection);
+        arrayList.addAll(fakeDebugCollection);
+        tagBasedPersistenceStrategy.add(arrayList);
+
+        Assert.assertNotNull(tagBasedPersistenceStrategy.getData());
+    }
+
+    @Test
+    public void testRemoveData() {
+        Context context = RuntimeEnvironment.application;
+        inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy();
+        sqlPersistenceStrategy = new SQLPersistenceStrategy(new ByteArraySerializationStrategy(), "test", context);
+        sqlPersistenceStrategy.onInitialized();
+        tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy(ad_tag, inMemoryPersistenceStrategy);
+        tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy(debug_tag, sqlPersistenceStrategy);
+
+        ArrayList<Data> fakeAdsCollection = Utils.fakeAdsCollection(4);
+        ArrayList<Data> fakeDebugCollection = Utils.fakeDebugCollection(4);
+        ArrayList<Data> arrayList = new ArrayList<>();
+        arrayList.addAll(fakeAdsCollection);
+        arrayList.addAll(fakeDebugCollection);
+        tagBasedPersistenceStrategy.add(arrayList);
+
+        tagBasedPersistenceStrategy.removeData(arrayList);
+
+        junit.framework.Assert.assertTrue(tagBasedPersistenceStrategy.getData().size() == 0);
+    }
+
+    @Test
+    public void testOnInitialized() {
+        Context context = RuntimeEnvironment.application;
+        inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy();
+        sqlPersistenceStrategy = new SQLPersistenceStrategy(new ByteArraySerializationStrategy(), "test", context);
+        sqlPersistenceStrategy.onInitialized();
+        tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy(ad_tag, inMemoryPersistenceStrategy);
+        tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy(debug_tag, sqlPersistenceStrategy);
+
+        tagBasedPersistenceStrategy.onInitialized();
+
+
+    }
 }

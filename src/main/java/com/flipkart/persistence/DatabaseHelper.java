@@ -64,7 +64,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 values.put(KEY_ID, data.getEventId());
                 values.put(KEY_DATA, serializationStrategy.serializeData(data));
                 values.put(KEY_EXPIRY, 0);
-                db.insert(TABLE_EVENT_DATA, null, values);
+                db.insert(TABLE_EVENT_DATA, null, values);//todo : transactions use
             }
         }
         db.close();

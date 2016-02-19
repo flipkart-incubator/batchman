@@ -67,8 +67,4 @@ public class SQLPersistenceStrategy extends InMemoryPersistenceStrategy {
         }
         super.onInitialized();
     }
-
-    public void close() {
-        this.databaseHelper.close();
-    }
 }

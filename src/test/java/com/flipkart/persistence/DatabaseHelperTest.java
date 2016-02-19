@@ -1,6 +1,7 @@
 package com.flipkart.persistence;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.flipkart.Utils;
 import com.flipkart.batching.BatchManager;
@@ -34,6 +35,7 @@ public class DatabaseHelperTest {
     private DatabaseHelper databaseHelper;
     private Context context;
     private GsonSerializationStrategy gsonSerializationStrategy;
+    private SQLiteDatabase db;
 
     /**
      * Test to verify the {@link DatabaseHelper#addData(Collection)} adds the data in the db
@@ -142,5 +144,16 @@ public class DatabaseHelperTest {
         databaseHelper = new DatabaseHelper(gsonSerializationStrategy, "test", context);
         //verify that data is already present in the database.
         Assert.assertTrue(databaseHelper.isDataInDB(String.valueOf(dataArrayList.get(0).getEventId())));
+    }
+
+    @Test
+    public void testOnUpgrade() {
+        gsonSerializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(gsonSerializationStrategy);
+        gsonSerializationStrategy.build();
+        context = RuntimeEnvironment.application;
+        DatabaseHelper databaseHelper = new DatabaseHelper(gsonSerializationStrategy, "test", context);
+        db = databaseHelper.getReadableDatabase();
+        databaseHelper.onUpgrade(db, 1, 2);
     }
 }

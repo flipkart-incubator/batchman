@@ -64,9 +64,6 @@ public class SizeBatchingStrategy extends BaseBatchingStrategy {
     public static class SizeBatchInfo implements BatchInfo {
         private int maxBatchSize;
 
-        public SizeBatchInfo() {
-        }
-
         public SizeBatchInfo(int maxBatchSize) {
             this.maxBatchSize = maxBatchSize;
         }

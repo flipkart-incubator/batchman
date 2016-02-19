@@ -169,6 +169,19 @@ public class TagBatchingTest {
     }
 
     @Test
+    public void testNoStrategy() {
+        tagBatchingStrategy = new TagBatchingStrategy();
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        shadowLooper = Shadows.shadowOf(looper);
+        Handler handler = new Handler(looper);
+
+        Assert.assertNull(tagBatchingStrategy.getTagByStrategy(null));
+
+    }
+
+    @Test
     public void testOnInitialized() {
         HandlerThread handlerThread = new HandlerThread("test");
         handlerThread.start();
@@ -192,13 +205,22 @@ public class TagBatchingTest {
         Handler handler = new Handler(looper);
         sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, new TagBasedPersistenceStrategy(AD_TAG, inMemoryPersistenceStrategy));
         timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, new TagBasedPersistenceStrategy(DEBUG_TAG, sqlPersistenceStrategy));
-//        comboBatchingStrategy = new ComboBatchingStrategy(
-//                new SizeBatchingStrategy(BATCH_SIZE, new TagBasedPersistenceStrategy(BUSINESS_TAG, sqlPersistenceStrategy))
-//                , new TimeBatchingStrategy(TIME_OUT, new TagBasedPersistenceStrategy(BUSINESS_TAG, sqlPersistenceStrategy)));
-//        //Add tag strategy
         tagBatchingStrategy.addTagStrategy(AD_TAG, sizeBatchingStrategy);
         tagBatchingStrategy.addTagStrategy(DEBUG_TAG, timeBatchingStrategy);
 
         tagBatchingStrategy.onInitialized(batchController, context, onBatchReadyListener, handler);
+    }
+
+    @Test
+    public void testTagBatchingInfo() {
+        TagBatchingStrategy.TagBatchInfo tagBatchInfo = new TagBatchingStrategy.TagBatchInfo(AD_TAG, new SizeBatchingStrategy.SizeBatchInfo(4));
+        TagBatchingStrategy.TagBatchInfo tagBatchInfo1 = new TagBatchingStrategy.TagBatchInfo(BUSINESS_TAG, new SizeBatchingStrategy.SizeBatchInfo(4));
+        SizeBatchingStrategy.SizeBatchInfo sizeBatchInfo = new SizeBatchingStrategy.SizeBatchInfo(5);
+
+        Assert.assertNotNull(tagBatchInfo.getTag());
+        Assert.assertNotNull(tagBatchInfo.getChildBatchInfo());
+
+        Assert.assertTrue(!tagBatchInfo.equals(tagBatchInfo1));
+        Assert.assertTrue(!tagBatchInfo.equals(sizeBatchInfo));
     }
 }

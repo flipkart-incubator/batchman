@@ -13,7 +13,11 @@ import java.util.Map;
  */
 
 public class TagPersistedBatchReadyListener implements OnBatchReadyListener {
-    Map<Tag, OnBatchReadyListener> tagOnBatchReadyListenerMap;
+    public Map<Tag, OnBatchReadyListener> getTagOnBatchReadyListenerMap() {
+        return tagOnBatchReadyListenerMap;
+    }
+
+    private Map<Tag, OnBatchReadyListener> tagOnBatchReadyListenerMap;
 
     public TagPersistedBatchReadyListener() {
         tagOnBatchReadyListenerMap = new HashMap<>();
@@ -31,9 +35,5 @@ public class TagPersistedBatchReadyListener implements OnBatchReadyListener {
         } else {
             throw new IllegalStateException("Use TagPersistedBatchReadyListener for tagBasedStrategy");
         }
-    }
-
-    private OnBatchReadyListener getListenerByTag(Tag tag) {
-        return tagOnBatchReadyListenerMap.get(tag);
     }
 }

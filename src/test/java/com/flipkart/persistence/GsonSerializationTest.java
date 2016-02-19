@@ -1,11 +1,11 @@
 package com.flipkart.persistence;
 
+import com.flipkart.Utils;
 import com.flipkart.batching.BatchInfo;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.SizeBatchingStrategy;
 import com.flipkart.data.Batch;
 import com.flipkart.data.Data;
-import com.flipkart.data.EventData;
 import com.flipkart.data.Tag;
 import com.flipkart.exception.DeserializeException;
 import com.flipkart.exception.SerializeException;
@@ -20,6 +20,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -30,10 +31,7 @@ public class GsonSerializationTest {
     @Mock
     PersistenceStrategy inMemoryPersistenceStrategy;
     private SerializationStrategy serializationStrategy;
-    //private SizeBatchingStrategy sizeBatchingStrategy;
-    private BatchInfo batchInfo;
     private Batch batch;
-    private ArrayList<Data> dataCollection;
 
     @Before
     public void setUp() throws Exception {
@@ -41,12 +39,8 @@ public class GsonSerializationTest {
         serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
-        batchInfo = new SizeBatchingStrategy.SizeBatchInfo(5);
-        dataCollection = new ArrayList<>();
-        dataCollection.add(new EventData(new Tag("ads"), "Event"));
-        dataCollection.add(new EventData(new Tag("ads"), "Event"));
-        dataCollection.add(new EventData(new Tag("ads"), "Event"));
-        dataCollection.add(new EventData(new Tag("ads"), "Event"));
+        BatchInfo batchInfo = new SizeBatchingStrategy.SizeBatchInfo(5);
+        ArrayList<Data> dataCollection = Utils.fakeCollection(4);
 
         batch = new Batch(batchInfo, dataCollection);
     }
@@ -90,13 +84,39 @@ public class GsonSerializationTest {
         serializationStrategy.deserializeData(serializedData);
     }
 
+    @Test
+    public void testCollectionSerialization() {
+        ArrayList<Data> fakeCollection = Utils.fakeCollection(4);
+        byte[] serializedData;
+        try {
+            serializedData = serializationStrategy.serializeCollection(fakeCollection);
+            Collection<Data> collectionReturned = serializationStrategy.deserializeCollection(serializedData);//todo not deserialize collection
+            Assert.assertEquals(fakeCollection, collectionReturned);
+        } catch (SerializeException e) {
+            e.getRealException().printStackTrace();
+        } catch (DeserializeException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testIfBuildNotCalled() {
+        serializationStrategy = new GsonSerializationStrategy();
+        ArrayList<Data> fakeCollection = Utils.fakeCollection(4);
+        try {
+            serializationStrategy.serializeCollection(fakeCollection);
+        } catch (SerializeException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Test the working of {@link GsonSerializationStrategy} for Custom Data
      *
      * @throws SerializeException
      * @throws DeserializeException
      */
-    @Test//todo:this test not working
+    @Test
     public void testGSONSerializationForCustomData() throws SerializeException, DeserializeException {
         //test to serialize hashmap
         GsonSerializationStrategy serializationStrategy = new GsonSerializationStrategy();

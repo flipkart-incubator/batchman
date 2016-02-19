@@ -70,4 +70,12 @@ public class SQLPersistenceTest {
         persistenceStrategy = new SQLPersistenceStrategy(new ByteArraySerializationStrategy(), "test", context);
         persistenceStrategy.onInitialized();
     }
+
+    @Test(expected = Exception.class)
+    public void testSerializeException(){
+        context = RuntimeEnvironment.application;
+        persistenceStrategy = new SQLPersistenceStrategy(new GsonSerializationStrategy(), "test", context);
+        persistenceStrategy.onInitialized();
+        persistenceStrategy.add(Utils.fakeCollection(4));
+    }
 }

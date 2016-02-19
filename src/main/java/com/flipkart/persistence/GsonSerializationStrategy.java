@@ -11,6 +11,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +24,6 @@ import java.util.Set;
  */
 
 public class GsonSerializationStrategy implements SerializationStrategy {
-
 
     Set<Class<? extends Data>> dataTypes = new HashSet<>();
     Set<Class<? extends BatchInfo>> batchInfoTypes = new HashSet<>();
@@ -39,7 +39,6 @@ public class GsonSerializationStrategy implements SerializationStrategy {
         batchInfoTypes.add(subClass);
     }
 
-
     @Override
     public void build() {
         RuntimeTypeAdapterFactory<Data> dataAdapter = RuntimeTypeAdapterFactory.of(Data.class);
@@ -52,13 +51,16 @@ public class GsonSerializationStrategy implements SerializationStrategy {
             batchInfoAdapter.registerSubtype(batchInfoType);
         }
 
+        RuntimeTypeAdapterFactory<Collection> collectionAdapter = RuntimeTypeAdapterFactory.of(Collection.class);
+        collectionAdapter.registerSubtype(ArrayList.class);
+
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapterFactory(dataAdapter);
         gsonBuilder.registerTypeAdapterFactory(batchInfoAdapter);
+        //gsonBuilder.registerTypeAdapterFactory(collectionAdapter);
         gson = gsonBuilder.create();
 
     }
-
 
     private void checkIfBuildCalled() {
         if (gson == null) {
@@ -76,7 +78,9 @@ public class GsonSerializationStrategy implements SerializationStrategy {
     @Override
     public byte[] serializeCollection(Collection<Data> data) throws SerializeException {
         checkIfBuildCalled();
-        return gson.toJson(data,Collection.class).getBytes();
+        Type type = new TypeToken<Collection<Data>>() {
+        }.getType();
+        return gson.toJson(data,type).getBytes();
     }
 
     @Override
@@ -93,9 +97,10 @@ public class GsonSerializationStrategy implements SerializationStrategy {
 
     @Override
     public Collection<Data> deserializeCollection(byte[] data) throws DeserializeException {
-        Type collectionType = new TypeToken<Collection<Data>>() {
+        checkIfBuildCalled();
+        Type type = new TypeToken<Collection<Data>>() {
         }.getType();
-        return gson.fromJson(new String(data), collectionType);
+        return gson.fromJson(new String(data), type);
     }
 
     @Override
@@ -103,5 +108,4 @@ public class GsonSerializationStrategy implements SerializationStrategy {
         checkIfBuildCalled();
         return gson.fromJson(new String(data), Batch.class);
     }
-
 }

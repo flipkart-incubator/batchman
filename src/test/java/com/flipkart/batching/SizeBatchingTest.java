@@ -7,6 +7,8 @@ import com.flipkart.Utils;
 import com.flipkart.data.Data;
 import com.flipkart.persistence.PersistenceStrategy;
 
+import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -229,5 +231,15 @@ public class SizeBatchingTest {
     @Test(expected = IllegalArgumentException.class)
     public void testIfPersistenceNull() {
         new SizeBatchingStrategy(5, null);
+    }
+
+    @Test
+    public void testSizeBatchInfo(){
+        SizeBatchingStrategy.SizeBatchInfo sizeBatchInfo = new SizeBatchingStrategy.SizeBatchInfo(5);
+        SizeBatchingStrategy.SizeBatchInfo sizeBatchInfo1 = new SizeBatchingStrategy.SizeBatchInfo(5);
+        TimeBatchingStrategy.TimeBatchInfo timeBatchInfo = new TimeBatchingStrategy.TimeBatchInfo(5000);
+
+        Assert.assertTrue(sizeBatchInfo.equals(sizeBatchInfo1));
+        Assert.assertTrue(!sizeBatchInfo.equals(timeBatchInfo));
     }
 }
