@@ -27,7 +27,7 @@ public class TagPersistedBatchReadyListener implements OnBatchReadyListener {
     public void onReady(BatchingStrategy causingStrategy, BatchInfo batchInfo, Collection<Data> dataCollection) {
         if (batchInfo instanceof TagBatchingStrategy.TagBatchInfo) {
             Tag tag = (((TagBatchingStrategy.TagBatchInfo) batchInfo)).getTag();
-            tagOnBatchReadyListenerMap.get(tag).onReady(causingStrategy, batchInfo, dataCollection);
+            getListenerByTag(tag).onReady(causingStrategy, batchInfo, dataCollection);
         } else {
             throw new IllegalStateException("Use TagPersistedBatchReadyListener for tagBasedStrategy");
         }
