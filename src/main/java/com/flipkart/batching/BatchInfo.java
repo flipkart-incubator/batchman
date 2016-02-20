@@ -3,8 +3,8 @@ package com.flipkart.batching;
 import java.io.Serializable;
 
 /**
- * An interface for saving batch info. A {@link BatchingStrategy} must have a class that extends
- * from this interface and store info about the batching strategy used to batch the data.
+ * An interface for saving batch info. A {@link BatchingStrategy} must have a static class that
+ * implements from this interface and store info about the batching strategy used to batch the data.
  * <p/>
  * For Example :
  * <p/>
