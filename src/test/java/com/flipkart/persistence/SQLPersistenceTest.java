@@ -43,6 +43,12 @@ public class SQLPersistenceTest {
         Assert.assertEquals(data, persistenceStrategy.getData());
     }
 
+    @Test
+    public void testIfDataIsNullException() {
+        initializeSQLPersistence();
+        persistenceStrategy.add(new ArrayList<Data>());
+    }
+
     /**
      * Test to verify that the data has been deleted from the db
      * Also verifies that {@link SQLPersistenceStrategy#syncData()} should not contain any data

@@ -83,18 +83,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String selectQuery = "SELECT * FROM " + TABLE_EVENT_DATA;
         SQLiteDatabase db = getWritableDatabase();
         Data event;
-        if (db != null) {
             Cursor cursor = db.rawQuery(selectQuery, null);
             if (cursor.moveToFirst()) {
                 do {
-                    event = (Data) serializationStrategy.deserializeData(cursor.getBlob(1));
+                    event = serializationStrategy.deserializeData(cursor.getBlob(1));
                     allEventData.add(event);
                 } while (cursor.moveToNext());
             }
             cursor.close();
             return allEventData;
-        }
-        return null;
     }
 
     /**

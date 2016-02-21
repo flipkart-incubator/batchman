@@ -124,6 +124,7 @@ public class PersistedBatchReadyTest {
         ArrayList<Data> arrayList = Utils.fakeCollection(4);
 
         when(queueFile.peek()).thenReturn(serializationStrategy.serializeCollection(arrayList));
+
         persistedBatchReadyListener.onReady(strategy, sizeBatchInfo, arrayList);
         shadowLooper.runToEndOfTasks();
 
