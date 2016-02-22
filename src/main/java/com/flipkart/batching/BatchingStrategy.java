@@ -33,6 +33,14 @@ public interface BatchingStrategy {
 
     void flush(boolean forced);
 
+    /**
+     * This method returns false if {@link Context}, {@link BatchController}, {@link OnBatchReadyListener}
+     * and {@link Handler} are not initialized and true if initialized. Typically, onInitialized should
+     * be called only once and the value of isInitialized must be set to true after initializing everything.
+     *
+     * @return boolean, true if initialized and false if not
+     */
+
     boolean isInitialized();
 
     /**

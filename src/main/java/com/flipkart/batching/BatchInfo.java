@@ -3,8 +3,14 @@ package com.flipkart.batching;
 import java.io.Serializable;
 
 /**
- * //todo document
+ * An interface for saving batch info. A {@link BatchingStrategy} must have a static class that
+ * implements from this interface and store info about the batching strategy used to batch the data.
+ * <p/>
+ * For Example :
+ * <p/>
+ * {@link SizeBatchingStrategy} contains {@link com.flipkart.batching.SizeBatchingStrategy.SizeBatchInfo}
+ * which extends this interface and stores the maxBatchSize.
  */
-public interface BatchInfo extends Serializable {
 
+public interface BatchInfo extends Serializable {
 }
