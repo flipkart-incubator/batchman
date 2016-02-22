@@ -36,4 +36,8 @@ public class TagPersistedBatchReadyListener implements OnBatchReadyListener {
             throw new IllegalStateException("Use TagPersistedBatchReadyListener for tagBasedStrategy");
         }
     }
+
+    private OnBatchReadyListener getListenerByTag(Tag tag) {
+        return tagOnBatchReadyListenerMap.get(tag);
+    }
 }
