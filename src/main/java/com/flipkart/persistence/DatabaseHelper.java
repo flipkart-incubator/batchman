@@ -24,7 +24,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_ID = "id";
     private static final String KEY_DATA = "data";
     private static final String KEY_EXPIRY = "expiry";
-    private static final String WHERE_CLAUSE = KEY_ID + " = ?";
+    private static final String IS_IN_DB_WHERE_CLAUSE = KEY_ID + " = ?";
+    private static final String DELETE_WHERE_CLAUSE = KEY_ID + " IN (?) ";
     private SerializationStrategy serializationStrategy;
 
     public DatabaseHelper(SerializationStrategy serializationStrategy, String databaseName, Context context) {
@@ -112,7 +113,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             idx++;
         }
         SQLiteDatabase db = getWritableDatabase();
-        db.delete(TABLE_EVENT_DATA, KEY_ID + " IN (?) ", new String[]{selectionArg.toString()});
+        db.delete(TABLE_EVENT_DATA, DELETE_WHERE_CLAUSE, new String[]{selectionArg.toString()});
     }
 
     /**
@@ -131,7 +132,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     public boolean isDataInDB(String id) {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(TABLE_EVENT_DATA, new String[]{KEY_ID}, WHERE_CLAUSE, new String[]{id}, null, null, null);
+        Cursor cursor = db.query(TABLE_EVENT_DATA, new String[]{KEY_ID}, IS_IN_DB_WHERE_CLAUSE, new String[]{id}, null, null, null);
         boolean result = cursor.getCount() > 0;
         cursor.close();
         return result;
