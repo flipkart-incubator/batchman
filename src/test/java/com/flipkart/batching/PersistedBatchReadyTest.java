@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 /**
@@ -132,6 +133,32 @@ public class PersistedBatchReadyTest {
         shadowLooper.runToEndOfTasks();
 
         Assert.assertNotNull(queueFile.peek());
+
+        doThrow(new IOException()).when(queueFile).remove();
+        persistedBatchReadyListener.finish();
+        shadowLooper.runToEndOfTasks();
+    }
+
+    @Test
+    public void testIfPersistFailureCalled() throws SerializeException, IOException {
+        init();
+        final ArrayList<Data> arrayList = Utils.fakeCollection(4);
+        persistedBatchReadyListener = new PersistedBatchReadyListener(new File("test"), serializationStrategy, handler) {
+            @Override
+            public void onPersistSuccess(BatchInfo batchInfo, Collection<Data> batchedData) {
+            }
+
+            @Override
+            public void onPersistFailure(Collection<Data> batchedData, Exception e) {
+                Assert.assertEquals(arrayList, batchedData);
+            }
+        };
+        byte[] data = serializationStrategy.serializeCollection(arrayList);
+
+        doThrow(new IOException()).when(queueFile).add(data);
+        persistedBatchReadyListener.onReady(strategy, sizeBatchInfo, arrayList);
+        shadowLooper.runToEndOfTasks();
+
     }
 
     public void init() {
