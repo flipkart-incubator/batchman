@@ -13,14 +13,14 @@ import java.util.Map;
  */
 
 public class TagPersistedBatchReadyListener implements OnBatchReadyListener {
-    public Map<Tag, OnBatchReadyListener> getTagOnBatchReadyListenerMap() {
-        return tagOnBatchReadyListenerMap;
-    }
-
     private Map<Tag, OnBatchReadyListener> tagOnBatchReadyListenerMap;
 
     public TagPersistedBatchReadyListener() {
         tagOnBatchReadyListenerMap = new HashMap<>();
+    }
+
+    public Map<Tag, OnBatchReadyListener> getTagOnBatchReadyListenerMap() {
+        return tagOnBatchReadyListenerMap;
     }
 
     public void addListenerForTag(Tag tag, OnBatchReadyListener listener) {
