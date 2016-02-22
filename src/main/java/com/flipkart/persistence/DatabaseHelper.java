@@ -64,7 +64,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 values.put(KEY_ID, data.getEventId());
                 values.put(KEY_DATA, serializationStrategy.serializeData(data));
                 values.put(KEY_EXPIRY, 0);
-                db.insert(TABLE_EVENT_DATA, null, values);
+                db.insert(TABLE_EVENT_DATA, null, values);//todo : transactions use
             }
         }
         db.close();
@@ -83,18 +83,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String selectQuery = "SELECT * FROM " + TABLE_EVENT_DATA;
         SQLiteDatabase db = getWritableDatabase();
         Data event;
-        if (db != null) {
             Cursor cursor = db.rawQuery(selectQuery, null);
             if (cursor.moveToFirst()) {
                 do {
-                    event = (Data) serializationStrategy.deserializeData(cursor.getBlob(1));
+                    event = serializationStrategy.deserializeData(cursor.getBlob(1));
                     allEventData.add(event);
                 } while (cursor.moveToNext());
             }
             cursor.close();
             return allEventData;
-        }
-        return null;
     }
 
     /**

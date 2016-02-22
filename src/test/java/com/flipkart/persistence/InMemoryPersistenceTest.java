@@ -1,8 +1,7 @@
 package com.flipkart.persistence;
 
+import com.flipkart.Utils;
 import com.flipkart.data.Data;
-import com.flipkart.data.EventData;
-import com.flipkart.data.Tag;
 
 import junit.framework.Assert;
 
@@ -18,7 +17,7 @@ import java.util.Collection;
  */
 public class InMemoryPersistenceTest {
 
-    PersistenceStrategy persistenceStrategy;
+    InMemoryPersistenceStrategy persistenceStrategy;
 
     @Mock
     Data Data;
@@ -33,18 +32,7 @@ public class InMemoryPersistenceTest {
      */
     @Test
     public void testIfDataInMemory() {
-        Data Data = new EventData(new Tag("1"), "e1");
-        Data Data1 = new EventData(new Tag("2"), "e2");
-        Data Data2 = new EventData(new Tag("3"), "e3");
-        Data Data3 = new EventData(new Tag("4"), "e4");
-        Data Data4 = new EventData(new Tag("5"), "e5");
-
-        ArrayList<Data> data = new ArrayList<>();
-        data.add(Data);
-        data.add(Data1);
-        data.add(Data2);
-        data.add(Data3);
-        data.add(Data4);
+        ArrayList<Data> data = Utils.fakeCollection(5);
         persistenceStrategy.add(data);
 
         Assert.assertEquals(persistenceStrategy.getData(), data);
@@ -56,10 +44,11 @@ public class InMemoryPersistenceTest {
     @Test
     public void testIfDuplicateEntryNotPresent() {
 
-        ArrayList<Data> data = fakeCollection(5);
+        //creates unique data
+        ArrayList<Data> data = Utils.fakeCollection(5);
         persistenceStrategy.add(data);
         //Persistence strategy should return only 1 Data, as all the data that were added were duplicate.
-        Assert.assertEquals(persistenceStrategy.getData().size(), 1);
+        Assert.assertEquals(persistenceStrategy.getData().size(), 5);
     }
 
     /**
@@ -67,26 +56,17 @@ public class InMemoryPersistenceTest {
      */
     @Test
     public void testIfRemoveData() {
-        ArrayList<Data> data = fakeCollection(5);
+        ArrayList<Data> data = Utils.fakeCollection(5);
         persistenceStrategy.add(data);
-
         persistenceStrategy.removeData(data);
-
         Assert.assertTrue(persistenceStrategy.getData().size() == 0);
     }
 
-    /**
-     * Method to create fake array list of Data.
-     *
-     * @param size
-     * @return
-     */
-    protected ArrayList<Data> fakeCollection(int size) {
-        ArrayList<Data> dataArrayList = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            dataArrayList.add(Data);
-        }
-        return dataArrayList;
+    @Test
+    public void testOnInitialized() {
+        persistenceStrategy.onInitialized();
+        Assert.assertTrue(persistenceStrategy.isInitialized());
     }
+
 
 }

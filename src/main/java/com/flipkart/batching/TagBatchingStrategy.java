@@ -49,16 +49,17 @@ public class TagBatchingStrategy implements BatchingStrategy {
         OnBatchReadyListener childBatchReadyListener = new OnBatchReadyListener() {
             @Override
             public void onReady(BatchingStrategy causingStrategy, BatchInfo batchInfo, Collection<Data> dataCollection) {
-                Tag tag = getTagByStrategy(causingStrategy); // todo write a unit test for null tags
+                Tag tag = getTagByStrategy(causingStrategy);
                 parentBatchReadyListener.onReady(TagBatchingStrategy.this, new TagBatchInfo(tag, batchInfo), dataCollection); //this listener overrides the causing strategy
             }
         };
+
         for (Tag tag : batchingStrategyMap.keySet()) {
             batchingStrategyMap.get(tag).onInitialized(controller, context, childBatchReadyListener, handler);
         }
     }
 
-    private Tag getTagByStrategy(BatchingStrategy causingStrategy) {
+    public Tag getTagByStrategy(BatchingStrategy causingStrategy) {
         for (Map.Entry<Tag, BatchingStrategy> entry : batchingStrategyMap.entrySet()) {
             BatchingStrategy batchingStrategy = entry.getValue();
             Tag tag = entry.getKey();
@@ -94,9 +95,6 @@ public class TagBatchingStrategy implements BatchingStrategy {
     public static class TagBatchInfo implements BatchInfo {
         private Tag tag;
         private BatchInfo childBatchInfo;
-
-        public TagBatchInfo() {
-        }
 
         public TagBatchInfo(Tag tag, BatchInfo childBatchInfo) {
             this.tag = tag;

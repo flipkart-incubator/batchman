@@ -9,6 +9,8 @@ import com.flipkart.Utils;
 import com.flipkart.data.Data;
 import com.flipkart.persistence.PersistenceStrategy;
 
+import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -145,6 +147,22 @@ public class TimeBatchingTest {
         timeBatchingStrategy.flush(false);
         //verify that onReady is NOT called since the data list is empty.
         verify(onBatchReadyListener, times(0)).onReady(timeBatchingStrategy, new TimeBatchingStrategy.TimeBatchInfo(TIME_OUT), data);
+    }
+
+    /**
+     * Test if {@link com.flipkart.batching.TimeBatchingStrategy.TimeBatchInfo} is working
+     */
+    @Test
+    public void testTimeBatchingInfo() {
+        TimeBatchingStrategy.TimeBatchInfo timeBatchInfo = new TimeBatchingStrategy.TimeBatchInfo(5000);
+        TimeBatchingStrategy.TimeBatchInfo timeBatchInfo1 = new TimeBatchingStrategy.TimeBatchInfo(5000);
+
+        Assert.assertTrue(timeBatchInfo.equals(timeBatchInfo1));
+
+        SizeBatchingStrategy.SizeBatchInfo sizeBatchInfo = new SizeBatchingStrategy.SizeBatchInfo(5);
+        SizeBatchingStrategy.SizeBatchInfo sizeBatchInfo1 = new SizeBatchingStrategy.SizeBatchInfo(5);
+        Assert.assertTrue(!timeBatchInfo.equals(sizeBatchInfo1));
+
     }
 
     /**

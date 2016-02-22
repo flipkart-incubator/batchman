@@ -22,8 +22,13 @@ public abstract class PersistedBatchReadyListener implements OnBatchReadyListene
     private final File file;
     private final Handler handler;
     private QueueFile queueFile;
+
     private boolean initialized;
     private boolean isWaitingToFinish;
+
+    public boolean isInitialized() {
+        return initialized;
+    }
 
     public PersistedBatchReadyListener(File file, SerializationStrategy serializationStrategy, Handler handler) {
         this.file = file;

@@ -85,6 +85,23 @@ public class ByteArraySerializationTest {
         serializationStrategy.deserializeData(serializedData);
     }
 
+    @Test
+    public void testRegisterBatchInfoType() {
+        serializationStrategy = new ByteArraySerializationStrategy();
+        serializationStrategy.registerBatchInfoType(SizeBatchInfo.class);
+    }
+
+    @Test
+    public void testRegisterDataType(){
+        serializationStrategy = new ByteArraySerializationStrategy();
+        serializationStrategy.registerDataType(Data.class);
+    }
+
+    @Test
+    public void testBuild(){
+        serializationStrategy = new ByteArraySerializationStrategy();
+        serializationStrategy.build();
+    }
     /**
      * Test the working of {@link ByteArraySerializationStrategy} for Custom Data
      *

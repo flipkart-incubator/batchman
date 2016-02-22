@@ -25,6 +25,7 @@ import org.robolectric.shadows.ShadowLooper;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,6 +47,7 @@ public class BatchManagerTest {
     Context context;
     @Mock
     Data eventData;
+    ShadowLooper shadowLooper;
 
     @Before
     public void setUp() {
@@ -60,7 +62,7 @@ public class BatchManagerTest {
         HandlerThread handlerThread = new HandlerThread("test");
         handlerThread.start();
         Looper looper = handlerThread.getLooper();
-        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
+        shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
         SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
         BatchController batchController = new BatchManager.Builder()
@@ -76,25 +78,6 @@ public class BatchManagerTest {
         shadowLooper.runToEndOfTasks();
         verify(onBatchReadyListener, times(1)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(5), fakeCollection);
     }
-
-//    @Test(expected = IllegalAccessError.class)
-//    public void testIfBatchStrategyNotInitialized() {
-//        BatchingStrategy batchingStrategy = mock(SizeBatchingStrategy.class);
-//        HandlerThread handlerThread = new HandlerThread("test");
-//        handlerThread.start();
-//        Looper looper = handlerThread.getLooper();
-//        shadowLooper = Shadows.shadowOf(looper);
-//        Handler handler = new Handler(looper);
-//        BatchController batchController = new BatchManager.Builder()
-//                .setSerializationStrategy(serializationStrategy)
-//                .setBatchingStrategy(batchingStrategy)
-//                .setHandler(handler)
-//                .setOnBatchReadyListener(onBatchReadyListener)
-//                .build(context);
-//        when(batchingStrategy.isInitialized()).thenReturn(false);
-//        ArrayList<Data> fakeCollection = Utils.fakeCollection(5);
-//        batchController.addToBatch(fakeCollection);
-//    }
 
     /**
      * Test to verify that handler is not null
@@ -155,5 +138,68 @@ public class BatchManagerTest {
                 .setHandler(null)
                 .setOnBatchReadyListener(null)
                 .build(context);
+    }
+
+    @Test
+    public void testRegisterSuppliedTypes() {
+        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
+        BatchController batchController = new BatchManager.Builder()
+                .setSerializationStrategy(serializationStrategy)
+                .setBatchingStrategy(sizeBatchingStrategy)
+                .setHandler(null)
+                .setOnBatchReadyListener(onBatchReadyListener).registerDataType(Data.class)
+                .build(context);
+
+        verify(serializationStrategy, times(1)).registerDataType(Data.class);
+    }
+
+    @Test
+    public void testRegisterBatchInfoType() {
+        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
+        BatchController batchController = new BatchManager.Builder()
+                .setSerializationStrategy(serializationStrategy)
+                .setBatchingStrategy(sizeBatchingStrategy)
+                .setHandler(null)
+                .setOnBatchReadyListener(onBatchReadyListener).registerBatchInfoType(BatchInfo.class)
+                .build(context);
+
+        verify(serializationStrategy, times(1)).registerBatchInfoType(BatchInfo.class);
+    }
+
+    @Test
+    public void testGetSerializationStrategy() {
+        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
+        BatchController batchController = new BatchManager.Builder()
+                .setSerializationStrategy(serializationStrategy)
+                .setBatchingStrategy(sizeBatchingStrategy)
+                .setHandler(null)
+                .setOnBatchReadyListener(onBatchReadyListener)
+                .build(context);
+
+        Assert.assertNotNull(batchController.getSerializationStrategy());
+    }
+
+    /**
+     * Throw error if {@link BatchingStrategy} is not initialized
+     */
+    @Test(expected = IllegalAccessError.class)
+    public void testIfInitialized() {
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        shadowLooper = Shadows.shadowOf(looper);
+        Handler handler = new Handler(looper);
+
+        BatchingStrategy sizeBatchingStrategy = mock(BatchingStrategy.class);
+        when(sizeBatchingStrategy.isInitialized()).thenReturn(false);
+        BatchController batchController = new BatchManager.Builder()
+                .setSerializationStrategy(serializationStrategy)
+                .setBatchingStrategy(sizeBatchingStrategy)
+                .setHandler(handler)
+                .setOnBatchReadyListener(onBatchReadyListener)
+                .build(context);
+
+        batchController.addToBatch(Utils.fakeCollection(4));
+        shadowLooper.runToEndOfTasks();
     }
 }
