@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 
 import com.flipkart.data.Data;
 import com.flipkart.exception.DeserializeException;
@@ -12,6 +13,7 @@ import com.flipkart.exception.SerializeException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Database Helper class that extends {@link SQLiteOpenHelper}.
@@ -103,17 +105,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param dataCollection collection of {@link Data} objects to be deleted
      */
     public void deleteDataList(Collection<Data> dataCollection) {
-        StringBuilder selectionArg = new StringBuilder();
-        int idx = 0;
+        List<String> eventIdList = new ArrayList<>();
         for (Data data : dataCollection) {
-            if (idx != 0) {
-                selectionArg.append(",");
-            }
-            selectionArg.append(data.getEventId());
-            idx++;
+            eventIdList.add(String.valueOf(data.getEventId()));
         }
+        String list = TextUtils.join(",", eventIdList);
         SQLiteDatabase db = getWritableDatabase();
-        db.delete(TABLE_EVENT_DATA, DELETE_WHERE_CLAUSE, new String[]{selectionArg.toString()});
+        db.delete(TABLE_EVENT_DATA, DELETE_WHERE_CLAUSE, new String[]{list});
     }
 
     /**
