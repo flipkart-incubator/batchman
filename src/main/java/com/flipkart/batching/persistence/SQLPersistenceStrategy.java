@@ -2,6 +2,7 @@ package com.flipkart.batching.persistence;
 
 import android.content.Context;
 
+import com.flipkart.batching.Batch;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.exception.DeserializeException;
 import com.flipkart.batching.exception.SerializeException;
@@ -17,12 +18,12 @@ import java.util.Collection;
  */
 
 public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> {
-    private DatabaseHelper databaseHelper;
-    private SerializationStrategy serializationStrategy;
+    private DatabaseHelper<E, ? extends Batch> databaseHelper;
+    private SerializationStrategy<E, ? extends Batch> serializationStrategy;
     private String databaseName;
     private Context context;
 
-    public SQLPersistenceStrategy(SerializationStrategy serializationStrategy, String databaseName, Context context) {
+    public SQLPersistenceStrategy(SerializationStrategy<E, ? extends Batch> serializationStrategy, String databaseName, Context context) {
         super();
         this.serializationStrategy = serializationStrategy;
         this.databaseName = databaseName;
@@ -62,7 +63,7 @@ public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceS
     @Override
     public void onInitialized() {
         if (!isInitialized()) {
-            this.databaseHelper = new DatabaseHelper(serializationStrategy, databaseName, context);
+            this.databaseHelper = new DatabaseHelper<>(serializationStrategy, databaseName, context);
             syncData();
         }
         super.onInitialized();

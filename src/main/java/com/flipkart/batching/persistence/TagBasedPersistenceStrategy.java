@@ -14,10 +14,10 @@ import java.util.Iterator;
  */
 
 public class TagBasedPersistenceStrategy<E extends Data> implements PersistenceStrategy<E> {
-    private final PersistenceStrategy persistenceStrategy;
+    private final PersistenceStrategy<E> persistenceStrategy;
     private final Tag tag;
 
-    public TagBasedPersistenceStrategy(Tag tag, PersistenceStrategy persistenceStrategy) {
+    public TagBasedPersistenceStrategy(Tag tag, PersistenceStrategy<E> persistenceStrategy) {
         if (tag == null) {
             throw new IllegalArgumentException("Tag cannot be null");
         } else {

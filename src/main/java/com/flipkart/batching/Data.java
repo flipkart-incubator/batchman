@@ -43,7 +43,7 @@ public abstract class Data implements Serializable {
     }
 
     @Override
-    public boolean  equals(Object o) {
+    public boolean equals(Object o) {
         if (o instanceof Data) {
             return ((Data) o).getEventId() == getEventId() && ((Data) o).getData().equals(getData());
         } else {

@@ -4,8 +4,8 @@ import android.os.Handler;
 
 import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
-import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.Data;
+import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.exception.DeserializeException;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.squareup.tape.QueueFile;
@@ -23,11 +23,10 @@ public abstract class PersistedBatchReadyListener<E extends Data, T extends Batc
     private final File file;
     private final Handler handler;
     private QueueFile queueFile;
-
     private boolean initialized;
     private boolean isWaitingToFinish;
 
-    public PersistedBatchReadyListener(File file, SerializationStrategy serializationStrategy, Handler handler) {
+    public PersistedBatchReadyListener(File file, SerializationStrategy<E, T> serializationStrategy, Handler handler) {
         this.file = file;
         this.serializationStrategy = serializationStrategy;
         this.handler = handler;
@@ -65,6 +64,7 @@ public abstract class PersistedBatchReadyListener<E extends Data, T extends Batc
     }
 
     private void initializeIfRequired() {
+        onInitialized(queueFile);
         if (!initialized) {
             initialized = true;
             try {
@@ -73,6 +73,9 @@ public abstract class PersistedBatchReadyListener<E extends Data, T extends Batc
                 e.printStackTrace();
             }
         }
+    }
+
+    protected void onInitialized(QueueFile queueFile) {
     }
 
     public void finish() {

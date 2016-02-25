@@ -62,7 +62,6 @@ public class DatabaseHelperTest {
      * @throws SerializeException
      */
 
-    // Todo This test fail. Correct it!!
     @Test
     public void testGetAllData() throws DeserializeException, SerializeException {
         gsonSerializationStrategy = new GsonSerializationStrategy<>();

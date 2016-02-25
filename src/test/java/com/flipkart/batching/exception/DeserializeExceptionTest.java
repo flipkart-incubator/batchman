@@ -10,8 +10,12 @@ import java.io.IOException;
  * Created by anirudh.r on 20/02/16.
  */
 public class DeserializeExceptionTest {
+
+    /**
+     * Test to verify {@link DeserializeException}
+     */
     @Test
-    public void testSerializeException() {
+    public void testDeserializeException() {
         DeserializeException deserializeException = new DeserializeException(new IOException());
         Assert.assertNotNull(deserializeException.getRealException());
     }

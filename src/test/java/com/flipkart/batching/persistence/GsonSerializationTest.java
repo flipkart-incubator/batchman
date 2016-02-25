@@ -39,7 +39,6 @@ public class GsonSerializationTest {
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         ArrayList<Data> dataCollection = Utils.fakeCollection(4);
-
         batch = new Batch<>(dataCollection);
     }
 
@@ -53,9 +52,10 @@ public class GsonSerializationTest {
     public void testGSONSerialization() {
         byte[] serializedData;
         try {
+            Batch<Data> batch = new Batch<>(Utils.fakeCollection(3));
             serializedData = serializationStrategy.serializeBatch(batch);
             Batch batchReturned = (Batch) serializationStrategy.deserializeBatch(serializedData);
-//            Assert.assertEquals(batch, batchReturned);
+            Assert.assertEquals(batch.getClass(), batchReturned.getClass());
         } catch (SerializeException e) {
             e.getRealException().printStackTrace();
         } catch (DeserializeException e) {
@@ -84,12 +84,12 @@ public class GsonSerializationTest {
 
     @Test
     public void testCollectionSerialization() {
-        ArrayList<Data> fakeCollection = Utils.fakeCollection(4);
+        Collection<Data> fakeCollection = Utils.fakeCollection(4);
         byte[] serializedData;
         try {
             serializedData = serializationStrategy.serializeCollection(fakeCollection);
             Collection<Data> collectionReturned = serializationStrategy.deserializeCollection(serializedData);//todo not deserialize collection
-//            Assert.assertEquals(fakeCollection, collectionReturned);
+            Assert.assertEquals(fakeCollection, collectionReturned);
         } catch (SerializeException e) {
             e.getRealException().printStackTrace();
         } catch (DeserializeException e) {

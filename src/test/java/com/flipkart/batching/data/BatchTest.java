@@ -15,6 +15,9 @@ import java.util.ArrayList;
  */
 public class BatchTest {
 
+    /**
+     * Test to verify the {@link Batch#getDataCollection()} method.
+     */
     @Test
     public void testBatch() {
         ArrayList<Data> dataArrayList = Utils.fakeCollection(4);
@@ -22,13 +25,15 @@ public class BatchTest {
         Assert.assertEquals(batch.getDataCollection(), dataArrayList);
     }
 
+    /**
+     * Test to verify that {@link Batch#equals(Object)} method.
+     */
     @Test
     public void testBatchEquals() {
         ArrayList<Data> arrayList = Utils.fakeCollection(4);
         ArrayList<Data> arrayList1 = Utils.fakeCollection(5);
         Batch<Data> batch = new Batch<>(arrayList);
         Batch<Data> batch1 = new Batch<>(arrayList1);
-
         Assert.assertTrue(!batch.equals(batch1));
     }
 }

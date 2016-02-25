@@ -1,4 +1,4 @@
-package com.flipkart.batching;
+package com.flipkart.batching.strategy;
 
 import android.content.Context;
 import android.os.Handler;
@@ -6,9 +6,11 @@ import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.flipkart.Utils;
+import com.flipkart.batching.BatchController;
+import com.flipkart.batching.BuildConfig;
+import com.flipkart.batching.Data;
 import com.flipkart.batching.listener.PersistedBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
-import com.flipkart.batching.strategy.TimeBatchingStrategy;
 
 import junit.framework.Assert;
 
@@ -150,6 +152,7 @@ public class TimeBatchingTest {
         TimeBatchingStrategy.TimeBatch timeBatchInfo1 = new TimeBatchingStrategy.TimeBatch<>(Utils.fakeCollection(2), 5000);
 
         Assert.assertTrue(timeBatchInfo.equals(timeBatchInfo1));
+        Assert.assertTrue(!timeBatchInfo.equals("a"));
 
     }
 

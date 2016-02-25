@@ -4,10 +4,9 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.batching.Batch;
-import com.flipkart.batching.BatchController;
 import com.flipkart.batching.BatchingStrategy;
-import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.Data;
+import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.data.Tag;
 import com.flipkart.batching.data.TagData;
 
@@ -37,9 +36,6 @@ public class TagBatchingStrategy<E extends TagData, C extends Batch<E>> implemen
     public boolean isInitialized() {
         return initialized;
     }
-
-
-
 
     @Override
     public void onDataPushed(Collection<E> dataCollection) {

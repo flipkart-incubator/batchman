@@ -62,6 +62,9 @@ public class InMemoryPersistenceTest {
         Assert.assertTrue(persistenceStrategy.getData().size() == 0);
     }
 
+    /**
+     * Test to verify {@link InMemoryPersistenceStrategy#isInitialized()}
+     */
     @Test
     public void testOnInitialized() {
         persistenceStrategy.onInitialized();

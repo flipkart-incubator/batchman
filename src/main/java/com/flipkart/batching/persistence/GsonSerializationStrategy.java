@@ -22,7 +22,7 @@ import java.util.Set;
  * @see ByteArraySerializationStrategy
  */
 
-public class GsonSerializationStrategy<E, T> implements SerializationStrategy<E, T> {
+public class GsonSerializationStrategy<E extends Data, T extends Batch> implements SerializationStrategy<E, T> {
 
     Set<Class<E>> dataTypes = new HashSet<>();
     Set<Class<T>> batchInfoTypes = new HashSet<>();
@@ -76,7 +76,7 @@ public class GsonSerializationStrategy<E, T> implements SerializationStrategy<E,
     @Override
     public byte[] serializeCollection(Collection<E> data) throws SerializeException {
         checkIfBuildCalled();
-        Type type = new TypeToken<Collection<E>>() {
+        Type type = new TypeToken<Collection<Data>>() {
         }.getType();
         return gson.toJson(data, type).getBytes();
     }
@@ -96,7 +96,7 @@ public class GsonSerializationStrategy<E, T> implements SerializationStrategy<E,
     @Override
     public Collection<E> deserializeCollection(byte[] data) throws DeserializeException {
         checkIfBuildCalled();
-        Type type = new TypeToken<Collection<E>>() {
+        Type type = new TypeToken<Collection<Data>>() {
         }.getType();
         return gson.fromJson(new String(data), type);
     }

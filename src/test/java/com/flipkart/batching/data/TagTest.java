@@ -9,6 +9,9 @@ import org.junit.Test;
  */
 public class TagTest {
 
+    /**
+     * Test to verify {@link Tag#getId()}
+     */
     @Test
     public void setTag() {
         Tag tag = new Tag("Ads");
@@ -19,6 +22,9 @@ public class TagTest {
         Assert.assertTrue(tag1.getId().equals("Business"));
     }
 
+    /**
+     * Test to verify {@link Tag#equals(Object)}
+     */
     @Test
     public void testEquals() {
         Tag tag = new Tag("Ads");
@@ -29,6 +35,9 @@ public class TagTest {
         Assert.assertTrue(!tag.equals(string));
     }
 
+    /**
+     * Test to verify {@link Tag#hashCode()}
+     */
     @Test
     public void testHashCode() {
         Tag tag = new Tag("Ads");

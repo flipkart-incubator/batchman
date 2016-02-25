@@ -1,5 +1,7 @@
 package com.flipkart.batching.persistence;
 
+import com.flipkart.batching.Batch;
+import com.flipkart.batching.Data;
 import com.flipkart.batching.exception.DeserializeException;
 import com.flipkart.batching.exception.SerializeException;
 
@@ -19,7 +21,7 @@ import java.util.Collection;
  * @see GsonSerializationStrategy
  */
 
-public class ByteArraySerializationStrategy<E,T> implements SerializationStrategy<E,T> {
+public class ByteArraySerializationStrategy<E extends Data, T extends Batch> implements SerializationStrategy<E, T> {
 
     @Override
     public void registerDataType(Class subClass) {

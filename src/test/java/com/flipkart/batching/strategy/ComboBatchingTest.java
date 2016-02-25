@@ -1,4 +1,4 @@
-package com.flipkart.batching;
+package com.flipkart.batching.strategy;
 
 import android.content.Context;
 import android.os.Handler;
@@ -6,9 +6,12 @@ import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.flipkart.Utils;
-import com.flipkart.batching.strategy.ComboBatchingStrategy;
-import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.flipkart.batching.strategy.TimeBatchingStrategy;
+import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchController;
+import com.flipkart.batching.BatchingStrategy;
+import com.flipkart.batching.BuildConfig;
+import com.flipkart.batching.Data;
+import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
 
 import junit.framework.Assert;
@@ -42,22 +45,22 @@ import static org.mockito.Mockito.when;
 @Config(constants = BuildConfig.class)
 public class ComboBatchingTest {
     @Mock
-    private PersistenceStrategy persistenceStrategy;
+    private PersistenceStrategy<Data> persistenceStrategy;
     @Mock
     private Data eventData;
     @Mock
     private Context context;
     @Mock
-    private BatchController controller;
+    private BatchController<Data,Batch<Data>> controller;
     @Mock
     private OnBatchReadyListener onBatchReadyListener;
 
     private long TIME_OUT = 5000;
     private int BATCH_SIZE = 5;
     private ShadowLooper shadowLooper;
-    private TimeBatchingStrategy timeBatchingStrategy;
-    private SizeBatchingStrategy sizeBatchingStrategy;
-    private ComboBatchingStrategy comboBatchingStrategy;
+    private TimeBatchingStrategy<Data> timeBatchingStrategy;
+    private SizeBatchingStrategy<Data> sizeBatchingStrategy;
+    private ComboBatchingStrategy<Data, Batch<Data>> comboBatchingStrategy;
 
     /**
      * Setting up the test environment.
@@ -171,6 +174,15 @@ public class ComboBatchingTest {
         comboBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
 
         Assert.assertTrue(comboBatchingStrategy.isInitialized());
+    }
+
+    @Test
+    public void testDataCollectionNotNull() {
+        ArrayList<Data> datas = Utils.fakeCollection(4);
+        SizeBatchingStrategy.SizeBatch sizeBatch = new SizeBatchingStrategy.SizeBatch(datas, 5);
+        ComboBatchingStrategy.ComboBatch<Data, Batch<Data>> comboBatch = new ComboBatchingStrategy.ComboBatch<>(sizeBatch);
+
+        Assert.assertNotNull(comboBatch.getDataCollection());
     }
 
     /**

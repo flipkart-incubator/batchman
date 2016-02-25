@@ -83,7 +83,9 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
                 dataList.add(data);
                 queueFile.remove();
                 queueFile.add(serializationStrategy.serializeData(data));
-            } catch (DeserializeException | IOException | SerializeException e) {
+            } catch (DeserializeException e) {
+                e.getRealException().printStackTrace();
+            } catch (IOException | SerializeException e) {
                 e.printStackTrace();
             }
         }

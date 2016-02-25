@@ -1,12 +1,14 @@
-package com.flipkart.batching;
+package com.flipkart.batching.strategy;
 
 import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.Utils;
+import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchController;
+import com.flipkart.batching.Data;
 import com.flipkart.batching.listener.PersistedBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
-import com.flipkart.batching.strategy.SizeBatchingStrategy;
 
 import junit.framework.Assert;
 
@@ -229,5 +231,6 @@ public class SizeBatchingTest {
         SizeBatchingStrategy.SizeBatch sizeBatchInfo1 = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
 
         Assert.assertTrue(sizeBatchInfo.equals(sizeBatchInfo1));
+        Assert.assertTrue(!sizeBatchInfo.equals("event"));
     }
 }

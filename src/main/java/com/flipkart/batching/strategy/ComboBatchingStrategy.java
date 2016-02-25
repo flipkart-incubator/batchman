@@ -32,6 +32,7 @@ public class ComboBatchingStrategy<E extends Data, C extends Batch<E>> implement
     private BatchingStrategy<E, C>[] batchingStrategies;
     private boolean initialized = false;
 
+    @SafeVarargs
     public ComboBatchingStrategy(BatchingStrategy<E, C>... batchingStrategies) {
         this.batchingStrategies = batchingStrategies;
     }
@@ -45,14 +46,14 @@ public class ComboBatchingStrategy<E extends Data, C extends Batch<E>> implement
                 parentBatchReadyListener.onReady(ComboBatchingStrategy.this, new ComboBatch(batch)); //this listener overrides the causing strategy
             }
         };
-        for (BatchingStrategy batchingStrategy : batchingStrategies) {
+        for (BatchingStrategy<E, C> batchingStrategy : batchingStrategies) {
             batchingStrategy.onInitialized(context, childBatchReadyListener, handler);
         }
     }
 
     @Override
     public void onDataPushed(Collection<E> dataCollection) {
-        for (BatchingStrategy batchingStrategy : batchingStrategies) {
+        for (BatchingStrategy<E, C> batchingStrategy : batchingStrategies) {
             batchingStrategy.onDataPushed(dataCollection);
         }
     }

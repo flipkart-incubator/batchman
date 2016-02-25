@@ -26,16 +26,16 @@ public class TagBatchReadyListener<E extends TagData> implements OnBatchReadyLis
         return tagOnBatchReadyListenerMap;
     }
 
-    public void addListenerForTag(Tag tag, OnBatchReadyListener listener) {
+    public void addListenerForTag(Tag tag, OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E, Batch<E>>> listener) {
         tagOnBatchReadyListenerMap.put(tag, listener);
     }
 
-    private OnBatchReadyListener getListenerByTag(Tag tag) {
+    private OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E, Batch<E>>> getListenerByTag(Tag tag) {
         return tagOnBatchReadyListenerMap.get(tag);
     }
 
     @Override
-    public void onReady(BatchingStrategy causingStrategy, TagBatchingStrategy.TagBatch batch) {
+    public void onReady(BatchingStrategy<E, TagBatchingStrategy.TagBatch<E, Batch<E>>> causingStrategy, TagBatchingStrategy.TagBatch<E, Batch<E>> batch) {
         getListenerByTag(batch.getTag()).onReady(causingStrategy, batch);
     }
 }

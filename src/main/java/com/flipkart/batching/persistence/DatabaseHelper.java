@@ -20,7 +20,7 @@ import java.util.List;
  * Database Helper class that extends {@link SQLiteOpenHelper}.
  */
 
-public class DatabaseHelper<E extends Data, T extends Batch<E>> extends SQLiteOpenHelper {
+public class DatabaseHelper<E extends Data, T extends Batch> extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_EVENT_DATA = "tableEventData";

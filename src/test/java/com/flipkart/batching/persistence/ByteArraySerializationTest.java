@@ -20,8 +20,8 @@ import java.util.HashMap;
 /**
  * Created by anirudh.r on 12/02/16.
  */
-public class ByteArraySerializationTest {
-    private SerializationStrategy<Data, Batch<Data>> serializationStrategy;
+public class ByteArraySerializationTest<E extends Data,T extends Batch> {
+    private SerializationStrategy<E, T> serializationStrategy;
     private Data eventData;
 
     /**
@@ -34,7 +34,7 @@ public class ByteArraySerializationTest {
     public void testByteArraySerialization() throws SerializeException, DeserializeException {
         serializationStrategy = new ByteArraySerializationStrategy<>();
         eventData = new EventData("Event 1");
-        byte[] serializedData = serializationStrategy.serializeData(eventData);
+        byte[] serializedData = serializationStrategy.serializeData((E) eventData);
         Data data = serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(eventData, data);
     }
@@ -49,8 +49,8 @@ public class ByteArraySerializationTest {
     public void testCollectionSerialization() throws SerializeException, DeserializeException {
         serializationStrategy = new ByteArraySerializationStrategy<>();
         ArrayList<Data> arrayList = Utils.fakeCollection(4);
-        byte[] serializedData = serializationStrategy.serializeCollection(arrayList);
-        Collection<Data> data = serializationStrategy.deserializeCollection(serializedData);
+        byte[] serializedData = serializationStrategy.serializeCollection((Collection<E>) arrayList);
+        Collection<Data> data = (Collection<Data>) serializationStrategy.deserializeCollection(serializedData);
         Assert.assertEquals(arrayList, data);
     }
 
@@ -58,7 +58,7 @@ public class ByteArraySerializationTest {
     public void testBatchInfoSerialization() throws DeserializeException, SerializeException {
         serializationStrategy = new ByteArraySerializationStrategy<>();
         Batch<Data> batch = new Batch<>(Utils.fakeCollection(4));
-        byte[] serializedData = serializationStrategy.serializeBatch(batch);
+        byte[] serializedData = serializationStrategy.serializeBatch((T) batch);
         Batch data = serializationStrategy.deserializeBatch(serializedData);
         Assert.assertEquals(batch, data);
     }
@@ -73,7 +73,7 @@ public class ByteArraySerializationTest {
     public void testIfDeserializeExceptionThrown() throws SerializeException, DeserializeException {
         serializationStrategy = new ByteArraySerializationStrategy<>();
         eventData = new EventData("Event 1");
-        byte[] serializedData = serializationStrategy.serializeData(eventData);
+        byte[] serializedData = serializationStrategy.serializeData((E) eventData);
         try {
             String foo = new String(serializedData, "UTF-8");
             foo += "a";
@@ -87,12 +87,13 @@ public class ByteArraySerializationTest {
     @Test
     public void testRegisterBatchInfoType() {
         serializationStrategy = new ByteArraySerializationStrategy<>();
+        serializationStrategy.registerBatch((Class<T>) Batch.class);
     }
 
     @Test
     public void testRegisterDataType() {
         serializationStrategy = new ByteArraySerializationStrategy<>();
-        serializationStrategy.registerDataType(Data.class);
+        serializationStrategy.registerDataType((Class<E>) Data.class);
     }
 
     @Test

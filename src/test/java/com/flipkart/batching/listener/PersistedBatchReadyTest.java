@@ -1,16 +1,19 @@
-package com.flipkart.batching;
+package com.flipkart.batching.listener;
 
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.flipkart.Utils;
+import com.flipkart.batching.Batch;
+import com.flipkart.batching.BuildConfig;
+import com.flipkart.batching.Data;
 import com.flipkart.batching.exception.SerializeException;
-import com.flipkart.batching.listener.PersistedBatchReadyListener;
 import com.flipkart.batching.persistence.ByteArraySerializationStrategy;
 import com.flipkart.batching.persistence.InMemoryPersistenceStrategy;
 import com.flipkart.batching.persistence.PersistenceStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
+import com.flipkart.batching.strategy.BaseBatchingStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.squareup.tape.QueueFile;
 
@@ -40,11 +43,10 @@ import static org.mockito.Mockito.when;
 @Config(constants = BuildConfig.class)
 public class PersistedBatchReadyTest {
 
-    private PersistedBatchReadyListener persistedBatchReadyListener;
+    private PersistedBatchReadyListener<Data, Batch<Data>> persistedBatchReadyListener;
     private SerializationStrategy<Data, Batch<Data>> serializationStrategy;
     private ShadowLooper shadowLooper;
-    private BatchingStrategy<Data, Batch<Data>> strategy;
-    private PersistenceStrategy<Data> persistenceStrategy;
+    private BaseBatchingStrategy<Data, Batch<Data>> strategy;
     private SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo;
     private Handler handler;
     @Mock
@@ -53,16 +55,15 @@ public class PersistedBatchReadyTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-
     }
 
     /**
-     * Test if onReady initializes the file
+     * Test to verify that {@link PersistedBatchReadyListener#onInitialized(QueueFile)} is called
      */
     @Test
     public void testIfInitializedCalled() {
         init();
-        persistedBatchReadyListener = new PersistedBatchReadyListener(new File("test"), serializationStrategy, handler) {
+        persistedBatchReadyListener = new PersistedBatchReadyListener<Data, Batch<Data>>(new File("test"), serializationStrategy, handler) {
             @Override
             public void onPersistSuccess(Batch batch) {
 
@@ -74,23 +75,25 @@ public class PersistedBatchReadyTest {
             }
         };
 
-        ArrayList<Data> arrayList = Utils.fakeCollection(4);
         persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
         shadowLooper.runToEndOfTasks();
         //should be initialized first time
         Assert.assertTrue(persistedBatchReadyListener.isInitialized());
     }
 
+    /**
+     * Test to verify {@link PersistedBatchReadyListener#onPersistSuccess(Batch)}
+     */
     @Test
     public void testIfPersistSuccessCalled() {
         init();
-        final ArrayList<Data> arrayList = Utils.fakeCollection(4);
-
-        persistedBatchReadyListener = new PersistedBatchReadyListener(new File("test"), serializationStrategy, handler) {
+        final ArrayList<Data> arrayList = Utils.fakeCollection(5);
+        sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(arrayList, 5);
+        persistedBatchReadyListener = new PersistedBatchReadyListener<Data, Batch<Data>>(new File("test"), serializationStrategy, handler) {
             @Override
             public void onPersistSuccess(Batch batch) {
                 Assert.assertEquals(batch, sizeBatchInfo);
-                Assert.assertEquals(batch.getDataCollection(), arrayList);
+                Assert.assertEquals(arrayList, batch.getDataCollection());
             }
 
             @Override
@@ -100,6 +103,7 @@ public class PersistedBatchReadyTest {
         };
 
         persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
+        shadowLooper.runToEndOfTasks();
     }
 
     /**
@@ -111,7 +115,7 @@ public class PersistedBatchReadyTest {
     @Test
     public void testFinishCalled() throws IOException, SerializeException {
         init();
-        persistedBatchReadyListener = new PersistedBatchReadyListener(new File("test"), serializationStrategy, handler) {
+        persistedBatchReadyListener = new PersistedBatchReadyListener<Data, Batch<Data>>(new File("test"), serializationStrategy, handler) {
             @Override
             public void onPersistSuccess(Batch batch) {
 
@@ -131,6 +135,7 @@ public class PersistedBatchReadyTest {
         shadowLooper.runToEndOfTasks();
 
         persistedBatchReadyListener.finish();
+        shadowLooper.runToEndOfTasks();
 
         Assert.assertNotNull(queueFile.peek());
 
@@ -138,11 +143,17 @@ public class PersistedBatchReadyTest {
         persistedBatchReadyListener.finish();
     }
 
+    /**
+     * Test to verify {@link PersistedBatchReadyListener#onPersistFailure(Batch, Exception)}
+     *
+     * @throws SerializeException
+     * @throws IOException
+     */
     @Test
     public void testIfPersistFailureCalled() throws SerializeException, IOException {
         init();
         final ArrayList<Data> arrayList = Utils.fakeCollection(4);
-        persistedBatchReadyListener = new PersistedBatchReadyListener(new File("test"), serializationStrategy, handler) {
+        persistedBatchReadyListener = new PersistedBatchReadyListener<Data, Batch<Data>>(new File("test"), serializationStrategy, handler) {
             @Override
             public void onPersistSuccess(Batch batch) {
 
@@ -159,18 +170,20 @@ public class PersistedBatchReadyTest {
         doThrow(new IOException()).when(queueFile).add(data);
         persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
         shadowLooper.runToEndOfTasks();
-
     }
 
+    /**
+     * To initialize the variables
+     */
     public void init() {
         HandlerThread handlerThread = new HandlerThread("test");
         handlerThread.start();
         Looper looper = handlerThread.getLooper();
         shadowLooper = Shadows.shadowOf(looper);
         handler = new Handler(looper);
-        persistenceStrategy = new InMemoryPersistenceStrategy();
+        PersistenceStrategy<Data> persistenceStrategy = new InMemoryPersistenceStrategy<>();
         strategy = new SizeBatchingStrategy(5, persistenceStrategy);
         sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
-        serializationStrategy = new ByteArraySerializationStrategy();
+        serializationStrategy = new ByteArraySerializationStrategy<>();
     }
 }

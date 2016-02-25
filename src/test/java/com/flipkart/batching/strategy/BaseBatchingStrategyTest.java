@@ -1,11 +1,16 @@
-package com.flipkart.batching;
+package com.flipkart.batching.strategy;
 
 import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.Utils;
+import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchController;
+import com.flipkart.batching.BatchingStrategy;
+import com.flipkart.batching.BuildConfig;
+import com.flipkart.batching.Data;
+import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
-import com.flipkart.batching.strategy.BaseBatchingStrategy;
 
 import junit.framework.Assert;
 
@@ -83,5 +88,31 @@ public class BaseBatchingStrategyTest {
 
         Assert.assertNotNull(baseBatchingStrategy.getContext());
         Assert.assertNotNull(baseBatchingStrategy.getOnReadyListener());
+    }
+
+    @Test
+    public void testPersistenceNotNull(){
+        BaseBatchingStrategy<Data, Batch<Data>> baseBatchingStrategy = new BaseBatchingStrategy<Data, Batch<Data>>(persistenceStrategy) {
+            @Override
+            public void flush(boolean forced) {
+
+            }
+        };
+        baseBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
+
+        Assert.assertNotNull(baseBatchingStrategy.getPersistenceStrategy());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPersistenceNull(){
+        BaseBatchingStrategy<Data, Batch<Data>> baseBatchingStrategy = new BaseBatchingStrategy<Data, Batch<Data>>(null) {
+            @Override
+            public void flush(boolean forced) {
+
+            }
+        };
+        baseBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
+
+        Assert.assertNotNull(baseBatchingStrategy.getPersistenceStrategy());
     }
 }

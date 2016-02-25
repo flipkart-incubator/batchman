@@ -1,5 +1,6 @@
 package com.flipkart.batching.persistence;
 
+import com.flipkart.batching.Batch;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.exception.DeserializeException;
 import com.flipkart.batching.exception.SerializeException;
@@ -14,7 +15,7 @@ import java.util.Collection;
  * @see GsonSerializationStrategy
  */
 
-public interface SerializationStrategy<E, T> {
+public interface SerializationStrategy<E extends Data, T extends Batch> {
 
     /**
      * Register sub classes of {@link Data}
@@ -23,11 +24,6 @@ public interface SerializationStrategy<E, T> {
      */
     void registerDataType(Class<E> subClass);
 
-    /**
-     * Register sub classes of {@link BatchInfo}
-     *
-     * @param subClass The sub class of {@link BatchInfo}
-     */
     void registerBatch(Class<T> subClass);
 
     /**
