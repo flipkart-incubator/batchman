@@ -3,8 +3,6 @@ package com.flipkart.batching;
 import android.content.Context;
 import android.os.Handler;
 
-import com.flipkart.data.Data;
-
 import java.util.Collection;
 
 /**
@@ -12,17 +10,17 @@ import java.util.Collection;
  * implement this interface and override all it's methods.
  */
 
-public interface BatchingStrategy {
+public interface BatchingStrategy<E extends Data, T extends Batch<E>> {
 
     /**
      * This method tells the BatchingStrategy about added data. This method should send the
      * provided {@link Collection} of {@link Data} objects to the provided implementation of
-     * {@link com.flipkart.persistence.PersistenceStrategy}.
+     * {@link com.flipkart.batching.persistence.PersistenceStrategy}.
      *
      * @param dataCollection collection of {@link Data} objects
      */
 
-    void onDataPushed(Collection<Data> dataCollection);
+    void onDataPushed(Collection<E> dataCollection);
 
     /**
      * This method fires the {@link OnBatchReadyListener} when a batch is ready, depending on the
@@ -46,12 +44,10 @@ public interface BatchingStrategy {
     /**
      * Instance of {@link BatchController}, {@link Context}, {@link OnBatchReadyListener},
      * and {@link Handler} from {@link BatchController}.
-     *
-     * @param controller           instance of {@link BatchController}
      * @param context              context
      * @param onBatchReadyListener instance of {@link OnBatchReadyListener}
      * @param handler              instance of {@link Handler}
      */
 
-    void onInitialized(BatchController controller, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler);
+    void onInitialized(Context context, OnBatchReadyListener<E, T> onBatchReadyListener, Handler handler);
 }

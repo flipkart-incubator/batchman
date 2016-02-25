@@ -1,8 +1,6 @@
 package com.flipkart.batching;
 
 
-import com.flipkart.data.Data;
-
 import java.util.Collection;
 
 /**
@@ -10,14 +8,14 @@ import java.util.Collection;
  * is ready to served with ArrayList of data as it's only parameter.\
  */
 
-public interface OnBatchReadyListener {
+public interface OnBatchReadyListener<E extends Data, T extends Batch<E>> {
 
     /**
      * This method is called when a batch is ready.
      *
      * @param causingStrategy the batching strategy which generated this batch of dataCollection
-     * @param batchInfo an object which describes the generated batch
+     * @param batchInfo       an object which describes the generated batch
      * @param dataCollection  collection of {@link Data} objects
      */
-    void onReady(BatchingStrategy causingStrategy, BatchInfo batchInfo, Collection<Data> dataCollection);
+    void onReady(BatchingStrategy<E, T> causingStrategy, T batch);
 }

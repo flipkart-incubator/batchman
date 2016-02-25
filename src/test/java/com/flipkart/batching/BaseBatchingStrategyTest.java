@@ -4,8 +4,8 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.Utils;
-import com.flipkart.data.Data;
-import com.flipkart.persistence.PersistenceStrategy;
+import com.flipkart.batching.persistence.PersistenceStrategy;
+import com.flipkart.batching.strategy.BaseBatchingStrategy;
 
 import junit.framework.Assert;
 
@@ -33,13 +33,13 @@ import static org.mockito.Mockito.when;
 public class BaseBatchingStrategyTest {
 
     @Mock
-    PersistenceStrategy persistenceStrategy;
+    PersistenceStrategy<Data> persistenceStrategy;
     @Mock
     BatchController batchController;
     @Mock
     Context context;
     @Mock
-    OnBatchReadyListener onBatchReadyListener;
+    OnBatchReadyListener<Data, Batch<Data>> onBatchReadyListener;
     @Mock
     Handler handler;
 
@@ -53,7 +53,7 @@ public class BaseBatchingStrategyTest {
      */
     @Test
     public void testOnDataPushed() {
-        BaseBatchingStrategy baseBatchingStrategy = new BaseBatchingStrategy(persistenceStrategy) {
+        BaseBatchingStrategy<Data, Batch<Data>> baseBatchingStrategy = new BaseBatchingStrategy<Data, Batch<Data>>(persistenceStrategy) {
             @Override
             public void flush(boolean forced) {
 
@@ -68,20 +68,19 @@ public class BaseBatchingStrategyTest {
     }
 
     /**
-     * Test {@link BaseBatchingStrategy#onInitialized(BatchController, Context, OnBatchReadyListener, Handler)}
+     * Test {@link BatchingStrategy#onInitialized(Context, OnBatchReadyListener, Handler)}
      */
     @Test
     public void testOnInitialized() {
-        BaseBatchingStrategy baseBatchingStrategy = new BaseBatchingStrategy(persistenceStrategy) {
+        BaseBatchingStrategy<Data, Batch<Data>> baseBatchingStrategy = new BaseBatchingStrategy<Data, Batch<Data>>(persistenceStrategy) {
             @Override
             public void flush(boolean forced) {
 
             }
         };
-        baseBatchingStrategy.onInitialized(batchController, context, onBatchReadyListener, handler);
+        baseBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         Assert.assertTrue(baseBatchingStrategy.isInitialized());
 
-        Assert.assertNotNull(baseBatchingStrategy.getBatchController());
         Assert.assertNotNull(baseBatchingStrategy.getContext());
         Assert.assertNotNull(baseBatchingStrategy.getOnReadyListener());
     }

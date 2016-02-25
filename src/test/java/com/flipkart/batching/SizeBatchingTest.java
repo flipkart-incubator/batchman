@@ -4,8 +4,9 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.Utils;
-import com.flipkart.data.Data;
-import com.flipkart.persistence.PersistenceStrategy;
+import com.flipkart.batching.listener.PersistedBatchReadyListener;
+import com.flipkart.batching.persistence.PersistenceStrategy;
+import com.flipkart.batching.strategy.SizeBatchingStrategy;
 
 import junit.framework.Assert;
 
@@ -19,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -41,7 +43,7 @@ public class SizeBatchingTest {
     @Mock
     private Exception e;
     @Mock
-    private BatchInfo batchInfo;
+    private SizeBatchingStrategy.SizeBatch batchInfo;
 
     private int BATCH_SIZE = 5;
 
@@ -59,7 +61,7 @@ public class SizeBatchingTest {
     @Test
     public void testOnDataPushed() {
         SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
-        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         ArrayList<Data> fakeCollection = Utils.fakeCollection(1);
         sizeBatchingStrategy.onDataPushed(fakeCollection);
         verify(persistenceStrategy, times(1)).add(eq(fakeCollection));
@@ -67,12 +69,12 @@ public class SizeBatchingTest {
 
     /**
      * This test is to ensure the working of {@link SizeBatchingStrategy#flush(boolean)}
-     * Whenever this method is invoked, {@link com.flipkart.persistence.PersistenceStrategy#removeData(Collection)} should be called
+     * Whenever this method is invoked, {@link com.flipkart.batching.persistence.PersistenceStrategy#removeData(Collection)} should be called
      */
     @Test
     public void testFlush() {
         SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
-        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         ArrayList<Data> fakeCollection = Utils.fakeCollection(1);
         sizeBatchingStrategy.onDataPushed(fakeCollection);
         when(persistenceStrategy.getData()).thenReturn(fakeCollection);
@@ -84,94 +86,86 @@ public class SizeBatchingTest {
     @Test
     public void testOnReadyCallbackFlushFalse() {
         SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
-        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
 
         //pushed 1 data, onReady should NOT get called.
         ArrayList<Data> data = Utils.fakeCollection(1);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
-        verify(onBatchReadyListener, times(0)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(BATCH_SIZE), data);
+        verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
 
         //pushed 2 data, onReady should NOT get called.
         sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
-        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         data = Utils.fakeCollection(2);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
-        verify(onBatchReadyListener, times(0)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(BATCH_SIZE), data);
+        verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
 
         //pushed 3 data, onReady should NOT get called.
         sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
-        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         data = Utils.fakeCollection(3);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
-        verify(onBatchReadyListener, times(0)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(BATCH_SIZE), data);
+        verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
 
         //pushed 4 data, onReady should NOT get called.
         sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
-        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         data = Utils.fakeCollection(4);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
-        verify(onBatchReadyListener, times(0)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(BATCH_SIZE), data);
+        verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
 
         //pushed 5 data, onReady should GET called.
         sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
-        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         data = Utils.fakeCollection(5);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
-        verify(onBatchReadyListener, times(1)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(BATCH_SIZE), data);
+        verify(onBatchReadyListener, times(1)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
         verify(persistenceStrategy, times(1)).removeData(data);
     }
 
-    /**
-     * This test is to check the {@link PersistedBatchReadyListener#onPersistSuccess(BatchInfo, Collection)} callback for various uses cases.
-     * Flush is TRUE for this test. {@link PersistedBatchReadyListener#onPersistSuccess(BatchInfo, Collection)} should be called every time.
-     */
     @Test
     public void testOnReadyCallbackFlushTrue() {
 
         SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
-        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         //pushed 1 data, onReady should be called with flush true
         ArrayList<Data> data = Utils.fakeCollection(1);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(true);
-        verify(onBatchReadyListener, times(1)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(BATCH_SIZE), data);
+        verify(onBatchReadyListener, times(1)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
 
         //pushed 2 data, onReady should be called with flush true
         sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
-        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         data = Utils.fakeCollection(2);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(true);
-        verify(onBatchReadyListener, times(1)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(BATCH_SIZE), data);
+        verify(onBatchReadyListener, times(1)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
     }
 
-    /**
-     * This test is to check the {@link PersistedBatchReadyListener#onPersistSuccess(BatchInfo, Collection)}  callback.
-     * This test ensures the integrity of the data.
-     */
     @Test
     public void testOnReadyCallbackData() {
         SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
-        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
 
         ArrayList<Data> data = Utils.fakeCollection(BATCH_SIZE - 1);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
         //verify that onReady DID NOT get called since we have pushed less than batch size events.
-        verify(onBatchReadyListener, times(0)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(BATCH_SIZE), data);
+        verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
         List<Data> singleData = Collections.singletonList(eventData);
         data.addAll(singleData);
 
@@ -180,7 +174,7 @@ public class SizeBatchingTest {
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
         //verify that onReady DID get called since we have pushed enough events equal to batch size
-        verify(onBatchReadyListener, times(1)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(BATCH_SIZE), data);
+        verify(onBatchReadyListener, times(1)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
         data.clear();
         singleData = Collections.singletonList(eventData);
         data.addAll(singleData);
@@ -190,23 +184,19 @@ public class SizeBatchingTest {
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
         //verify that onReady DID NOT get called since we have only one event remaining
-        verify(onBatchReadyListener, times(0)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(BATCH_SIZE), data);
+        verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
     }
 
-    /**
-     * This test to check the {@link PersistedBatchReadyListener#onPersistSuccess(BatchInfo, Collection)} callback when the
-     * data list passed is empty
-     */
     @Test
     public void testOnReadyForEmptyData() {
         SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
-        sizeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         ArrayList<Data> data = new ArrayList<>();
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         sizeBatchingStrategy.flush(false);
         //verify that onReady is NOT called since the data list is empty.
-        verify(onBatchReadyListener, times(0)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(BATCH_SIZE), data);
+        verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
     }
 
     /**
@@ -234,12 +224,10 @@ public class SizeBatchingTest {
     }
 
     @Test
-    public void testSizeBatchInfo(){
-        SizeBatchingStrategy.SizeBatchInfo sizeBatchInfo = new SizeBatchingStrategy.SizeBatchInfo(5);
-        SizeBatchingStrategy.SizeBatchInfo sizeBatchInfo1 = new SizeBatchingStrategy.SizeBatchInfo(5);
-        TimeBatchingStrategy.TimeBatchInfo timeBatchInfo = new TimeBatchingStrategy.TimeBatchInfo(5000);
+    public void testSizeBatchInfo() {
+        SizeBatchingStrategy.SizeBatch sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SizeBatchingStrategy.SizeBatch sizeBatchInfo1 = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
 
         Assert.assertTrue(sizeBatchInfo.equals(sizeBatchInfo1));
-        Assert.assertTrue(!sizeBatchInfo.equals(timeBatchInfo));
     }
 }
