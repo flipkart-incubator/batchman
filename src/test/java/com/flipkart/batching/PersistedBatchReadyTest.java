@@ -5,12 +5,13 @@ import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.flipkart.Utils;
-import com.flipkart.data.Data;
-import com.flipkart.exception.SerializeException;
-import com.flipkart.persistence.ByteArraySerializationStrategy;
-import com.flipkart.persistence.InMemoryPersistenceStrategy;
-import com.flipkart.persistence.PersistenceStrategy;
-import com.flipkart.persistence.SerializationStrategy;
+import com.flipkart.batching.exception.SerializeException;
+import com.flipkart.batching.listener.PersistedBatchReadyListener;
+import com.flipkart.batching.persistence.ByteArraySerializationStrategy;
+import com.flipkart.batching.persistence.InMemoryPersistenceStrategy;
+import com.flipkart.batching.persistence.PersistenceStrategy;
+import com.flipkart.batching.persistence.SerializationStrategy;
+import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.squareup.tape.QueueFile;
 
 import junit.framework.Assert;
@@ -28,7 +29,6 @@ import org.robolectric.shadows.ShadowLooper;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -41,11 +41,11 @@ import static org.mockito.Mockito.when;
 public class PersistedBatchReadyTest {
 
     private PersistedBatchReadyListener persistedBatchReadyListener;
-    private SerializationStrategy serializationStrategy;
+    private SerializationStrategy<Data, Batch<Data>> serializationStrategy;
     private ShadowLooper shadowLooper;
-    private BatchingStrategy strategy;
-    private PersistenceStrategy persistenceStrategy;
-    private SizeBatchingStrategy.SizeBatchInfo sizeBatchInfo;
+    private BatchingStrategy<Data, Batch<Data>> strategy;
+    private PersistenceStrategy<Data> persistenceStrategy;
+    private SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo;
     private Handler handler;
     @Mock
     private QueueFile queueFile;
@@ -64,24 +64,23 @@ public class PersistedBatchReadyTest {
         init();
         persistedBatchReadyListener = new PersistedBatchReadyListener(new File("test"), serializationStrategy, handler) {
             @Override
-            public void onPersistSuccess(BatchInfo batchInfo, Collection<Data> batchedData) {
+            public void onPersistSuccess(Batch batch) {
+
             }
 
             @Override
-            public void onPersistFailure(Collection<Data> batchedData, Exception e) {
+            public void onPersistFailure(Batch batch, Exception e) {
+
             }
         };
+
         ArrayList<Data> arrayList = Utils.fakeCollection(4);
-        persistedBatchReadyListener.onReady(strategy, sizeBatchInfo, arrayList);
+        persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
         shadowLooper.runToEndOfTasks();
         //should be initialized first time
         Assert.assertTrue(persistedBatchReadyListener.isInitialized());
     }
 
-    /**
-     * Test if {@link PersistedBatchReadyListener#onPersistSuccess(BatchInfo, Collection)}
-     * is called with exact parameters.
-     */
     @Test
     public void testIfPersistSuccessCalled() {
         init();
@@ -89,19 +88,18 @@ public class PersistedBatchReadyTest {
 
         persistedBatchReadyListener = new PersistedBatchReadyListener(new File("test"), serializationStrategy, handler) {
             @Override
-            public void onPersistSuccess(BatchInfo batchInfo, Collection<Data> batchedData) {
-                Assert.assertEquals(batchInfo, sizeBatchInfo);
-                Assert.assertEquals(batchedData, arrayList);
+            public void onPersistSuccess(Batch batch) {
+                Assert.assertEquals(batch, sizeBatchInfo);
+                Assert.assertEquals(batch.getDataCollection(), arrayList);
             }
 
             @Override
-            public void onPersistFailure(Collection<Data> batchedData, Exception e) {
+            public void onPersistFailure(Batch batch, Exception e) {
 
             }
         };
 
-        persistedBatchReadyListener.onReady(strategy, sizeBatchInfo, arrayList);
-        shadowLooper.runToEndOfTasks();
+        persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
     }
 
     /**
@@ -115,28 +113,29 @@ public class PersistedBatchReadyTest {
         init();
         persistedBatchReadyListener = new PersistedBatchReadyListener(new File("test"), serializationStrategy, handler) {
             @Override
-            public void onPersistSuccess(BatchInfo batchInfo, Collection<Data> batchedData) {
+            public void onPersistSuccess(Batch batch) {
+
             }
 
             @Override
-            public void onPersistFailure(Collection<Data> batchedData, Exception e) {
+            public void onPersistFailure(Batch batch, Exception e) {
+
             }
         };
+
         ArrayList<Data> arrayList = Utils.fakeCollection(4);
 
         when(queueFile.peek()).thenReturn(serializationStrategy.serializeCollection(arrayList));
 
-        persistedBatchReadyListener.onReady(strategy, sizeBatchInfo, arrayList);
+        persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
         shadowLooper.runToEndOfTasks();
 
         persistedBatchReadyListener.finish();
-        shadowLooper.runToEndOfTasks();
 
         Assert.assertNotNull(queueFile.peek());
 
         doThrow(new IOException()).when(queueFile).remove();
         persistedBatchReadyListener.finish();
-        shadowLooper.runToEndOfTasks();
     }
 
     @Test
@@ -145,18 +144,20 @@ public class PersistedBatchReadyTest {
         final ArrayList<Data> arrayList = Utils.fakeCollection(4);
         persistedBatchReadyListener = new PersistedBatchReadyListener(new File("test"), serializationStrategy, handler) {
             @Override
-            public void onPersistSuccess(BatchInfo batchInfo, Collection<Data> batchedData) {
+            public void onPersistSuccess(Batch batch) {
+
             }
 
             @Override
-            public void onPersistFailure(Collection<Data> batchedData, Exception e) {
-                Assert.assertEquals(arrayList, batchedData);
+            public void onPersistFailure(Batch batch, Exception e) {
+                Assert.assertEquals(arrayList, batch.getDataCollection());
             }
         };
+
         byte[] data = serializationStrategy.serializeCollection(arrayList);
 
         doThrow(new IOException()).when(queueFile).add(data);
-        persistedBatchReadyListener.onReady(strategy, sizeBatchInfo, arrayList);
+        persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
         shadowLooper.runToEndOfTasks();
 
     }
@@ -169,7 +170,7 @@ public class PersistedBatchReadyTest {
         handler = new Handler(looper);
         persistenceStrategy = new InMemoryPersistenceStrategy();
         strategy = new SizeBatchingStrategy(5, persistenceStrategy);
-        sizeBatchInfo = new SizeBatchingStrategy.SizeBatchInfo(5);
+        sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
         serializationStrategy = new ByteArraySerializationStrategy();
     }
 }

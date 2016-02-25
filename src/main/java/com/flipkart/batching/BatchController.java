@@ -2,8 +2,7 @@ package com.flipkart.batching;
 
 import android.os.Handler;
 
-import com.flipkart.data.Data;
-import com.flipkart.persistence.SerializationStrategy;
+import com.flipkart.batching.persistence.SerializationStrategy;
 
 import java.util.Collection;
 
@@ -12,7 +11,7 @@ import java.util.Collection;
  * implement this interface and override all it's methods.
  */
 
-public interface BatchController {
+public interface BatchController<E extends Data, T extends Batch<E>> {
 
     /**
      * This method takes {@link Data} type {@link Collection} as parameter and notifies the provided
@@ -21,7 +20,7 @@ public interface BatchController {
      * @param dataCollection collection of {@link Data}
      */
 
-    void addToBatch(Collection<Data> dataCollection);
+    void addToBatch(Collection<E> dataCollection);
 
     /**
      * This method returns the initialized {@link Handler}.
@@ -37,5 +36,5 @@ public interface BatchController {
      * @return serializationStrategy
      */
 
-    SerializationStrategy getSerializationStrategy();
+    SerializationStrategy<E, T> getSerializationStrategy();
 }

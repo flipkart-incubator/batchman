@@ -1,8 +1,9 @@
 package com.flipkart;
 
-import com.flipkart.data.Data;
-import com.flipkart.data.EventData;
-import com.flipkart.data.Tag;
+import com.flipkart.batching.Data;
+import com.flipkart.batching.data.EventData;
+import com.flipkart.batching.data.Tag;
+import com.flipkart.batching.data.TagData;
 
 import java.util.ArrayList;
 
@@ -20,40 +21,57 @@ public class Utils {
     static Data eventData;
 
     public static ArrayList<Data> fakeCollection(int size) {
-        ArrayList<Data> datas = new ArrayList<>();
+        ArrayList<Data> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            eventData = new EventData(new Tag("u" + i), "Event " + i);
-            datas.add(eventData);
+            eventData = new EventData("Event " + i);
+            dataList.add(eventData);
         }
-        return datas;
+        return dataList;
     }
 
     public static ArrayList<Data> fakeAdsCollection(int size) {
-        ArrayList<Data> datas = new ArrayList<>();
+        ArrayList<Data> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            eventData = new EventData(new Tag("AD"), "Event " + i);
-            datas.add(eventData);
+            eventData = new EventData("Event " + i);
+            dataList.add(eventData);
         }
-        return datas;
+        return dataList;
     }
 
     public static ArrayList<Data> fakeDebugCollection(int size) {
-        ArrayList<Data> datas = new ArrayList<>();
+        ArrayList<Data> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            eventData = new EventData(new Tag("DEBUG"), "Event " + i);
-            datas.add(eventData);
+            eventData = new EventData("Event " + i);
+            dataList.add(eventData);
         }
-        return datas;
+        return dataList;
     }
 
     public static ArrayList<Data> fakeBuisnessCollection(int size) {
-        ArrayList<Data> datas = new ArrayList<>();
+        ArrayList<Data> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            eventData = new EventData(new Tag("BUISNESS"), "Event " + i);
-            datas.add(eventData);
+            eventData = new EventData("Event " + i);
+            dataList.add(eventData);
         }
-        return datas;
+        return dataList;
     }
 
+    public static ArrayList<TagData> fakeTagAdsCollection(int size) {
+        ArrayList<TagData> dataList = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            TagData eventData = new TagData(new Tag("ADS"), "Event " + i);
+            dataList.add(eventData);
+        }
+        return dataList;
+    }
+
+    public static ArrayList<TagData> fakeTagDebugCollection(int size) {
+        ArrayList<TagData> dataList = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            TagData eventData = new TagData(new Tag("DEBUG"), "Event " + i);
+            dataList.add(eventData);
+        }
+        return dataList;
+    }
 
 }

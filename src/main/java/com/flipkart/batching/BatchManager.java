@@ -4,9 +4,13 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-import com.flipkart.data.Data;
-import com.flipkart.data.EventData;
-import com.flipkart.persistence.SerializationStrategy;
+import com.flipkart.batching.data.EventData;
+import com.flipkart.batching.data.TagData;
+import com.flipkart.batching.persistence.SerializationStrategy;
+import com.flipkart.batching.strategy.ComboBatchingStrategy;
+import com.flipkart.batching.strategy.SizeBatchingStrategy;
+import com.flipkart.batching.strategy.TagBatchingStrategy;
+import com.flipkart.batching.strategy.TimeBatchingStrategy;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -30,10 +34,10 @@ import java.util.Set;
  * @see BatchController
  */
 
-public class BatchManager implements BatchController {
+public class BatchManager<E extends Data, T extends Batch<E>> implements BatchController<E, T> {
     private Handler handler;
-    private BatchingStrategy batchingStrategy;
-    private SerializationStrategy serializationStrategy;
+    private BatchingStrategy<E, T> batchingStrategy;
+    private SerializationStrategy<E, T> serializationStrategy;
 
     protected BatchManager(Builder builder, final Context context) {
         final OnBatchReadyListener onBatchReadyListener = builder.getOnBatchReadyListener();
@@ -58,24 +62,26 @@ public class BatchManager implements BatchController {
     }
 
     public static void registerBuiltInTypes(SerializationStrategy serializationStrategy) {
+        serializationStrategy.registerDataType(TagData.class);
+        serializationStrategy.registerBatch(Batch.class);
         serializationStrategy.registerDataType(EventData.class);
-        serializationStrategy.registerBatchInfoType(SizeBatchingStrategy.SizeBatchInfo.class);
-        serializationStrategy.registerBatchInfoType(TimeBatchingStrategy.TimeBatchInfo.class);
-        serializationStrategy.registerBatchInfoType(TagBatchingStrategy.TagBatchInfo.class);
-        serializationStrategy.registerBatchInfoType(ComboBatchingStrategy.ComboBatchInfo.class);
+        serializationStrategy.registerBatch(SizeBatchingStrategy.SizeBatch.class);
+        serializationStrategy.registerBatch(TimeBatchingStrategy.TimeBatch.class);
+        serializationStrategy.registerBatch(TagBatchingStrategy.TagBatch.class);
+        serializationStrategy.registerBatch(ComboBatchingStrategy.ComboBatch.class);
     }
 
-    private void registerSuppliedTypes(Builder builder, SerializationStrategy serializationStrategy) {
-        for (Class<? extends Data> dataType : builder.dataTypes) {
+    private void registerSuppliedTypes(Builder<E, T> builder, SerializationStrategy serializationStrategy) {
+        for (Class<E> dataType : builder.dataTypes) {
             serializationStrategy.registerDataType(dataType);
         }
-        for (Class<? extends BatchInfo> batchInfoType : builder.batchInfoTypes) {
-            serializationStrategy.registerBatchInfoType(batchInfoType);
+        for (Class<T> batchInfoType : builder.batchInfoTypes) {
+            serializationStrategy.registerBatch(batchInfoType);
         }
     }
 
     @Override
-    public void addToBatch(final Collection<Data> dataCollection) {
+    public void addToBatch(final Collection<E> dataCollection) {
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -95,7 +101,7 @@ public class BatchManager implements BatchController {
     }
 
     @Override
-    public SerializationStrategy getSerializationStrategy() {
+    public SerializationStrategy<E, T> getSerializationStrategy() {
         return this.serializationStrategy;
     }
 
@@ -109,18 +115,18 @@ public class BatchManager implements BatchController {
      * @param onBatchReadyListener instance of {@link OnBatchReadyListener}
      * @param handler              instance of {@link Handler}
      */
-    private void initialize(BatchController batchController, Context context,
-                            OnBatchReadyListener onBatchReadyListener, Handler handler) {
-        batchingStrategy.onInitialized(batchController, context, onBatchReadyListener, handler);
+    private void initialize(BatchController<E, T> batchController, Context context,
+                            OnBatchReadyListener<E, T> onBatchReadyListener, Handler handler) {
+        batchingStrategy.onInitialized(context, onBatchReadyListener, handler);
     }
 
-    public static class Builder {
+    public static class Builder<E extends Data, T extends Batch<E>> {
         private Handler handler;
         private BatchingStrategy batchingStrategy;
         private OnBatchReadyListener onBatchReadyListener;
         private SerializationStrategy serializationStrategy;
-        private Set<Class<? extends Data>> dataTypes = new HashSet<>();
-        private Set<Class<? extends BatchInfo>> batchInfoTypes = new HashSet<>();
+        private Set<Class<E>> dataTypes = new HashSet<>();
+        private Set<Class<T>> batchInfoTypes = new HashSet<>();
 
         public SerializationStrategy getSerializationStrategy() {
             return serializationStrategy;
@@ -170,18 +176,18 @@ public class BatchManager implements BatchController {
             return this;
         }
 
-        public Builder registerDataType(Class<? extends Data> subClass) {
+        public Builder registerDataType(Class<E> subClass) {
             dataTypes.add(subClass);
             return this;
         }
 
-        public Builder registerBatchInfoType(Class<? extends BatchInfo> subClass) {
+        public Builder registerBatchInfoType(Class<T> subClass) {
             batchInfoTypes.add(subClass);
             return this;
         }
 
-        public BatchManager build(Context context) {
-            return new BatchManager(this, context);
+        public BatchManager<E, T> build(Context context) {
+            return new BatchManager<>(this, context);
         }
     }
 }

@@ -6,8 +6,9 @@ import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.flipkart.Utils;
-import com.flipkart.data.Data;
-import com.flipkart.persistence.PersistenceStrategy;
+import com.flipkart.batching.listener.PersistedBatchReadyListener;
+import com.flipkart.batching.persistence.PersistenceStrategy;
+import com.flipkart.batching.strategy.TimeBatchingStrategy;
 
 import junit.framework.Assert;
 
@@ -26,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -41,6 +43,8 @@ import static org.mockito.Mockito.when;
 public class TimeBatchingTest {
 
     @Mock
+    TimeBatchingStrategy timeBatchInfo;
+    @Mock
     private PersistenceStrategy persistenceStrategy;
     @Mock
     private Data eventData;
@@ -50,8 +54,6 @@ public class TimeBatchingTest {
     private BatchController controller;
     @Mock
     private PersistedBatchReadyListener onBatchReadyListener;
-    @Mock
-    TimeBatchingStrategy.TimeBatchInfo timeBatchInfo;
     private long TIME_OUT = 5000;
     private ShadowLooper shadowLooper;
     private TimeBatchingStrategy timeBatchingStrategy;
@@ -77,7 +79,7 @@ public class TimeBatchingTest {
 
     /**
      * This test is to ensure the working of {@link TimeBatchingStrategy#flush(boolean)}
-     * Whenever this method is invoked, {@link com.flipkart.persistence.PersistenceStrategy#removeData(Collection)} should be called
+     * Whenever this method is invoked, {@link com.flipkart.batching.persistence.PersistenceStrategy#removeData(Collection)} should be called
      */
     @Test
     public void testFlush() {
@@ -99,20 +101,17 @@ public class TimeBatchingTest {
         timeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         timeBatchingStrategy.flush(true);
-        verify(onBatchReadyListener, times(1)).onReady(timeBatchingStrategy, new TimeBatchingStrategy.TimeBatchInfo(TIME_OUT), data);
+        verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
 
         data.clear();
         data = Utils.fakeCollection(5);
+        reset(onBatchReadyListener);
         timeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         timeBatchingStrategy.flush(true);
-        verify(onBatchReadyListener, times(1)).onReady(timeBatchingStrategy, new TimeBatchingStrategy.TimeBatchInfo(TIME_OUT), data);
+        verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
     }
 
-    /**
-     * This test is to check the {@link OnBatchReadyListener#onReady(BatchingStrategy, BatchInfo, Collection)}  callback.
-     * This test ensures the integrity of the data.
-     */
     @Test
     public void testOnReadyCallbackData() {
         initializeTimeBatchingStrategy();
@@ -121,7 +120,7 @@ public class TimeBatchingTest {
         when(persistenceStrategy.getData()).thenReturn(data);
         timeBatchingStrategy.flush(false);
         shadowLooper.idle(TIME_OUT);
-        verify(onBatchReadyListener, times(1)).onReady(timeBatchingStrategy, new TimeBatchingStrategy.TimeBatchInfo(TIME_OUT), data);
+        verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
 
         reset(onBatchReadyListener);
         data.clear();
@@ -131,13 +130,9 @@ public class TimeBatchingTest {
         when(persistenceStrategy.getData()).thenReturn(data);
         timeBatchingStrategy.flush(false);
         shadowLooper.idle(TIME_OUT);
-        verify(onBatchReadyListener, times(1)).onReady(timeBatchingStrategy, new TimeBatchingStrategy.TimeBatchInfo(TIME_OUT), data);
+        verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
     }
 
-    /**
-     * This test to check the {@link OnBatchReadyListener#onReady(BatchingStrategy, BatchInfo, Collection)}  callback when the
-     * data list passed is empty
-     */
     @Test
     public void testOnReadyForEmptyData() {
         initializeTimeBatchingStrategy();
@@ -146,22 +141,15 @@ public class TimeBatchingTest {
         when(persistenceStrategy.getData()).thenReturn(data);
         timeBatchingStrategy.flush(false);
         //verify that onReady is NOT called since the data list is empty.
-        verify(onBatchReadyListener, times(0)).onReady(timeBatchingStrategy, new TimeBatchingStrategy.TimeBatchInfo(TIME_OUT), data);
+        verify(onBatchReadyListener, times(0)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
     }
 
-    /**
-     * Test if {@link com.flipkart.batching.TimeBatchingStrategy.TimeBatchInfo} is working
-     */
     @Test
     public void testTimeBatchingInfo() {
-        TimeBatchingStrategy.TimeBatchInfo timeBatchInfo = new TimeBatchingStrategy.TimeBatchInfo(5000);
-        TimeBatchingStrategy.TimeBatchInfo timeBatchInfo1 = new TimeBatchingStrategy.TimeBatchInfo(5000);
+        TimeBatchingStrategy.TimeBatch timeBatchInfo = new TimeBatchingStrategy.TimeBatch<>(Utils.fakeCollection(2), 5000);
+        TimeBatchingStrategy.TimeBatch timeBatchInfo1 = new TimeBatchingStrategy.TimeBatch<>(Utils.fakeCollection(2), 5000);
 
         Assert.assertTrue(timeBatchInfo.equals(timeBatchInfo1));
-
-        SizeBatchingStrategy.SizeBatchInfo sizeBatchInfo = new SizeBatchingStrategy.SizeBatchInfo(5);
-        SizeBatchingStrategy.SizeBatchInfo sizeBatchInfo1 = new SizeBatchingStrategy.SizeBatchInfo(5);
-        Assert.assertTrue(!timeBatchInfo.equals(sizeBatchInfo1));
 
     }
 
@@ -199,6 +187,6 @@ public class TimeBatchingTest {
         Looper looper = handlerThread.getLooper();
         shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
-        timeBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        timeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
     }
 }

@@ -1,9 +1,10 @@
 package com.flipkart.batching;
 
 import com.flipkart.Utils;
-import com.flipkart.data.Data;
-import com.flipkart.data.Tag;
-import com.flipkart.persistence.InMemoryPersistenceStrategy;
+import com.flipkart.batching.data.Tag;
+import com.flipkart.batching.listener.TagBatchReadyListener;
+import com.flipkart.batching.strategy.SizeBatchingStrategy;
+import com.flipkart.batching.strategy.TagBatchingStrategy;
 
 import junit.framework.Assert;
 
@@ -15,10 +16,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
 
-import java.util.ArrayList;
-
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -29,9 +27,9 @@ import static org.mockito.Mockito.verify;
 @Config(constants = BuildConfig.class)
 public class TagPersistedBatchReadyTest {
 
-    private TagPersistedBatchReadyListener tagPersistedBatchReadyListener;
+    private TagBatchReadyListener tagBatchReadyListener;
     private Tag AD = new Tag("ADS");
-    private Tag BUISNESS = new Tag("BUISNESS");
+    private Tag BUSINESS = new Tag("BUSINESS");
     private Tag DEBUG = new Tag("DEBUG");
     @Mock
     private OnBatchReadyListener onBatchReadyListener;
@@ -47,38 +45,36 @@ public class TagPersistedBatchReadyTest {
     @Test
     public void testAddTagListener() {
 
-        tagPersistedBatchReadyListener = new TagPersistedBatchReadyListener();
-        tagPersistedBatchReadyListener.addListenerForTag(AD, onBatchReadyListener);
-        tagPersistedBatchReadyListener.addListenerForTag(DEBUG, onBatchReadyListener);
-        tagPersistedBatchReadyListener.addListenerForTag(BUISNESS, onBatchReadyListener);
+        tagBatchReadyListener = new TagBatchReadyListener();
+        tagBatchReadyListener.addListenerForTag(AD, onBatchReadyListener);
+        tagBatchReadyListener.addListenerForTag(DEBUG, onBatchReadyListener);
+        tagBatchReadyListener.addListenerForTag(BUSINESS, onBatchReadyListener);
 
-        Assert.assertTrue(!tagPersistedBatchReadyListener.getTagOnBatchReadyListenerMap().isEmpty());
+        Assert.assertTrue(!tagBatchReadyListener.getTagOnBatchReadyListenerMap().isEmpty());
     }
 
     @Test
     public void testOnReady() {
-        tagPersistedBatchReadyListener = new TagPersistedBatchReadyListener();
-        tagPersistedBatchReadyListener.addListenerForTag(AD, onBatchReadyListener);
-        tagPersistedBatchReadyListener.addListenerForTag(DEBUG, onBatchReadyListener);
-        tagPersistedBatchReadyListener.addListenerForTag(BUISNESS, onBatchReadyListener);
+        tagBatchReadyListener = new TagBatchReadyListener();
+        tagBatchReadyListener.addListenerForTag(AD, onBatchReadyListener);
+        tagBatchReadyListener.addListenerForTag(DEBUG, onBatchReadyListener);
+        tagBatchReadyListener.addListenerForTag(BUSINESS, onBatchReadyListener);
 
-        ArrayList<Data> arrayList = Utils.fakeCollection(4);
-        tagPersistedBatchReadyListener.onReady(new TagBatchingStrategy(), new TagBatchingStrategy.TagBatchInfo
-                (AD, new SizeBatchingStrategy.SizeBatchInfo(5)), arrayList);
+        tagBatchReadyListener.onReady(new TagBatchingStrategy(), new TagBatchingStrategy.TagBatch(new Tag("ADS"), new SizeBatchingStrategy.SizeBatch(Utils.fakeCollection(2), 4)));
 
-        verify(onBatchReadyListener, times(1)).onReady(any(BatchingStrategy.class), any(BatchInfo.class), eq(arrayList));
+        verify(onBatchReadyListener, times(1)).onReady(any(BatchingStrategy.class), any(Batch.class));
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testExceptionThrown() {
-        tagPersistedBatchReadyListener = new TagPersistedBatchReadyListener();
-        tagPersistedBatchReadyListener.addListenerForTag(AD, onBatchReadyListener);
-        tagPersistedBatchReadyListener.addListenerForTag(DEBUG, onBatchReadyListener);
-        tagPersistedBatchReadyListener.addListenerForTag(BUISNESS, onBatchReadyListener);
-
-        ArrayList<Data> arrayList = Utils.fakeCollection(4);
-        tagPersistedBatchReadyListener.onReady(new SizeBatchingStrategy(4, new InMemoryPersistenceStrategy()),
-                new SizeBatchingStrategy.SizeBatchInfo(5), arrayList);
-
-    }
+//    @Test(expected = IllegalStateException.class)
+//    public void testExceptionThrown() {
+//        tagBatchReadyListener = new TagBatchReadyListener();
+//        tagBatchReadyListener.addListenerForTag(AD, onBatchReadyListener);
+//        tagBatchReadyListener.addListenerForTag(DEBUG, onBatchReadyListener);
+//        tagBatchReadyListener.addListenerForTag(BUSINESS, onBatchReadyListener);
+//
+//        ArrayList<Data> arrayList = Utils.fakeCollection(4);
+//        tagBatchReadyListener.onReady(new SizeBatchingStrategy(4, new InMemoryPersistenceStrategy()),
+//                new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5));
+//
+//    }
 }

@@ -6,8 +6,10 @@ import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.flipkart.Utils;
-import com.flipkart.data.Data;
-import com.flipkart.persistence.PersistenceStrategy;
+import com.flipkart.batching.strategy.ComboBatchingStrategy;
+import com.flipkart.batching.strategy.SizeBatchingStrategy;
+import com.flipkart.batching.strategy.TimeBatchingStrategy;
+import com.flipkart.batching.persistence.PersistenceStrategy;
 
 import junit.framework.Assert;
 
@@ -27,6 +29,7 @@ import java.util.Collection;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -78,7 +81,7 @@ public class ComboBatchingTest {
 
     /**
      * This test is to ensure the working of {@link TimeBatchingStrategy#flush(boolean)}
-     * Whenever this method is invoked, {@link com.flipkart.persistence.PersistenceStrategy#removeData(Collection)} should be called
+     * Whenever this method is invoked, {@link com.flipkart.batching.persistence.PersistenceStrategy#removeData(Collection)} should be called
      */
     @Test
     public void testFlush() {
@@ -111,10 +114,6 @@ public class ComboBatchingTest {
         verify(persistenceStrategy, times(2)).removeData(eq(dataList));
     }
 
-    /**
-     * This test is to check the {@link OnBatchReadyListener#onReady(BatchingStrategy, BatchInfo, Collection)}  callback for various uses cases.
-     * Flush is False for this test. {@link OnBatchReadyListener#onReady(BatchingStrategy, BatchInfo, Collection)}  should be called every time.
-     */
     @Test
     public void testOnReadyCallbackFlushFalse() {
         initializeComboBatching();
@@ -126,23 +125,18 @@ public class ComboBatchingTest {
         comboBatchingStrategy.flush(false);
         shadowLooper.idle(TIME_OUT);
         //verify onReady is called from TimeBatching as size of data is 2.
-        verify(onBatchReadyListener, times(1)).onReady(eq(comboBatchingStrategy), any(BatchInfo.class), eq(data));
+        verify(onBatchReadyListener, times(1)).onReady(eq(comboBatchingStrategy), any(Batch.class));
 
         data.clear();
+        reset(onBatchReadyListener);
         data = Utils.fakeCollection(5);
         comboBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         comboBatchingStrategy.flush(false);
         //verify onReady is called as size of data is equal to BATCH_SIZE
-        verify(onBatchReadyListener, times(1)).onReady(eq(comboBatchingStrategy), any(BatchInfo.class), eq(data))
-        ;
+        verify(onBatchReadyListener, times(1)).onReady(eq(comboBatchingStrategy), any(Batch.class));
     }
 
-    /**
-     * This test is to check the {@link OnBatchReadyListener#onReady(BatchingStrategy, BatchInfo, Collection)}  callback for various uses cases.
-     * Flush is True for this test. {@link OnBatchReadyListener#onReady(BatchingStrategy, BatchInfo, Collection)}
-     * should be called every time.
-     */
     @Test
     public void testOnReadyCallbackFlushTrue() {
         initializeComboBatching();
@@ -153,7 +147,7 @@ public class ComboBatchingTest {
         when(persistenceStrategy.getData()).thenReturn(data);
         comboBatchingStrategy.flush(true);
         //verify onReady is called from TimeBatching and SizeBatching as flush force is true
-        verify(onBatchReadyListener, atLeastOnce()).onReady(any(BatchingStrategy.class), any(BatchInfo.class), eq(data));
+        verify(onBatchReadyListener, atLeastOnce()).onReady(any(BatchingStrategy.class), any(Batch.class));
 
         data.clear();
         data = Utils.fakeCollection(6);
@@ -161,7 +155,7 @@ public class ComboBatchingTest {
         when(persistenceStrategy.getData()).thenReturn(data);
         comboBatchingStrategy.flush(true);
         //verify onReady is called from TimeBatching and SizeBatching as flush force is true
-        verify(onBatchReadyListener, atLeastOnce()).onReady(any(BatchingStrategy.class), any(BatchInfo.class), eq(data));
+        verify(onBatchReadyListener, atLeastOnce()).onReady(any(BatchingStrategy.class), any(Batch.class));
     }
 
     /**
@@ -174,7 +168,7 @@ public class ComboBatchingTest {
         Looper looper = handlerThread.getLooper();
         Handler handler = new Handler(looper);
         ComboBatchingStrategy comboBatchingStrategy = new ComboBatchingStrategy();
-        comboBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        comboBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
 
         Assert.assertTrue(comboBatchingStrategy.isInitialized());
     }
@@ -191,7 +185,7 @@ public class ComboBatchingTest {
         Looper looper = handlerThread.getLooper();
         shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
-        comboBatchingStrategy.onInitialized(controller, context, onBatchReadyListener, handler);
+        comboBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
     }
 
 }

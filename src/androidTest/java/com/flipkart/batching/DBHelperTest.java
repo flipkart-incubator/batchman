@@ -3,14 +3,13 @@ package com.flipkart.batching;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 
-import com.flipkart.data.Data;
-import com.flipkart.data.EventData;
-import com.flipkart.data.Tag;
-import com.flipkart.exception.DeserializeException;
-import com.flipkart.exception.SerializeException;
-import com.flipkart.persistence.ByteArraySerializationStrategy;
-import com.flipkart.persistence.DatabaseHelper;
-import com.flipkart.persistence.SerializationStrategy;
+import com.flipkart.batching.data.EventData;
+import com.flipkart.batching.data.Tag;
+import com.flipkart.batching.exception.DeserializeException;
+import com.flipkart.batching.exception.SerializeException;
+import com.flipkart.batching.persistence.ByteArraySerializationStrategy;
+import com.flipkart.batching.persistence.DatabaseHelper;
+import com.flipkart.batching.persistence.SerializationStrategy;
 
 import java.util.ArrayList;
 

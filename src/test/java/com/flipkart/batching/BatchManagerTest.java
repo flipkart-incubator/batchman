@@ -6,9 +6,10 @@ import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.flipkart.Utils;
-import com.flipkart.data.Data;
-import com.flipkart.persistence.PersistenceStrategy;
-import com.flipkart.persistence.SerializationStrategy;
+import com.flipkart.batching.persistence.PersistenceStrategy;
+import com.flipkart.batching.persistence.SerializationStrategy;
+import com.flipkart.batching.strategy.BaseBatchingStrategy;
+import com.flipkart.batching.strategy.SizeBatchingStrategy;
 
 import junit.framework.Assert;
 
@@ -23,8 +24,9 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLooper;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,11 +40,11 @@ import static org.mockito.Mockito.when;
 public class BatchManagerTest {
 
     @Mock
-    SerializationStrategy serializationStrategy;
+    SerializationStrategy<Data, Batch<Data>> serializationStrategy;
     @Mock
-    PersistenceStrategy persistenceStrategy;
+    PersistenceStrategy<Data> persistenceStrategy;
     @Mock
-    OnBatchReadyListener onBatchReadyListener;
+    OnBatchReadyListener<Data, Batch<Data>> onBatchReadyListener;
     @Mock
     Context context;
     @Mock
@@ -54,9 +56,7 @@ public class BatchManagerTest {
         MockitoAnnotations.initMocks(this);
     }
 
-    /**
-     * Test to verify {@link OnBatchReadyListener#onReady(BatchingStrategy, BatchInfo, Collection)} is called when batch is ready
-     */
+
     @Test
     public void testAddToBatch() {
         HandlerThread handlerThread = new HandlerThread("test");
@@ -64,19 +64,20 @@ public class BatchManagerTest {
         Looper looper = handlerThread.getLooper();
         shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
-        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
-        BatchController batchController = new BatchManager.Builder()
+        BaseBatchingStrategy<Data, Batch<Data>> sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
+        BatchManager batchController = new BatchManager.Builder<>()
                 .setSerializationStrategy(serializationStrategy)
                 .setBatchingStrategy(sizeBatchingStrategy)
                 .setHandler(handler)
                 .setOnBatchReadyListener(onBatchReadyListener)
                 .build(context);
+
         ArrayList<Data> fakeCollection = Utils.fakeCollection(5);
 
         when(persistenceStrategy.getData()).thenReturn(fakeCollection);
         batchController.addToBatch(fakeCollection);
         shadowLooper.runToEndOfTasks();
-        verify(onBatchReadyListener, times(1)).onReady(sizeBatchingStrategy, new SizeBatchingStrategy.SizeBatchInfo(5), fakeCollection);
+        verify(onBatchReadyListener, times(1)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
     }
 
     /**
@@ -155,15 +156,14 @@ public class BatchManagerTest {
 
     @Test
     public void testRegisterBatchInfoType() {
-        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
-        BatchController batchController = new BatchManager.Builder()
+        BaseBatchingStrategy<Data,Batch<Data>> sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
+        new BatchManager.Builder<>()
                 .setSerializationStrategy(serializationStrategy)
                 .setBatchingStrategy(sizeBatchingStrategy)
                 .setHandler(null)
-                .setOnBatchReadyListener(onBatchReadyListener).registerBatchInfoType(BatchInfo.class)
+                .setOnBatchReadyListener(onBatchReadyListener).registerBatchInfoType(Batch.class)
                 .build(context);
 
-        verify(serializationStrategy, times(1)).registerBatchInfoType(BatchInfo.class);
     }
 
     @Test
