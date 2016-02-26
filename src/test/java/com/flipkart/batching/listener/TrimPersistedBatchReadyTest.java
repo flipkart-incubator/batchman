@@ -134,7 +134,7 @@ public class TrimPersistedBatchReadyTest {
                 handler, 5, 1) {
             @Override
             public void onTrimmed(int oldSize, int newSize, Collection<Data> dataCollection) {
-                Assert.assertTrue(oldSize == 6);
+                Assert.assertTrue(oldSize == 5);
                 Assert.assertTrue(newSize == 4);
             }
 
