@@ -10,6 +10,8 @@ import com.flipkart.batching.exception.DeserializeException;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.squareup.tape.QueueFile;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -18,27 +20,33 @@ import java.io.IOException;
  * Todo Document
  */
 
-public abstract class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T> {
-    private final SerializationStrategy<E, T> serializationStrategy;
+public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T> {
     private final File file;
     private final Handler handler;
+    private final PersistedBatchCallback<T> listener;
+    private final SerializationStrategy<E, T> serializationStrategy;
     private QueueFile queueFile;
     private boolean initialized;
     private boolean isWaitingToFinish;
 
-    public PersistedBatchReadyListener(File file, SerializationStrategy<E, T> serializationStrategy, Handler handler) {
+    public PersistedBatchReadyListener(File file, SerializationStrategy<E, T> serializationStrategy, Handler handler, @Nullable PersistedBatchCallback<T> listener) {
         this.file = file;
         this.serializationStrategy = serializationStrategy;
         this.handler = handler;
+        this.listener = listener;
+    }
+
+    public PersistedBatchCallback getListener() {
+        return listener;
+    }
+
+    protected QueueFile getQueueFile() {
+        return queueFile;
     }
 
     public boolean isInitialized() {
         return initialized;
     }
-
-    public abstract void onPersistSuccess(T batch);
-
-    public abstract void onPersistFailure(T batch, Exception e);
 
     @Override
     public void onReady(BatchingStrategy<E, T> causingStrategy, final T batch) {
@@ -50,25 +58,33 @@ public abstract class PersistedBatchReadyListener<E extends Data, T extends Batc
                     queueFile.add(serializationStrategy.serializeBatch(batch));
                     callPersistSuccess(batch);
                 } catch (Exception e) {
-                    onPersistFailure(batch, e);
+                    callPersistFailure(batch, e);
                 }
             }
         });
     }
 
+    private void callPersistFailure(T batch, Exception e) {
+        if (listener != null) {
+            listener.onPersistFailure(batch, e);
+        }
+    }
+
     private void callPersistSuccess(T batch) {
         if (!isWaitingToFinish) {
             isWaitingToFinish = true;
-            onPersistSuccess(batch);
+            if (listener != null) {
+                listener.onPersistSuccess(batch);
+            }
         }
     }
 
     private void initializeIfRequired() {
-        onInitialized(queueFile);
         if (!initialized) {
             initialized = true;
             try {
                 this.queueFile = new QueueFile(file);
+                onInitialized(queueFile);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -78,14 +94,20 @@ public abstract class PersistedBatchReadyListener<E extends Data, T extends Batc
     protected void onInitialized(QueueFile queueFile) {
     }
 
-    public void finish() {
+    public void finish(final T batch) {
         if (!queueFile.isEmpty()) {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        queueFile.remove();
-                    } catch (IOException e) {
+                        byte[] peeked = queueFile.peek();
+                        if (peeked != null) {
+                            T peekedBatch = serializationStrategy.deserializeBatch(peeked);
+                            if (batch != null && batch.equals(peekedBatch)) {
+                                queueFile.remove();
+                            }
+                        }
+                    } catch (IOException | DeserializeException e) {
                         e.printStackTrace();
                     }
                     isWaitingToFinish = false;

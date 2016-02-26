@@ -1,6 +1,7 @@
 package com.flipkart.batching.persistence;
 
 import com.flipkart.Utils;
+import com.flipkart.batching.BaseTestClass;
 import com.flipkart.batching.Batch;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.Data;
@@ -21,21 +22,19 @@ import java.util.ArrayList;
  */
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
-public class TapePersistenceTest {
+public class TapePersistenceTest extends BaseTestClass {
 
-    private File file;
-    private SerializationStrategy<Data, Batch<Data>> serializationStrategy;
     private TapePersistenceStrategy<Data> persistenceStrategy;
 
+    /**
+     * Test to verify if data is persisted
+     */
     @Test
     public void testIfDataIsPersisted() {
         initializeTapePersistence();
         ArrayList<Data> data = Utils.fakeCollection(5);
         persistenceStrategy.add(data);
         //verify that the data that was added, has been persisted and it correct form
-        Assert.assertEquals(data, persistenceStrategy.getData());
-
-        initializeTapePersistence();
         Assert.assertEquals(data, persistenceStrategy.getData());
     }
 
@@ -66,7 +65,7 @@ public class TapePersistenceTest {
     @Test
     public void testInsertHugeData() {
         initializeTapePersistence();
-        ArrayList<Data> dataArrayList = Utils.fakeCollection(100000);
+        ArrayList<Data> dataArrayList = Utils.fakeCollection(1000);
         persistenceStrategy.add(dataArrayList);
 
         //verify that the data that was added, has been persisted and it correct form
@@ -77,14 +76,14 @@ public class TapePersistenceTest {
      * Initialize the TapePersistence
      */
     private void initializeTapePersistence() {
-        file = new File("test_file");
-        serializationStrategy = new ByteArraySerializationStrategy<>();
+        File file = createRandomFile();
+        SerializationStrategy<Data, Batch<Data>> serializationStrategy = new ByteArraySerializationStrategy<>();
         persistenceStrategy = new TapePersistenceStrategy<>(file, serializationStrategy);
         persistenceStrategy.onInitialized();
     }
 
     @After
     public void afterTest() {
-        file.delete();
+        deleteRandomFiles();
     }
 }

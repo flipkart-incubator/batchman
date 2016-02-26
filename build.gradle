@@ -65,6 +65,7 @@ dependencies {
     testCompile "org.robolectric:robolectric:3.0"
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.squareup:tape:1.2.3'
+    compile 'org.jetbrains:annotations-java5:15.0'
 }
 buildscript {
     repositories {

@@ -5,17 +5,16 @@ import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.flipkart.Utils;
+import com.flipkart.batching.BaseTestClass;
 import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.exception.SerializeException;
 import com.flipkart.batching.persistence.GsonSerializationStrategy;
-import com.flipkart.batching.persistence.SerializationStrategy;
-import com.squareup.tape.QueueFile;
+import com.flipkart.batching.strategy.SizeBatchingStrategy;
 
-import junit.framework.Assert;
-
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
@@ -26,7 +25,10 @@ import org.robolectric.shadows.ShadowLooper;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Created by anirudh.r on 25/02/16.
@@ -34,121 +36,158 @@ import java.util.Collection;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
-public class TrimPersistedBatchReadyTest {
+public class TrimPersistedBatchReadyTest extends BaseTestClass {
 
-    TrimPersistedBatchReadyListener<Data, Batch<Data>> trimPersistedBatchReadyListener;
-    SerializationStrategy<Data, Batch<Data>> serializationStrategy;
-    QueueFile queueFile;
-    File file;
+    private int MAX_QUEUE_SIZE = 3;
+    private int TRIM_TO_SIZE = 1;
 
-    @Test
-    public void testTrimData() {
-        file = new File("testfile");
-        serializationStrategy = new GsonSerializationStrategy<>();
-        serializationStrategy.build();
-        HandlerThread handlerThread = new HandlerThread("test");
-        handlerThread.start();
-        Looper looper = handlerThread.getLooper();
-        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
-        Handler handler = new Handler(looper);
-
-        trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(file, serializationStrategy,
-                handler, 10, 5) {
-            @Override
-            public void onTrimmed(int oldSize, int newSize, Collection<Data> dataCollection) {
-
-            }
-
-            @Override
-            public void onPersistSuccess(Batch<Data> batch) {
-
-            }
-
-            @Override
-            public void onPersistFailure(Batch<Data> batch, Exception e) {
-
-            }
-        };
-    }
-
-    @Test
-    public void testOnTrimPersistSuccess() throws IOException, SerializeException {
-        file = new File("testfile");
-        queueFile = new QueueFile(file);
-        serializationStrategy = new GsonSerializationStrategy<>();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
-        serializationStrategy.build();
-        final ArrayList<Data> datas = Utils.fakeAdsCollection(4);
-
-        for (Data d : datas) {
-            queueFile.add(serializationStrategy.serializeData(d));
-        }
-
-        HandlerThread handlerThread = new HandlerThread("test");
-        handlerThread.start();
-        Looper looper = handlerThread.getLooper();
-        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
-        Handler handler = new Handler(looper);
-
-        trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(file, serializationStrategy,
-                handler, 10, 5) {
-            @Override
-            public void onTrimmed(int oldSize, int newSize, Collection<Data> dataCollection) {
-
-            }
-
-            @Override
-            public void onPersistSuccess(Batch<Data> batch) {
-                Assert.assertEquals(batch.getDataCollection(), datas);
-            }
-
-            @Override
-            public void onPersistFailure(Batch<Data> batch, Exception e) {
-
-            }
-        };
-
-        trimPersistedBatchReadyListener.onInitialized(queueFile);
-    }
-
+    /**
+     * Test to verify {@link TrimmedBatchCallback#onTrimmed(int, int)} is called
+     *
+     * @throws IOException
+     * @throws SerializeException
+     */
     @Test
     public void testOnTrimmedCalled() throws IOException, SerializeException {
-        file = new File("testfile");
-        queueFile = new QueueFile(file);
-        serializationStrategy = new GsonSerializationStrategy<>();
+        File file = createRandomFile();
+
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
-        final ArrayList<Data> datas = Utils.fakeAdsCollection(5);
+        final ArrayList<Data> dataList = Utils.fakeAdsCollection(10);
 
-        for (Data d : datas) {
-            queueFile.add(serializationStrategy.serializeData(d));
-        }
-
-        HandlerThread handlerThread = new HandlerThread("test");
+        HandlerThread handlerThread = new HandlerThread(createRandomString());
         handlerThread.start();
         Looper looper = handlerThread.getLooper();
         ShadowLooper shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
 
+        TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
+        SizeBatchingStrategy sizeBatchingStrategy = mock(SizeBatchingStrategy.class);
+        SizeBatchingStrategy.SizeBatch<Data> sizeBatch = new SizeBatchingStrategy.SizeBatch<>(dataList, 3);
+
+        TrimPersistedBatchReadyListener<Data, Batch<Data>> trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(file, serializationStrategy,
+                handler, MAX_QUEUE_SIZE, TRIM_TO_SIZE, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START | TrimPersistedBatchReadyListener.MODE_TRIM_ON_READY, null, trimmedBatchCallback);
+
+        trimPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch);
+        trimPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch);
+        trimPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch);
+        shadowLooper.runToEndOfTasks();
+        //verify that onTrimmed gets called once
+        verify(trimmedBatchCallback, times(1)).onTrimmed(MAX_QUEUE_SIZE, TRIM_TO_SIZE);
+    }
+
+    /**
+     * Test to verify {@link TrimmedBatchCallback#onTrimmed(int, int)} is not called
+     *
+     * @throws IOException
+     * @throws SerializeException
+     */
+    @Test
+    public void testTrimmedNotCalled() throws IOException, SerializeException {
+        File file = createRandomFile();
+
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+        final ArrayList<Data> dataList = Utils.fakeAdsCollection(10);
+
+        HandlerThread handlerThread = new HandlerThread(createRandomString());
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
+        Handler handler = new Handler(looper);
+
+        TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
+        SizeBatchingStrategy sizeBatchingStrategy = mock(SizeBatchingStrategy.class);
+        SizeBatchingStrategy.SizeBatch<Data> sizeBatch = new SizeBatchingStrategy.SizeBatch<>(dataList, 3);
+
+        TrimPersistedBatchReadyListener<Data, Batch<Data>> trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(file, serializationStrategy,
+                handler, MAX_QUEUE_SIZE, TRIM_TO_SIZE, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START | TrimPersistedBatchReadyListener.MODE_TRIM_ON_READY, null, trimmedBatchCallback);
+
+        trimPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch);
+        trimPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch);
+        shadowLooper.runToEndOfTasks();
+        //verify that onTrimmed does not gets called.
+        verify(trimmedBatchCallback, times(0)).onTrimmed(MAX_QUEUE_SIZE, TRIM_TO_SIZE);
+    }
+
+    /**
+     * Test to verify {@link TrimPersistedBatchReadyListener#mode}
+     *
+     * @throws IOException
+     * @throws SerializeException
+     */
+    @Test
+    public void testTrimMode() throws IOException, SerializeException {
+        File file = createRandomFile();
+
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+        final ArrayList<Data> dataList = Utils.fakeAdsCollection(10);
+
+        HandlerThread handlerThread = new HandlerThread(createRandomString());
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
+        Handler handler = new Handler(looper);
+
+        TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
+        SizeBatchingStrategy sizeBatchingStrategy = mock(SizeBatchingStrategy.class);
+        SizeBatchingStrategy.SizeBatch<Data> sizeBatch = new SizeBatchingStrategy.SizeBatch<>(dataList, 3);
+
+        TrimPersistedBatchReadyListener<Data, Batch<Data>> trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(file, serializationStrategy,
+                handler, MAX_QUEUE_SIZE, TRIM_TO_SIZE, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null, trimmedBatchCallback);
+
+        trimPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch);
+        trimPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch);
+        trimPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch);
+        shadowLooper.runToEndOfTasks();
+        //verify that onTrimmed does not gets called
+        verify(trimmedBatchCallback, times(0)).onTrimmed(MAX_QUEUE_SIZE, TRIM_TO_SIZE);
+
         trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(file, serializationStrategy,
-                handler, 5, 1) {
-            @Override
-            public void onTrimmed(int oldSize, int newSize, Collection<Data> dataCollection) {
-                Assert.assertTrue(oldSize == 5);
-                Assert.assertTrue(newSize == 4);
-            }
+                handler, MAX_QUEUE_SIZE, TRIM_TO_SIZE, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null, trimmedBatchCallback);
+        SizeBatchingStrategy.SizeBatch<Data> sizeBatch2 = new SizeBatchingStrategy.SizeBatch<>(dataList, 1);
+        trimPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch2);
+        shadowLooper.runToEndOfTasks();
+        //verify that onTrimmed gets called
+        verify(trimmedBatchCallback, times(1)).onTrimmed(MAX_QUEUE_SIZE, TRIM_TO_SIZE);
 
-            @Override
-            public void onPersistSuccess(Batch<Data> batch) {
-            }
+    }
 
-            @Override
-            public void onPersistFailure(Batch<Data> batch, Exception e) {
+    /**
+     * Test to verify that exception is thrown when {@link TrimPersistedBatchReadyListener#trimSize} > {@link TrimPersistedBatchReadyListener#queueSize}
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowException() {
+        File file = createRandomFile();
 
-            }
-        };
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+        final ArrayList<Data> dataList = Utils.fakeAdsCollection(10);
 
-        trimPersistedBatchReadyListener.onInitialized(queueFile);
+        HandlerThread handlerThread = new HandlerThread(createRandomString());
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
+        Handler handler = new Handler(looper);
+
+        TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
+
+        //throw exception as TrimToSize is greater than MaxQueueSize
+        TrimPersistedBatchReadyListener<Data, Batch<Data>> trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(file, serializationStrategy,
+                handler, MAX_QUEUE_SIZE, 5, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null, trimmedBatchCallback);
+    }
+
+    /**
+     * Delete all test files after test ends
+     */
+    @After
+    public void afterTest() {
+        deleteRandomFiles();
     }
 
 }
