@@ -59,7 +59,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
         SerializationStrategy serializationStrategy = new ByteArraySerializationStrategy<>();
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
-        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(file, serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener<Data, Batch<Data>> persistedBatchReadyListener = new PersistedBatchReadyListener<>(file, serializationStrategy, handler, persistedBatchCallback);
         persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
         shadowLooper.runToEndOfTasks();
         //should be initialized first time
