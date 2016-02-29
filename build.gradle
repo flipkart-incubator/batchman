@@ -66,6 +66,9 @@ dependencies {
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.squareup:tape:1.2.3'
     compile 'org.jetbrains:annotations-java5:15.0'
+    compile 'org.slf4j:slf4j-android:1.7.7'
+    provided "org.projectlombok:lombok:1.12.6"
+    compile 'javax.annotation:javax.annotation-api:1.2-b01'
 }
 buildscript {
     repositories {

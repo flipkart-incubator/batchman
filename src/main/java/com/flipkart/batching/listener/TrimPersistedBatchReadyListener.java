@@ -11,9 +11,12 @@ import com.squareup.tape.QueueFile;
 import java.io.File;
 import java.io.IOException;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Created by anirudh.r on 23/02/16.
  */
+@Slf4j
 public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends PersistedBatchReadyListener<E, T> {
 
     private final Handler handler;
@@ -65,7 +68,9 @@ public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>>
                 try {
                     queueFile.remove();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    if (log.isErrorEnabled()) {
+                        log.error(e.getLocalizedMessage());
+                    }
                 }
             }
             callTrimListener(oldSize, queueFile.size());

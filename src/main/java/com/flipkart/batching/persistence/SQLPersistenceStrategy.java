@@ -9,6 +9,8 @@ import com.flipkart.batching.exception.SerializeException;
 
 import java.util.Collection;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * SQLPersistenceStrategy extends {@link InMemoryPersistenceStrategy} which is an implementation
  * of {@link PersistenceStrategy}. This persistence strategy persists the data in SQL Database and
@@ -16,7 +18,7 @@ import java.util.Collection;
  * and all the overridden methods must call super method, to initialize and perform operations on
  * InMemory data list.
  */
-
+@Slf4j
 public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> {
     private DatabaseHelper<E, ? extends Batch> databaseHelper;
     private SerializationStrategy<E, ? extends Batch> serializationStrategy;
@@ -36,7 +38,9 @@ public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceS
         try {
             databaseHelper.addData(dataCollection);
         } catch (SerializeException e) {
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getLocalizedMessage());
+            }
         }
     }
 
@@ -50,7 +54,9 @@ public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceS
         try {
             super.add(databaseHelper.getAllData());
         } catch (DeserializeException e) {
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getLocalizedMessage());
+            }
         }
     }
 

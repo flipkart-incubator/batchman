@@ -14,13 +14,15 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.Collection;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Implementation of {@link SerializationStrategy}.
  *
  * @see SerializationStrategy
  * @see GsonSerializationStrategy
  */
-
+@Slf4j
 public class ByteArraySerializationStrategy<E extends Data, T extends Batch> implements SerializationStrategy<E, T> {
 
     @Override
@@ -51,6 +53,9 @@ public class ByteArraySerializationStrategy<E extends Data, T extends Batch> imp
             out.writeObject(data);
             out.close();
         } catch (IOException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getLocalizedMessage());
+            }
             throw new SerializeException(e);
         }
 
@@ -83,12 +88,18 @@ public class ByteArraySerializationStrategy<E extends Data, T extends Batch> imp
         try {
             in = new ObjectInputStream(bis);
         } catch (IOException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getLocalizedMessage());
+            }
             throw new DeserializeException(e);
         }
 
         try {
             return in.readObject();
         } catch (ClassNotFoundException | IOException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getLocalizedMessage());
+            }
             throw new DeserializeException(e);
         }
     }

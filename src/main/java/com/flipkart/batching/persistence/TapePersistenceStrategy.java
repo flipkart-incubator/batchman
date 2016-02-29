@@ -11,11 +11,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Created by kushal.sharma on 23/02/16.
  * Simple class for Tape Persistence Strategy that extends In Memory Persistence Strategy
  */
-
+@Slf4j
 public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> {
 
     private File file;
@@ -34,7 +36,9 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
             try {
                 queueFile.add(serializationStrategy.serializeData(data));
             } catch (IOException | SerializeException e) {
-                e.printStackTrace();
+                if (log.isErrorEnabled()) {
+                    log.error(e.getLocalizedMessage());
+                }
             }
         }
     }
@@ -48,11 +52,15 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
                     try {
                         queueFile.remove();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        if (log.isErrorEnabled()) {
+                            log.error(e.getLocalizedMessage());
+                        }
                     }
                 }
             } catch (DeserializeException | IOException e) {
-                e.printStackTrace();
+                if (log.isErrorEnabled()) {
+                    log.error(e.getLocalizedMessage());
+                }
             }
         }
     }
@@ -63,7 +71,9 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
             try {
                 this.queueFile = new QueueFile(file);
             } catch (IOException e) {
-                e.printStackTrace();
+                if (log.isErrorEnabled()) {
+                    log.error(e.getLocalizedMessage());
+                }
             }
             syncData();
         }
@@ -83,10 +93,10 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
                 dataList.add(data);
                 queueFile.remove();
                 queueFile.add(serializationStrategy.serializeData(data));
-            } catch (DeserializeException e) {
-                e.getRealException().printStackTrace();
-            } catch (IOException | SerializeException e) {
-                e.printStackTrace();
+            } catch (DeserializeException | IOException | SerializeException e) {
+                if (log.isErrorEnabled()) {
+                    log.error(e.getLocalizedMessage());
+                }
             }
         }
         return dataList;

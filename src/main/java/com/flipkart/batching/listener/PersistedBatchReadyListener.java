@@ -15,11 +15,13 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Created by kushal.sharma on 13/02/16.
  * Todo Document
  */
-
+@Slf4j
 public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T> {
     private final File file;
     private final Handler handler;
@@ -58,6 +60,9 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                     queueFile.add(serializationStrategy.serializeBatch(batch));
                     callPersistSuccess(batch);
                 } catch (Exception e) {
+                    if (log.isErrorEnabled()) {
+                        log.error(e.getLocalizedMessage());
+                    }
                     callPersistFailure(batch, e);
                 }
             }
@@ -86,7 +91,9 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                 this.queueFile = new QueueFile(file);
                 onInitialized(queueFile);
             } catch (IOException e) {
-                e.printStackTrace();
+                if (log.isErrorEnabled()) {
+                    log.error(e.getLocalizedMessage());
+                }
             }
         }
     }
@@ -108,7 +115,9 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                             }
                         }
                     } catch (IOException | DeserializeException e) {
-                        e.printStackTrace();
+                        if (log.isErrorEnabled()) {
+                            log.error(e.getLocalizedMessage());
+                        }
                     }
                     isWaitingToFinish = false;
                     checkPending();
@@ -127,7 +136,9 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                     callPersistSuccess(batch);
                 }
             } catch (IOException | DeserializeException e) {
-                e.printStackTrace();
+                if (log.isErrorEnabled()) {
+                    log.error(e.getLocalizedMessage());
+                }
             }
         }
     }
