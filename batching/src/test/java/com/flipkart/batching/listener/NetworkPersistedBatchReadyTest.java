@@ -237,10 +237,34 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         verify(networkBatchListener, times(2)).performNetworkRequest(batchCapture.capture(), any(ValueCallback.class));
         Assert.assertEquals(batchCapture.getValue(),secondBatch);
 
-        verify(networkBatchListener, atLeastOnce()).isNetworkConnected();
+        verify(networkBatchListener, atLeastOnce()).isNetworkConnected(context);
         verify(networkBatchListener, atLeastOnce()).setMockedNetworkConnected(anyBoolean());
         shadowLooper.runToEndOfTasks();
         verifyNoMoreInteractions(networkBatchListener);
+    }
+
+    @Test
+    public void testRetryPolicy() {
+        Context context = RuntimeEnvironment.application;
+        File file = createRandomFile();
+        HandlerThread handlerThread = new HandlerThread(createRandomString());
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        Handler handler = new Handler(looper);
+        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
+        SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
+        SizeBatchingStrategy.SizeBatch<Data> firstBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+        int ERROR_CODE_2XX = 200;
+        long callbackIdle = 1000;
+        MockNetworkPersistedBatchReadyListener networkBatchListener = spy(new MockNetworkPersistedBatchReadyListener(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, ERROR_CODE_2XX), handler, callbackIdle, context));
+        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, 0);
+        networkPersistedBatchReadyListener.onReady(strategy, firstBatch);
+        shadowLooper.runToEndOfTasks();
+
+
     }
 
     private void sendFakeNetworkBroadcast(Context context) {
@@ -254,7 +278,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         deleteRandomFiles();
     }
 
-    private static class MockNetworkPersistedBatchReadyListener implements NetworkPersistedBatchReadyListener.NetworkBatchListener {
+    private static class MockNetworkPersistedBatchReadyListener extends NetworkPersistedBatchReadyListener.NetworkBatchListener {
         private final Handler handler;
         private final long callbackIdle;
         private final Context context;
@@ -283,11 +307,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         }
 
         @Override
-        public boolean isNetworkConnected() {
-//            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-//            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-//            return null != networkInfo && networkInfo.isConnected();
-
+        public boolean isNetworkConnected(Context context) {
             return mockedNetworkConnected;
         }
     }

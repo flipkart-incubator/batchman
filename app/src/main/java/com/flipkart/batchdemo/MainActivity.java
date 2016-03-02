@@ -25,7 +25,6 @@ import com.flipkart.batching.data.TagData;
 import com.flipkart.batching.listener.PersistedBatchCallback;
 import com.flipkart.batching.listener.PersistedBatchReadyListener;
 import com.flipkart.batching.listener.TagBatchReadyListener;
-import com.flipkart.batching.persistence.ByteArraySerializationStrategy;
 import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.InMemoryPersistenceStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
