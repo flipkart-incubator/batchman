@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.webkit.ValueCallback;
 
@@ -36,6 +38,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     private NetworkBroadcastReceiver networkBroadcastReceiver = new NetworkBroadcastReceiver();
     private boolean retryLimitReached = false;
     private boolean waitingForCallback = false;
+    private boolean receiverRegistered;
     private PersistedBatchCallback<T> persistedBatchCallback = new PersistedBatchCallback<T>() {
         @Override
         public void onPersistFailure(T batch, Exception e) {
@@ -48,10 +51,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         public void onPersistSuccess(final T batch) {
             //this will be called only once until finish is called.
             lastBatch = batch;
-            //Register the broadcast receiver
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(Context.CONNECTIVITY_SERVICE);
-            context.registerReceiver(networkBroadcastReceiver, filter); //todo, does calling this multple times cause duplicate broadcasts
+            registerReceiverIfRequired();
             handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -62,9 +62,26 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
 
         @Override
         public void onFinish() {
-            context.unregisterReceiver(networkBroadcastReceiver);
+            unregisterReceiver();
         }
     };
+
+    private void unregisterReceiver() {
+        if(receiverRegistered) {
+            context.unregisterReceiver(networkBroadcastReceiver);
+            receiverRegistered = false;
+        }
+    }
+
+    private void registerReceiverIfRequired() {
+        if (!receiverRegistered) {
+            //Register the broadcast receiver
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Context.CONNECTIVITY_SERVICE);
+            context.registerReceiver(networkBroadcastReceiver, filter); //todo, does calling this multple times cause duplicate broadcasts
+            receiverRegistered = true;
+        }
+    }
 
     public NetworkPersistedBatchReadyListener(final Context context, File file, SerializationStrategy<E, T> serializationStrategy, final Handler handler, NetworkBatchListener<E, T> listener, int maxRetryCount) {
         super(file, serializationStrategy, handler, null);
@@ -99,7 +116,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     }
 
     private boolean isConnectedToNetwork() {
-        return networkBatchListener.isNetworkConnected();
+        return networkBatchListener.isNetworkConnected(context);
     }
 
     private void makeNetworkRequest(final T batch, boolean isRetry) {
@@ -184,7 +201,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         }
     }
 
-    public interface NetworkBatchListener<E extends Data, T extends Batch<E>> {
+    public static abstract class NetworkBatchListener<E extends Data, T extends Batch<E>> {
 
         /**
          * Implement this method and make your network request here. Once request is complete, call the {@link ValueCallback#onReceiveValue(Object)} method.
@@ -198,12 +215,16 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
          * @param batch
          * @param callback
          */
-        void performNetworkRequest(final T batch, final ValueCallback<NetworkRequestResponse> callback);
+        abstract void performNetworkRequest(final T batch, final ValueCallback<NetworkRequestResponse> callback);
 
         /**
          * @return true if network is connected
          */
-        boolean isNetworkConnected();
+        public boolean isNetworkConnected(Context context) {
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            return null != networkInfo && networkInfo.isConnected();
+        }
     }
 
     public static class NetworkRequestResponse {
