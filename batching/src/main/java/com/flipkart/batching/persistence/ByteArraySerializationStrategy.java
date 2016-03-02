@@ -5,6 +5,9 @@ import com.flipkart.batching.Data;
 import com.flipkart.batching.exception.DeserializeException;
 import com.flipkart.batching.exception.SerializeException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,8 +25,9 @@ import lombok.extern.slf4j.Slf4j;
  * @see SerializationStrategy
  * @see GsonSerializationStrategy
  */
-@Slf4j
 public class ByteArraySerializationStrategy<E extends Data, T extends Batch> implements SerializationStrategy<E, T> {
+
+    Logger log = LoggerFactory.getLogger(ByteArraySerializationStrategy.class);
 
     @Override
     public void registerDataType(Class subClass) {

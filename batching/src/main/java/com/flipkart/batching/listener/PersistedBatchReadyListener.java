@@ -1,7 +1,6 @@
 package com.flipkart.batching.listener;
 
 import android.os.Handler;
-import android.util.Log;
 
 import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
@@ -24,14 +23,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T> {
+    protected final Handler handler;
     private final File file;
-    private final Handler handler;
     private final SerializationStrategy<E, T> serializationStrategy;
     private PersistedBatchCallback<T> listener;
     private QueueFile queueFile;
     private boolean initialized;
     private boolean isWaitingToFinish;
-
     public PersistedBatchReadyListener(File file, SerializationStrategy<E, T> serializationStrategy, Handler handler, @Nullable PersistedBatchCallback<T> listener) {
         this.file = file;
         this.serializationStrategy = serializationStrategy;
@@ -43,7 +41,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
         return listener;
     }
 
-    public void setListener(PersistedBatchCallback listener) {
+    public void setListener(PersistedBatchCallback<T> listener) {
         this.listener = listener;
     }
 
@@ -116,7 +114,6 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                         if (peeked != null) {
                             T peekedBatch = serializationStrategy.deserializeBatch(peeked);
                             if (batch != null && batch.equals(peekedBatch)) {
-                                Log.e("Queue File Size", queueFile.size() + "");
                                 queueFile.remove();
                             }
                         }
@@ -126,13 +123,13 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                         }
                     }
                     isWaitingToFinish = false;
-                    checkPending();
+                    checkPendingAndContinue();
                 }
             });
         }
     }
 
-    private void checkPending() {
+    private void checkPendingAndContinue() {
         initializeIfRequired();
         if (!queueFile.isEmpty()) {
             try {
@@ -146,6 +143,14 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                     log.error(e.getLocalizedMessage());
                 }
             }
+        } else {
+            callQueueEnd();
+        }
+    }
+
+    private void callQueueEnd() {
+        if (listener != null) {
+            listener.onFinish();
         }
     }
 }

@@ -98,6 +98,11 @@ public class MainActivity extends AppCompatActivity
                 perfListener.finish(batch);
                 Log.e("Perf", "Finish Called");
             }
+
+            @Override
+            public void onFinish() {
+
+            }
         });
 
         final PersistedBatchReadyListener debugListener = new PersistedBatchReadyListener<>(debugFile, serializationStrategy, backgroundHandler, null);
@@ -113,6 +118,11 @@ public class MainActivity extends AppCompatActivity
                 debugListener.finish(batch);
                 Log.e("Debug", "Finish Called");
             }
+
+            @Override
+            public void onFinish() {
+
+            }
         });
 
         final PersistedBatchReadyListener dgListener = new PersistedBatchReadyListener<>(dgFile, serializationStrategy, backgroundHandler, null);
@@ -127,6 +137,11 @@ public class MainActivity extends AppCompatActivity
                 SystemClock.sleep(2000);
                 dgListener.finish(batch);
                 Log.e("Dg", "Finish Called");
+            }
+
+            @Override
+            public void onFinish() {
+
             }
         });
 

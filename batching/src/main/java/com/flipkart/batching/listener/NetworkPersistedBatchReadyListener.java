@@ -10,49 +10,82 @@ import android.os.Handler;
 import android.webkit.ValueCallback;
 
 import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.persistence.SerializationStrategy;
+import com.squareup.tape.QueueFile;
 
 import java.io.File;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
- * Created by kushal.sharma on 29/02/16.
+ * Created by kushal.sharma on 29/02/16 at 11:58 AM.
  */
+@Slf4j
 public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends PersistedBatchReadyListener<E, T> {
 
-    INetworkBatchListener callback;
-    Context context;
-    T lastBatch;
-    int retryCount = 0;
-    int maxRetryCount;
-    NetworkBroadcastReceiver networkBroadcastReceiver = new NetworkBroadcastReceiver();
+    public static final int DEFAULT_TIMEOUT_MS = 2500;
+    public static final float DEFAULT_BACKOFF_MULT = 1f;
+    private static final int HTTP_SERVER_ERROR_CODE_RANGE_START = 500;
+    private static final int HTTP_SERVER_ERROR_CODE_RANGE_END = 599;
+    private NetworkBatchListener<E, T> networkBatchListener;
+    private Context context;
+    private T lastBatch;
+    private int retryCount = 0;
+    private int mCurrentTimeoutMs = 0;
+    private int maxRetryCount;
+    private NetworkBroadcastReceiver networkBroadcastReceiver = new NetworkBroadcastReceiver();
 
-    public NetworkPersistedBatchReadyListener(final Context context, File file, SerializationStrategy<E, T> serializationStrategy, Handler handler, INetworkBatchListener<E, T> listener, int maxRetryCount) {
+    private PersistedBatchCallback<T> persistedBatchCallback = new PersistedBatchCallback<T>() {
+        @Override
+        public void onPersistFailure(T batch, Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getLocalizedMessage());
+            }
+        }
+
+        @Override
+        public void onPersistSuccess(final T batch) {
+            //this will be called only once until finish is called.
+            lastBatch = batch;
+            //Register the broadcast receiver
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Context.CONNECTIVITY_SERVICE);
+            context.registerReceiver(networkBroadcastReceiver, filter); //todo, does calling this multple times cause duplicate broadcasts
+            if (isConnectedToNetwork()) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        makeNetworkRequest(batch);
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onFinish() {
+            context.unregisterReceiver(networkBroadcastReceiver);
+        }
+    };
+
+    public NetworkPersistedBatchReadyListener(final Context context, File file, SerializationStrategy<E, T> serializationStrategy, final Handler handler, NetworkBatchListener<E, T> listener, int maxRetryCount) {
         super(file, serializationStrategy, handler, null);
         this.context = context;
-        this.callback = listener;
+        this.networkBatchListener = listener;
         this.maxRetryCount = maxRetryCount;
-        this.setListener(new PersistedBatchCallback<T>() {
-            @Override
-            public void onPersistFailure(T batch, Exception e) {
+        this.mCurrentTimeoutMs = DEFAULT_TIMEOUT_MS;
+        this.setListener(persistedBatchCallback);
+    }
 
-            }
+    @Override
+    public void onReady(BatchingStrategy<E, T> causingStrategy, T batch) {
+        super.onReady(causingStrategy, batch);
+    }
 
-            @Override
-            public void onPersistSuccess(T batch) {
-                //Check network. If no network present
-                lastBatch = batch;
-                if (isConnectedToNetwork()) {
-                    makeNetworkRequest(batch);
-                } else {
-                    //Register the broadcast receiver
-                    IntentFilter filter = new IntentFilter();
-                    filter.addAction(Context.CONNECTIVITY_SERVICE);
-                    context.registerReceiver(networkBroadcastReceiver, filter);
-                }
-
-            }
-        });
+    @Override
+    protected void onInitialized(QueueFile queueFile) {
+        super.onInitialized(queueFile);
     }
 
     private boolean isConnectedToNetwork() {
@@ -62,47 +95,86 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     }
 
     private void makeNetworkRequest(final T batch) {
-        callback.performNetworkRequest(batch, new ValueCallback<NetworkRequestResponse>() {
+        networkBatchListener.performNetworkRequest(batch, new ValueCallback<NetworkRequestResponse>() {
             @Override
             public void onReceiveValue(NetworkRequestResponse value) {
-                if (!value.complete || (value.httpErrorCode >= 500 && value.httpErrorCode <= 599)) {
-                    //Put this in a retry logic
+                if (!value.complete || (value.httpErrorCode >= HTTP_SERVER_ERROR_CODE_RANGE_START && value.httpErrorCode <= HTTP_SERVER_ERROR_CODE_RANGE_END)) {
                     retryCount++;
-                    if (retryCount < 5) {
-                        makeNetworkRequest(batch);
+                    if (retryCount < maxRetryCount) {
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                makeNetworkRequest(batch);
+                            }
+                        }, exponentialBackOff());
+                    } else {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Discarding batch. Maximum retry reached.");
+                        }
+                        finish(batch);
                     }
-
                 } else {
-                    retryCount = 0;
                     finish(batch);
-                    context.unregisterReceiver(networkBroadcastReceiver);
                 }
             }
         });
     }
 
-    public interface INetworkBatchListener<E extends Data, T extends Batch<E>> {
+    /**
+     * Backoff time to retry the batch for 5XX Server errors.
+     *
+     * @return
+     */
+    private int exponentialBackOff() {
+        mCurrentTimeoutMs += (mCurrentTimeoutMs * DEFAULT_BACKOFF_MULT);
+        return mCurrentTimeoutMs;
+    }
+
+    @Override
+    public void finish(T batch) {
+        retryCount = 0;
+        lastBatch = null;
+        super.finish(batch);
+    }
+
+    public interface NetworkBatchListener<E extends Data, T extends Batch<E>> {
+
+        /**
+         * Implement this method and make your network request here. Once request is complete, call the {@link ValueCallback#onReceiveValue(Object)} method.
+         * This method will be called once the batch has been persisted. The batch will be removed or retried once you invoke the networkBatchListener.
+         * While invoking the networkBatchListener, pass a {@link NetworkRequestResponse} object with the following data.
+         * If the network response was successfully received, set complete to true, and set httpErrorCode to the status code from server. If status code is 5XX, this batch will be retried. If status code is 200 or 4XX the batch will be discarded and next batch will be processed.
+         * If the network response was not received (timeout or not connected or any other network error), set complete to false. This will cause a retry until max retries are reached.
+         * <p>
+         * Note: If there is a network redirect, do not call the networkBatchListener, and wait for the final redirected response and pass that one.
+         *
+         * @param batch
+         * @param callback
+         */
         void performNetworkRequest(final T batch, final ValueCallback<NetworkRequestResponse> callback);
     }
 
     public static class NetworkRequestResponse {
-        public boolean complete;
+        public boolean complete; //indicates whether a network response was received.
         public int httpErrorCode;
+        public NetworkRequestResponse(boolean isComplete, int httpErrorCode){
+            this.complete = isComplete;
+            this.httpErrorCode = httpErrorCode;
+        }
     }
 
     public class NetworkBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (isConnectedToNetwork()) {
-                makeNetworkRequest(lastBatch);
-            } else {
-                //Check and re-register
-                IntentFilter filter = new IntentFilter();
-                filter.addAction(Context.CONNECTIVITY_SERVICE);
-                context.registerReceiver(networkBroadcastReceiver, filter);
+            if (isConnectedToNetwork() && lastBatch != null) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        makeNetworkRequest(lastBatch);
+                    }
+                });
             }
         }
     }
-
 }

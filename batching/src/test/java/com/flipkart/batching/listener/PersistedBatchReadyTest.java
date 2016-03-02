@@ -122,7 +122,52 @@ public class PersistedBatchReadyTest extends BaseTestClass {
 
         doThrow(new IOException()).when(queueFile).remove();
         persistedBatchReadyListener.finish(sizeBatchInfo);
+
+        verify(persistedBatchCallback,times(1)).onFinish();
     }
+
+    /**
+     * Test that persist success is not called until finish is called.
+     *
+     * @throws IOException
+     * @throws SerializeException
+     */
+    @Test
+    public void testPersistSuccessNotCalledMoreThanOnce() throws IOException, SerializeException {
+        File file = createRandomFile();
+        HandlerThread handlerThread = new HandlerThread(createRandomString());
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
+        Handler handler = new Handler(looper);
+        SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
+        SerializationStrategy serializationStrategy = new ByteArraySerializationStrategy<>();
+        PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
+        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(file, serializationStrategy, handler, persistedBatchCallback);
+
+        SizeBatchingStrategy.SizeBatch<Data> firstBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        persistedBatchReadyListener.onReady(strategy, firstBatch);
+        SizeBatchingStrategy.SizeBatch<Data> subsequentBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        persistedBatchReadyListener.onReady(strategy, subsequentBatch);
+        subsequentBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        persistedBatchReadyListener.onReady(strategy, subsequentBatch);
+        subsequentBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        persistedBatchReadyListener.onReady(strategy, subsequentBatch);
+        subsequentBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        persistedBatchReadyListener.onReady(strategy, subsequentBatch);
+
+        shadowLooper.runToEndOfTasks();
+
+        verify(persistedBatchCallback,times(1)).onPersistSuccess(firstBatch);
+        persistedBatchReadyListener.finish(firstBatch);
+        shadowLooper.runToEndOfTasks();
+        verify(persistedBatchCallback,times(2)).onPersistSuccess(firstBatch);
+        persistedBatchReadyListener.finish(firstBatch);
+        shadowLooper.runToEndOfTasks();
+        verify(persistedBatchCallback,times(3)).onPersistSuccess(firstBatch);
+
+    }
+
 
     /**
      * Test to verify {@link PersistedBatchCallback#onPersistFailure(Batch, Exception)}

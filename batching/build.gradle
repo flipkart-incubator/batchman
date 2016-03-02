@@ -53,9 +53,9 @@ android {
 
 
 
-group = ARTIFACTORY_GROUP
-version = VERSION_NAME
-status = STATUS }
+        group = ARTIFACTORY_GROUP
+        version = VERSION_NAME
+        status = STATUS }
 }
 
 dependencies {
@@ -110,7 +110,7 @@ configure(install.repositories.mavenInstaller) {
         }
 
 
- }
+    }
 }
 
 artifactory {
