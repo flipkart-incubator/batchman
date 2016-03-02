@@ -218,7 +218,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
          * @param batch
          * @param callback
          */
-        abstract void performNetworkRequest(final T batch, final ValueCallback<NetworkRequestResponse> callback);
+        public abstract void performNetworkRequest(final T batch, final ValueCallback<NetworkRequestResponse> callback);
 
         /**
          * @return true if network is connected
