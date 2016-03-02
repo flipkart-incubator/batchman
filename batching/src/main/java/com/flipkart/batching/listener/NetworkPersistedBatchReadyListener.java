@@ -4,8 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Handler;
 import android.webkit.ValueCallback;
 
@@ -25,10 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends PersistedBatchReadyListener<E, T> {
 
-    public static final int DEFAULT_TIMEOUT_MS = 2500;
-    public static final float DEFAULT_BACKOFF_MULT = 1f;
     private static final int HTTP_SERVER_ERROR_CODE_RANGE_START = 500;
     private static final int HTTP_SERVER_ERROR_CODE_RANGE_END = 599;
+    public int defaultTimeoutMs = 2500;
+    public float defaultBackoffMultiplier = 1f;
     private NetworkBatchListener<E, T> networkBatchListener;
     private Context context;
     private T lastBatch;
@@ -36,7 +34,8 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     private int mCurrentTimeoutMs = 0;
     private int maxRetryCount;
     private NetworkBroadcastReceiver networkBroadcastReceiver = new NetworkBroadcastReceiver();
-
+    private boolean retryLimitReached = false;
+    private boolean waitingForCallback = false;
     private PersistedBatchCallback<T> persistedBatchCallback = new PersistedBatchCallback<T>() {
         @Override
         public void onPersistFailure(T batch, Exception e) {
@@ -53,14 +52,12 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             IntentFilter filter = new IntentFilter();
             filter.addAction(Context.CONNECTIVITY_SERVICE);
             context.registerReceiver(networkBroadcastReceiver, filter); //todo, does calling this multple times cause duplicate broadcasts
-            if (isConnectedToNetwork()) {
-                handler.post(new Runnable() {
+            handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        makeNetworkRequest(batch);
+                        makeNetworkRequest(batch, false);
                     }
                 });
-            }
         }
 
         @Override
@@ -74,13 +71,26 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         this.context = context;
         this.networkBatchListener = listener;
         this.maxRetryCount = maxRetryCount;
-        this.mCurrentTimeoutMs = DEFAULT_TIMEOUT_MS;
+        this.mCurrentTimeoutMs = defaultTimeoutMs;
         this.setListener(persistedBatchCallback);
+    }
+
+    public void setDefaultTimeoutMs(int defaultTimeoutMs) {
+        this.defaultTimeoutMs = defaultTimeoutMs;
+    }
+
+    public void setDefaultBackoffMultiplier(float defaultBackoffMultiplier) {
+        this.defaultBackoffMultiplier = defaultBackoffMultiplier;
     }
 
     @Override
     public void onReady(BatchingStrategy<E, T> causingStrategy, T batch) {
         super.onReady(causingStrategy, batch);
+        if (retryLimitReached) {
+            retryLimitReached = false;
+            resume();
+        }
+
     }
 
     @Override
@@ -89,35 +99,57 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     }
 
     private boolean isConnectedToNetwork() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return null != networkInfo && networkInfo.isConnected();
+        return networkBatchListener.isNetworkConnected();
     }
 
-    private void makeNetworkRequest(final T batch) {
-        networkBatchListener.performNetworkRequest(batch, new ValueCallback<NetworkRequestResponse>() {
-            @Override
-            public void onReceiveValue(NetworkRequestResponse value) {
-                if (!value.complete || (value.httpErrorCode >= HTTP_SERVER_ERROR_CODE_RANGE_START && value.httpErrorCode <= HTTP_SERVER_ERROR_CODE_RANGE_END)) {
-                    retryCount++;
-                    if (retryCount < maxRetryCount) {
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                makeNetworkRequest(batch);
+    private void makeNetworkRequest(final T batch, boolean isRetry) {
+        if (isConnectedToNetwork()) {
+            if (log.isDebugEnabled()) {
+                log.debug("Performing network request for batch : {}", batch);
+            }
+            if (!isRetry) {
+                resetRetryCounters();
+            }
+            waitingForCallback = true;
+            networkBatchListener.performNetworkRequest(batch, new ValueCallback<NetworkRequestResponse>() {
+                @Override
+                public void onReceiveValue(NetworkRequestResponse value) {
+                    waitingForCallback = false;
+                    if (!value.complete || (value.httpErrorCode >= HTTP_SERVER_ERROR_CODE_RANGE_START && value.httpErrorCode <= HTTP_SERVER_ERROR_CODE_RANGE_END)) {
+                        retryCount++;
+                        if (retryCount < maxRetryCount) {
+                            int backOff = exponentialBackOff();
+                            if (log.isDebugEnabled()) {
+                                log.debug("Request failed complete = {}, errorCode = {}, Retrying network request for batch {} after {} ms", value.complete, value.httpErrorCode, batch, backOff);
                             }
-                        }, exponentialBackOff());
-                    } else {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Discarding batch. Maximum retry reached.");
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    makeNetworkRequest(batch, true);
+                                }
+                            }, backOff);
+                        } else {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Maximum network retry reached for {}", getQueueFile());
+                            }
+                            retryLimitReached = true;
                         }
+                    } else {
+                        //all well :) now we go to next batch
                         finish(batch);
                     }
-                } else {
-                    finish(batch);
                 }
-            }
-        });
+            });
+        } else {
+            // this means we need a broadcast to resume the flow
+            resetRetryCounters();
+            waitingForCallback = false;
+        }
+    }
+
+    private void resetRetryCounters() {
+        retryCount = 0;
+        mCurrentTimeoutMs = defaultTimeoutMs;
     }
 
     /**
@@ -126,7 +158,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
      * @return
      */
     private int exponentialBackOff() {
-        mCurrentTimeoutMs += (mCurrentTimeoutMs * DEFAULT_BACKOFF_MULT);
+        mCurrentTimeoutMs += (mCurrentTimeoutMs * defaultBackoffMultiplier);
         return mCurrentTimeoutMs;
     }
 
@@ -135,6 +167,21 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         retryCount = 0;
         lastBatch = null;
         super.finish(batch);
+    }
+
+    private void resume() {
+        if (!waitingForCallback && isConnectedToNetwork() && lastBatch != null) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    makeNetworkRequest(lastBatch, false);
+                }
+            });
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Wont resume since waiting = {}, networkConnected = {}, lastBatch = {}", waitingForCallback, isConnectedToNetwork(), lastBatch);
+            }
+        }
     }
 
     public interface NetworkBatchListener<E extends Data, T extends Batch<E>> {
@@ -152,6 +199,11 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
          * @param callback
          */
         void performNetworkRequest(final T batch, final ValueCallback<NetworkRequestResponse> callback);
+
+        /**
+         * @return true if network is connected
+         */
+        boolean isNetworkConnected();
     }
 
     public static class NetworkRequestResponse {
@@ -167,14 +219,10 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (isConnectedToNetwork() && lastBatch != null) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        makeNetworkRequest(lastBatch);
-                    }
-                });
+            if (log.isDebugEnabled()) {
+                log.debug("Got network broadcast, resuming operations");
             }
+            resume();
         }
     }
 }
