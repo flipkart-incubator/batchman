@@ -16,7 +16,7 @@ import java.util.Collection;
  * calls {@link BatchingStrategy#onInitialized(Context, OnBatchReadyListener, Handler)},
  * {@link #onDataPushed(Collection)} and {@link #flush(boolean)} on all the provided
  * batching strategies.
- * <p>
+ * <p/>
  * A use case will be where we want to batch data when maxBatchSize is reached or there is a
  * timeOut. So, we will pass an instance of {@link SizeBatchingStrategy} as well as
  * {@link TimeBatchingStrategy} to this class with desired maxBatchSize and timeOut.

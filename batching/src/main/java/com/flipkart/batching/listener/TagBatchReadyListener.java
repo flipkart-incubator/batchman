@@ -1,6 +1,5 @@
 package com.flipkart.batching.listener;
 
-import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.data.Tag;
@@ -15,27 +14,27 @@ import java.util.Map;
  * Todo Document
  */
 
-public class TagBatchReadyListener<E extends TagData> implements OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E, Batch<E>>> {
-    private Map<Tag, OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E, Batch<E>>>> tagOnBatchReadyListenerMap;
+public class TagBatchReadyListener<E extends TagData> implements OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E>> {
+    private Map<Tag, OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E>>> tagOnBatchReadyListenerMap;
 
     public TagBatchReadyListener() {
         tagOnBatchReadyListenerMap = new HashMap<>();
     }
 
-    public Map<Tag, OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E, Batch<E>>>> getTagOnBatchReadyListenerMap() {
+    public Map<Tag, OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E>>> getTagOnBatchReadyListenerMap() {
         return tagOnBatchReadyListenerMap;
     }
 
-    public void addListenerForTag(Tag tag, OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E, Batch<E>>> listener) {
+    public void addListenerForTag(Tag tag, OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E>> listener) {
         tagOnBatchReadyListenerMap.put(tag, listener);
     }
 
-    private OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E, Batch<E>>> getListenerByTag(Tag tag) {
+    private OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E>> getListenerByTag(Tag tag) {
         return tagOnBatchReadyListenerMap.get(tag);
     }
 
     @Override
-    public void onReady(BatchingStrategy<E, TagBatchingStrategy.TagBatch<E, Batch<E>>> causingStrategy, TagBatchingStrategy.TagBatch<E, Batch<E>> batch) {
+    public void onReady(BatchingStrategy<E, TagBatchingStrategy.TagBatch<E>> causingStrategy, TagBatchingStrategy.TagBatch<E> batch) {
         getListenerByTag(batch.getTag()).onReady(causingStrategy, batch);
     }
 }

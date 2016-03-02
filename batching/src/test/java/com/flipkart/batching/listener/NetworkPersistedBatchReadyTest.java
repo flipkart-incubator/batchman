@@ -9,10 +9,11 @@ import android.webkit.ValueCallback;
 import com.flipkart.Utils;
 import com.flipkart.batching.BaseTestClass;
 import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.exception.SerializeException;
-import com.flipkart.batching.persistence.ByteArraySerializationStrategy;
+import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 
@@ -58,7 +59,9 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         ShadowLooper shadowLooper = Shadows.shadowOf(looper);
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
         SizeBatchingStrategy.SizeBatch<Data> firstBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
-        SerializationStrategy serializationStrategy = new ByteArraySerializationStrategy();
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
         int ERROR_CODE_5XX = 500;
         MockNetworkPersistedBatchReadyListener networkBatchListener = spy(new MockNetworkPersistedBatchReadyListener(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, ERROR_CODE_5XX)));
         int maxRetryCount = 5;
@@ -102,7 +105,9 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         ShadowLooper shadowLooper = Shadows.shadowOf(looper);
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
         SizeBatchingStrategy.SizeBatch<Data> firstBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
-        SerializationStrategy serializationStrategy = new ByteArraySerializationStrategy();
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
         int ERROR_CODE_4XX = 400;
         MockNetworkPersistedBatchReadyListener networkBatchListener = spy(new MockNetworkPersistedBatchReadyListener(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, ERROR_CODE_4XX)));
         int maxRetryCount = 5;
@@ -133,7 +138,9 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         ShadowLooper shadowLooper = Shadows.shadowOf(looper);
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
         SizeBatchingStrategy.SizeBatch<Data> firstBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
-        SerializationStrategy serializationStrategy = new ByteArraySerializationStrategy();
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
         int ERROR_CODE_2XX = 200;
         MockNetworkPersistedBatchReadyListener networkBatchListener = spy(new MockNetworkPersistedBatchReadyListener(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, ERROR_CODE_2XX)));
         NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, 0);

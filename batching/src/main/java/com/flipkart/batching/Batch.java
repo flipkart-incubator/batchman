@@ -5,14 +5,16 @@ import java.util.Collection;
 
 
 public class Batch<T extends Data> implements Serializable {
-    private Collection<T> dataCollection;
+
+    private DataCollection dataCollection;
+
 
     public Batch(Collection<T> dataCollection) {
-        this.dataCollection = dataCollection;
+        this.dataCollection = new DataCollection(dataCollection);
     }
 
     public Collection<T> getDataCollection() {
-        return dataCollection;
+        return dataCollection.dataCollection;
     }
 
     @Override

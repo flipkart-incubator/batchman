@@ -28,8 +28,8 @@ import java.util.Map;
  * @see TagBatchingStrategy
  */
 
-public class TagBatchingStrategy<E extends TagData, C extends Batch<E>> implements BatchingStrategy<E, TagBatchingStrategy.TagBatch<E, C>> {
-    private Map<Tag, BatchingStrategy<E, C>> batchingStrategyMap = new HashMap<>();
+public class TagBatchingStrategy<E extends TagData> implements BatchingStrategy<E, TagBatchingStrategy.TagBatch<E>> {
+    private Map<Tag, BatchingStrategy<E, Batch<E>>> batchingStrategyMap = new HashMap<>();
     private boolean initialized = false;
 
     @Override
@@ -48,11 +48,11 @@ public class TagBatchingStrategy<E extends TagData, C extends Batch<E>> implemen
     }
 
     @Override
-    public void onInitialized(Context context, final OnBatchReadyListener<E, TagBatch<E, C>> parentBatchReadyListener, Handler handler) {
+    public void onInitialized(Context context, final OnBatchReadyListener<E, TagBatch<E>> parentBatchReadyListener, Handler handler) {
         initialized = true;
-        OnBatchReadyListener<E, C> childBatchReadyListener = new OnBatchReadyListener<E, C>() {
+        OnBatchReadyListener<E, Batch<E>> childBatchReadyListener = new OnBatchReadyListener<E, Batch<E>>() {
             @Override
-            public void onReady(BatchingStrategy<E, C> causingStrategy, C batch) {
+            public void onReady(BatchingStrategy<E, Batch<E>> causingStrategy, Batch<E> batch) {
                 Tag tag = getTagByStrategy(causingStrategy);
                 parentBatchReadyListener.onReady(TagBatchingStrategy.this, new TagBatch(tag, batch)); //this listener overrides the causing strategy
             }
@@ -63,8 +63,8 @@ public class TagBatchingStrategy<E extends TagData, C extends Batch<E>> implemen
         }
     }
 
-    public Tag getTagByStrategy(BatchingStrategy<E, C> causingStrategy) {
-        for (Map.Entry<Tag, BatchingStrategy<E, C>> entry : batchingStrategyMap.entrySet()) {
+    public Tag getTagByStrategy(BatchingStrategy<E, Batch<E>> causingStrategy) {
+        for (Map.Entry<Tag, BatchingStrategy<E, Batch<E>>> entry : batchingStrategyMap.entrySet()) {
             BatchingStrategy batchingStrategy = entry.getValue();
             Tag tag = entry.getKey();
             if (batchingStrategy == causingStrategy) {
@@ -84,7 +84,7 @@ public class TagBatchingStrategy<E extends TagData, C extends Batch<E>> implemen
     /**
      * This method takes {@link Tag} and {@link BatchingStrategy} as parameters and
      * adds the data to batchingStrategyMap.
-     * <p>
+     * <p/>
      * Whenever new data is pushed, tag is checked and data is pushed to the specified
      * batching strategy.
      *
@@ -92,19 +92,23 @@ public class TagBatchingStrategy<E extends TagData, C extends Batch<E>> implemen
      * @param strategy {@link BatchingStrategy} type strategy
      */
 
-    public void addTagStrategy(Tag tag, BatchingStrategy<E, C> strategy) {
+    public void addTagStrategy(Tag tag, BatchingStrategy<E, Batch<E>> strategy) {
         batchingStrategyMap.put(tag, strategy);
     }
 
 
-    public static class TagBatch<T extends TagData, C extends Batch<T>> extends Batch<T> {
+    public static class TagBatch<T extends TagData> extends Batch<T> {
         private Tag tag;
-        private C batch;
+        private Batch<T> batch;
 
-        public TagBatch(Tag tag, C batch) {
+        public TagBatch(Tag tag, Batch<T> batch) {
             super(null);
             this.tag = tag;
             this.batch = batch;
+        }
+
+        public Batch<T> getBatch() {
+            return batch;
         }
 
         public Tag getTag() {
@@ -119,7 +123,7 @@ public class TagBatchingStrategy<E extends TagData, C extends Batch<E>> implemen
         @Override
         public boolean equals(Object o) {
             if (o instanceof TagBatch) {
-                return ((TagBatch) o).getTag() == tag;
+                return ((TagBatch) o).getTag().equals(tag) && ((TagBatch) o).getBatch().equals(getBatch());
             }
             return super.equals(o);
         }

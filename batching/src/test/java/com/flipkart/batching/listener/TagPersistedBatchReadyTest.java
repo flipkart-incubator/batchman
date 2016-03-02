@@ -36,7 +36,7 @@ public class TagPersistedBatchReadyTest {
     private Tag BUSINESS = new Tag("BUSINESS");
     private Tag DEBUG = new Tag("DEBUG");
     @Mock
-    private OnBatchReadyListener<TagData, TagBatchingStrategy.TagBatch<TagData, Batch<TagData>>> onBatchReadyListener;
+    private OnBatchReadyListener<TagData, TagBatchingStrategy.TagBatch<TagData>> onBatchReadyListener;
 
     @Before
     public void setUp() {
@@ -65,7 +65,7 @@ public class TagPersistedBatchReadyTest {
         tagBatchReadyListener.addListenerForTag(DEBUG, onBatchReadyListener);
         tagBatchReadyListener.addListenerForTag(BUSINESS, onBatchReadyListener);
 
-        tagBatchReadyListener.onReady(new TagBatchingStrategy<>(), new TagBatchingStrategy.TagBatch<TagData, Batch<TagData>>(new Tag("ADS"), new SizeBatchingStrategy.SizeBatch<TagData>(Utils.fakeCollection(2), 4)));
+        tagBatchReadyListener.onReady(new TagBatchingStrategy<>(), new TagBatchingStrategy.TagBatch<>(new Tag("ADS"), new SizeBatchingStrategy.SizeBatch<TagData>(Utils.fakeCollection(2), 4)));
         verify(onBatchReadyListener, times(1)).onReady(any(BatchingStrategy.class), any(TagBatchingStrategy.TagBatch.class));
     }
 }

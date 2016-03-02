@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.flipkart.batchdemo.R;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.persistence.GsonSerializationStrategy;

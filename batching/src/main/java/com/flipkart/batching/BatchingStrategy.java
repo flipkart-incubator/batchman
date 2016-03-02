@@ -44,7 +44,6 @@ public interface BatchingStrategy<E extends Data, T extends Batch<E>> {
     /**
      * Instance of {@link BatchController}, {@link Context}, {@link OnBatchReadyListener},
      * and {@link Handler} from {@link BatchController}.
-     *
      * @param context              context
      * @param onBatchReadyListener instance of {@link OnBatchReadyListener}
      * @param handler              instance of {@link Handler}

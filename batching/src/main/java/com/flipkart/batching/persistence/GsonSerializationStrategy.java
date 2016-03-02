@@ -2,6 +2,7 @@ package com.flipkart.batching.persistence;
 
 import com.flipkart.batching.Batch;
 import com.flipkart.batching.Data;
+import com.flipkart.batching.DataCollection;
 import com.flipkart.batching.exception.DeserializeException;
 import com.flipkart.batching.exception.SerializeException;
 import com.flipkart.batching.toolbox.RuntimeTypeAdapterFactory;
@@ -56,6 +57,8 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapterFactory(dataAdapter);
         gsonBuilder.registerTypeAdapterFactory(batchInfoAdapter);
+        gsonBuilder.registerTypeAdapter(DataCollection.class, new DataCollection.Serializer());
+        gsonBuilder.registerTypeAdapter(DataCollection.class, new DataCollection.DeSerializer());
         //gsonBuilder.registerTypeAdapterFactory(collectionAdapter);
         gson = gsonBuilder.create();
 

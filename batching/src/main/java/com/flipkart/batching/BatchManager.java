@@ -20,15 +20,15 @@ import java.util.Set;
  * BatchManager that implements {@link BatchController} interface. BatchManager uses builder pattern
  * to initialize an implementation of {@link BatchingStrategy}, {@link SerializationStrategy},
  * {@link Handler} and {@link OnBatchReadyListener}.
- * <p>
+ * <p/>
  * BatchManager sends the initialized {@link BatchController}, {@link Context},
  * {@link OnBatchReadyListener} and {@link Handler} to the initialized object of BatchingStrategy.
- * <p>
+ * <p/>
  * {@link #addToBatch(Collection)} tells the BatchingStrategy about the input dataCollection.
- * <p>
+ * <p/>
  * {@link #getSerializationStrategy()} returns the SerializationStrategy provided while building
  * the BatchManger instance.
- * <p>
+ * <p/>
  * {@link #getHandler()} returns the Handler provided while building the BatchManger instance.
  *
  * @see BatchController

@@ -16,7 +16,7 @@ import java.util.Collection;
  * This abstract class implements {@link BatchingStrategy} interface. BaseBatchingStrategy
  * hold an instance of provided {@link PersistenceStrategy}, {@link OnBatchReadyListener},
  * {@link BatchController} and {@link Context}.
- * <p>
+ * <p/>
  * A class extending BaseBatchingStrategy must call super from it's constructor,
  * {@link #onDataPushed(Collection)} and {@link BatchingStrategy#onInitialized(Context, OnBatchReadyListener, Handler)} methods.
  */

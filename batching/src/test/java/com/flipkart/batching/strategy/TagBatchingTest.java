@@ -56,7 +56,7 @@ public class TagBatchingTest {
     private Tag BUSINESS_TAG = new Tag("BUSINESS");
     private BatchingStrategy<TagData, Batch<TagData>> sizeBatchingStrategy;
     private BatchingStrategy<TagData, Batch<TagData>> timeBatchingStrategy;
-    private TagBatchingStrategy<TagData, Batch<TagData>> tagBatchingStrategy;
+    private TagBatchingStrategy<TagData> tagBatchingStrategy;
     private ShadowLooper shadowLooper;
     @Mock
     private InMemoryPersistenceStrategy<TagData> inMemoryPersistenceStrategy;
@@ -67,7 +67,7 @@ public class TagBatchingTest {
     @Mock
     private Context context;
     @Mock
-    private OnBatchReadyListener<TagData, TagBatchingStrategy.TagBatch<TagData, Batch<TagData>>> onBatchReadyListener;
+    private OnBatchReadyListener<TagData, TagBatchingStrategy.TagBatch<TagData>> onBatchReadyListener;
 
     @Before
     public void setUp() {

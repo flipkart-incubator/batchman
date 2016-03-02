@@ -2,7 +2,7 @@ package com.flipkart.batching.exception;
 
 /**
  * SerializationException class that extends {@link Exception}.
- * <p>
+ * <p/>
  * To get the real exception use {@link #getRealException()}.
  */
 
