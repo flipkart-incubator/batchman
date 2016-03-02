@@ -3,6 +3,7 @@ package com.flipkart.batching.persistence;
 import android.content.Context;
 
 import com.flipkart.Utils;
+import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.Data;
 
@@ -71,7 +72,10 @@ public class SQLPersistenceTest {
      */
     private void initializeSQLPersistence() {
         context = RuntimeEnvironment.application;
-        persistenceStrategy = new SQLPersistenceStrategy<>(new ByteArraySerializationStrategy<>(), "test", context);
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+        persistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, "test", context);
         persistenceStrategy.onInitialized();
     }
 

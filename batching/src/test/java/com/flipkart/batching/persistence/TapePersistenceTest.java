@@ -2,7 +2,7 @@ package com.flipkart.batching.persistence;
 
 import com.flipkart.Utils;
 import com.flipkart.batching.BaseTestClass;
-import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.Data;
 
@@ -77,7 +77,9 @@ public class TapePersistenceTest extends BaseTestClass {
      */
     private void initializeTapePersistence() {
         File file = createRandomFile();
-        SerializationStrategy<Data, Batch<Data>> serializationStrategy = new ByteArraySerializationStrategy<>();
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
         persistenceStrategy = new TapePersistenceStrategy<>(file, serializationStrategy);
         persistenceStrategy.onInitialized();
     }

@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.flipkart.Utils;
 import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.data.Tag;
 import com.flipkart.batching.data.TagData;
@@ -95,7 +96,10 @@ public class TagBasedPersistenceTest {
     public void testGetData() {
         Context context = RuntimeEnvironment.application;
         inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
-        sqlPersistenceStrategy = new SQLPersistenceStrategy<>(new ByteArraySerializationStrategy<TagData, Batch<TagData>>(), "test", context);
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+        sqlPersistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, "test", context);
         sqlPersistenceStrategy.onInitialized();
         tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy<>(ad_tag, inMemoryPersistenceStrategy);
         tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy<>(debug_tag, sqlPersistenceStrategy);
@@ -116,7 +120,11 @@ public class TagBasedPersistenceTest {
     public void testRemoveData() {
         Context context = RuntimeEnvironment.application;
         inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
-        sqlPersistenceStrategy = new SQLPersistenceStrategy<>(new ByteArraySerializationStrategy<TagData, Batch<TagData>>(), "test", context);
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+
+        sqlPersistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, "test", context);
         sqlPersistenceStrategy.onInitialized();
         tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy<>(ad_tag, inMemoryPersistenceStrategy);
         tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy<>(debug_tag, sqlPersistenceStrategy);
@@ -137,7 +145,11 @@ public class TagBasedPersistenceTest {
     public void testOnInitialized() {
         Context context = RuntimeEnvironment.application;
         inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
-        sqlPersistenceStrategy = new SQLPersistenceStrategy<>(new ByteArraySerializationStrategy<TagData, Batch<TagData>>(), "test", context);
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+
+        sqlPersistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, "test", context);
         sqlPersistenceStrategy.onInitialized();
         tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy<>(ad_tag, inMemoryPersistenceStrategy);
         tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy<>(debug_tag, sqlPersistenceStrategy);
