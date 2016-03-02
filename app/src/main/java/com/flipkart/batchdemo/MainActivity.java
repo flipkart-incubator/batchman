@@ -29,6 +29,7 @@ import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.InMemoryPersistenceStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.persistence.TagBasedPersistenceStrategy;
+import com.flipkart.batching.persistence.TapePersistenceStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
 import com.flipkart.batching.strategy.TimeBatchingStrategy;
@@ -62,15 +63,15 @@ public class MainActivity extends AppCompatActivity
         dgTag = new Tag(DG_LOGGER_GROUPID);
 
 
-        InMemoryPersistenceStrategy<TagData> prefInMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
+        InMemoryPersistenceStrategy<TagData> prefInMemoryPersistenceStrategy = new TapePersistenceStrategy<>(new File(getCacheDir(), "pe"), serializationStrategy);
         TagBasedPersistenceStrategy<TagData> prefTagBatchingPersistence = new TagBasedPersistenceStrategy<>(perfTag, prefInMemoryPersistenceStrategy);
         BatchingStrategy<TagData, Batch<TagData>> prefSizeBatchingStrategy = new SizeBatchingStrategy(2, prefTagBatchingPersistence);
 
-        InMemoryPersistenceStrategy<TagData> debugInMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
+        InMemoryPersistenceStrategy<TagData> debugInMemoryPersistenceStrategy =  new TapePersistenceStrategy<>(new File(getCacheDir(), "de"), serializationStrategy);
         TagBasedPersistenceStrategy<TagData> debugTagBatchingPersistence = new TagBasedPersistenceStrategy<>(debugTag, debugInMemoryPersistenceStrategy);
         BatchingStrategy<TagData, Batch<TagData>> debugTimeBatchingStrategy = new TimeBatchingStrategy(5000, debugTagBatchingPersistence);
 
-        InMemoryPersistenceStrategy<TagData> dgInMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
+        InMemoryPersistenceStrategy<TagData> dgInMemoryPersistenceStrategy =  new TapePersistenceStrategy<>(new File(getCacheDir(), "dg"), serializationStrategy);
         TagBasedPersistenceStrategy<TagData> dgTagBatchingPersistence = new TagBasedPersistenceStrategy<>(dgTag, dgInMemoryPersistenceStrategy);
         BatchingStrategy<TagData, Batch<TagData>> dgTimeBatchingStrategy = new SizeBatchingStrategy(2, dgTagBatchingPersistence);
 
