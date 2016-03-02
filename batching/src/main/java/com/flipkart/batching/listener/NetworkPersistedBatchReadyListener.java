@@ -94,7 +94,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         return null != networkInfo && networkInfo.isConnected();
     }
 
-    public void makeNetworkRequest(final T batch) {
+    private void makeNetworkRequest(final T batch) {
         networkBatchListener.performNetworkRequest(batch, new ValueCallback<NetworkRequestResponse>() {
             @Override
             public void onReceiveValue(NetworkRequestResponse value) {
