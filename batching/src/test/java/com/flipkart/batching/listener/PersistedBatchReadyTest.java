@@ -7,10 +7,12 @@ import android.os.Looper;
 import com.flipkart.Utils;
 import com.flipkart.batching.BaseTestClass;
 import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.exception.SerializeException;
 import com.flipkart.batching.persistence.ByteArraySerializationStrategy;
+import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.squareup.tape.QueueFile;
@@ -79,7 +81,9 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         Handler handler = new Handler(looper);
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
         SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
-        SerializationStrategy serializationStrategy = new ByteArraySerializationStrategy<>();
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
 
         PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(file, serializationStrategy, handler, persistedBatchCallback);
@@ -106,7 +110,10 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         Handler handler = new Handler(looper);
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
         SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
-        SerializationStrategy serializationStrategy = new ByteArraySerializationStrategy<>();
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
         PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(file, serializationStrategy, handler, persistedBatchCallback);
         ArrayList<Data> arrayList = Utils.fakeCollection(4);
@@ -141,7 +148,9 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         ShadowLooper shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
-        SerializationStrategy serializationStrategy = new ByteArraySerializationStrategy<>();
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
         PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(file, serializationStrategy, handler, persistedBatchCallback);
 
