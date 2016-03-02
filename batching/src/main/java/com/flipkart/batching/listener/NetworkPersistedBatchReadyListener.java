@@ -53,11 +53,11 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             lastBatch = batch;
             registerReceiverIfRequired();
             handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        makeNetworkRequest(batch, false);
-                    }
-                });
+                @Override
+                public void run() {
+                    makeNetworkRequest(batch, false);
+                }
+            });
         }
 
         @Override
@@ -65,9 +65,21 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             unregisterReceiver();
         }
     };
+    public NetworkPersistedBatchReadyListener(final Context context, File file, SerializationStrategy<E, T> serializationStrategy, final Handler handler, NetworkBatchListener<E, T> listener, int maxRetryCount) {
+        super(file, serializationStrategy, handler, null);
+        this.context = context;
+        this.networkBatchListener = listener;
+        this.maxRetryCount = maxRetryCount;
+        this.mCurrentTimeoutMs = defaultTimeoutMs;
+        this.setListener(persistedBatchCallback);
+    }
+
+    public void setNetworkBatchListener(NetworkBatchListener<E, T> networkBatchListener) {
+        this.networkBatchListener = networkBatchListener;
+    }
 
     private void unregisterReceiver() {
-        if(receiverRegistered) {
+        if (receiverRegistered) {
             context.unregisterReceiver(networkBroadcastReceiver);
             receiverRegistered = false;
         }
@@ -81,15 +93,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             context.registerReceiver(networkBroadcastReceiver, filter); //todo, does calling this multple times cause duplicate broadcasts
             receiverRegistered = true;
         }
-    }
-
-    public NetworkPersistedBatchReadyListener(final Context context, File file, SerializationStrategy<E, T> serializationStrategy, final Handler handler, NetworkBatchListener<E, T> listener, int maxRetryCount) {
-        super(file, serializationStrategy, handler, null);
-        this.context = context;
-        this.networkBatchListener = listener;
-        this.maxRetryCount = maxRetryCount;
-        this.mCurrentTimeoutMs = defaultTimeoutMs;
-        this.setListener(persistedBatchCallback);
     }
 
     public void setDefaultTimeoutMs(int defaultTimeoutMs) {
@@ -209,7 +212,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
          * While invoking the networkBatchListener, pass a {@link NetworkRequestResponse} object with the following data.
          * If the network response was successfully received, set complete to true, and set httpErrorCode to the status code from server. If status code is 5XX, this batch will be retried. If status code is 200 or 4XX the batch will be discarded and next batch will be processed.
          * If the network response was not received (timeout or not connected or any other network error), set complete to false. This will cause a retry until max retries are reached.
-         * <p>
+         * <p/>
          * Note: If there is a network redirect, do not call the networkBatchListener, and wait for the final redirected response and pass that one.
          *
          * @param batch
@@ -230,7 +233,8 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     public static class NetworkRequestResponse {
         public boolean complete; //indicates whether a network response was received.
         public int httpErrorCode;
-        public NetworkRequestResponse(boolean isComplete, int httpErrorCode){
+
+        public NetworkRequestResponse(boolean isComplete, int httpErrorCode) {
             this.complete = isComplete;
             this.httpErrorCode = httpErrorCode;
         }
