@@ -55,4 +55,12 @@ public class DataCollection<T extends Data> {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof DataCollection) {
+            return ((DataCollection) o).dataCollection.equals(((DataCollection) o).dataCollection);
+        } else {
+            return super.equals(o);
+        }
+    }
 }

@@ -179,6 +179,33 @@ public class PersistedBatchReadyTest extends BaseTestClass {
 
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testFinishException() throws SerializeException, IOException {
+        File file = createRandomFile();
+        QueueFile queueFile = mock(QueueFile.class);
+        HandlerThread handlerThread = new HandlerThread(createRandomString());
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
+        Handler handler = new Handler(looper);
+        SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
+        SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+
+        PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
+        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(file, serializationStrategy, handler, persistedBatchCallback);
+        byte[] peeked = serializationStrategy.serializeBatch(sizeBatchInfo);
+
+        when(queueFile.peek()).thenReturn(peeked);
+        persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
+        shadowLooper.runToEndOfTasks();
+
+        SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo1 = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeAdsCollection(4), 5);
+        persistedBatchReadyListener.finish(sizeBatchInfo1);
+        shadowLooper.runToEndOfTasks();
+    }
 
     /**
      * Test to verify {@link PersistedBatchCallback#onPersistFailure(Batch, Exception)}

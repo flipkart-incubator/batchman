@@ -65,9 +65,34 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             unregisterReceiver();
         }
     };
+    public NetworkPersistedBatchReadyListener(final Context context, File file, SerializationStrategy<E, T> serializationStrategy, final Handler handler, NetworkBatchListener<E, T> listener, int maxRetryCount) {
+        super(file, serializationStrategy, handler, null);
+        this.context = context;
+        this.networkBatchListener = listener;
+        this.maxRetryCount = maxRetryCount;
+        this.mCurrentTimeoutMs = defaultTimeoutMs;
+        this.setListener(persistedBatchCallback);
+    }
+
+    public int getDefaultTimeoutMs() {
+        return defaultTimeoutMs;
+    }
+
+    public void setDefaultTimeoutMs(int defaultTimeoutMs) {
+        this.defaultTimeoutMs = defaultTimeoutMs;
+        this.mCurrentTimeoutMs = defaultTimeoutMs;
+    }
+
+    public float getDefaultBackoffMultiplier() {
+        return defaultBackoffMultiplier;
+    }
+
+    public void setDefaultBackoffMultiplier(float defaultBackoffMultiplier) {
+        this.defaultBackoffMultiplier = defaultBackoffMultiplier;
+    }
 
     private void unregisterReceiver() {
-        if(receiverRegistered) {
+        if (receiverRegistered) {
             context.unregisterReceiver(networkBroadcastReceiver);
             receiverRegistered = false;
         }
@@ -83,23 +108,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         }
     }
 
-    public NetworkPersistedBatchReadyListener(final Context context, File file, SerializationStrategy<E, T> serializationStrategy, final Handler handler, NetworkBatchListener<E, T> listener, int maxRetryCount) {
-        super(file, serializationStrategy, handler, null);
-        this.context = context;
-        this.networkBatchListener = listener;
-        this.maxRetryCount = maxRetryCount;
-        this.mCurrentTimeoutMs = defaultTimeoutMs;
-        this.setListener(persistedBatchCallback);
-    }
-
-    public void setDefaultTimeoutMs(int defaultTimeoutMs) {
-        this.defaultTimeoutMs = defaultTimeoutMs;
-    }
-
-    public void setDefaultBackoffMultiplier(float defaultBackoffMultiplier) {
-        this.defaultBackoffMultiplier = defaultBackoffMultiplier;
-    }
-
     @Override
     public void onReady(BatchingStrategy<E, T> causingStrategy, T batch) {
         super.onReady(causingStrategy, batch);
@@ -107,7 +115,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             retryLimitReached = false;
             resume();
         }
-
     }
 
     @Override
@@ -175,8 +182,9 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
      * @return
      */
     private int exponentialBackOff() {
+        int timeout = mCurrentTimeoutMs;
         mCurrentTimeoutMs += (mCurrentTimeoutMs * defaultBackoffMultiplier);
-        return mCurrentTimeoutMs;
+        return timeout;
     }
 
     @Override
@@ -230,8 +238,17 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     public static class NetworkRequestResponse {
         public boolean complete; //indicates whether a network response was received.
         public int httpErrorCode;
+
         public NetworkRequestResponse(boolean isComplete, int httpErrorCode){
             this.complete = isComplete;
+            this.httpErrorCode = httpErrorCode;
+        }
+
+        public void setComplete(boolean complete) {
+            this.complete = complete;
+        }
+
+        public void setHttpErrorCode(int httpErrorCode) {
             this.httpErrorCode = httpErrorCode;
         }
     }

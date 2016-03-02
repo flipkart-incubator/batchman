@@ -83,5 +83,13 @@ public class ComboBatchingStrategy<E extends Data, C extends Batch<E>> implement
         public Collection<T> getDataCollection() {
             return batch.getDataCollection();
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof ComboBatch) {
+                return ((ComboBatch) o).batch.equals(o);
+            }
+            return super.equals(o);
+        }
     }
 }

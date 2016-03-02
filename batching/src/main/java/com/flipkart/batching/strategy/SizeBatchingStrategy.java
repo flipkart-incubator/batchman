@@ -5,8 +5,6 @@ import android.os.Handler;
 
 import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
-import com.flipkart.batching.OnBatchReadyListener;
-import com.flipkart.batching.Data;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
@@ -81,7 +79,7 @@ public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
         @Override
         public boolean equals(Object o) {
             if (o instanceof SizeBatch) {
-                return ((SizeBatch) o).getMaxBatchSize() == maxBatchSize;
+                return ((SizeBatch) o).getMaxBatchSize() == maxBatchSize && super.equals(o);
             }
             return super.equals(o);
         }

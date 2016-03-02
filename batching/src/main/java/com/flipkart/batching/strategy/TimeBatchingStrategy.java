@@ -90,7 +90,7 @@ public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
         @Override
         public boolean equals(Object o) {
             if (o instanceof TimeBatch) {
-                return ((TimeBatch) o).getTimeOut() == timeOut;
+                return ((TimeBatch) o).getTimeOut() == timeOut && super.equals(o);
             }
             return super.equals(o);
         }
