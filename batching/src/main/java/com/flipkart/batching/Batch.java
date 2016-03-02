@@ -8,7 +8,6 @@ public class Batch<T extends Data> implements Serializable {
 
     private DataCollection dataCollection;
 
-
     public Batch(Collection<T> dataCollection) {
         this.dataCollection = new DataCollection(dataCollection);
     }

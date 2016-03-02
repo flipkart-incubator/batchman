@@ -148,8 +148,10 @@ public class TimeBatchingTest {
 
     @Test
     public void testTimeBatchingInfo() {
-        TimeBatchingStrategy.TimeBatch timeBatchInfo = new TimeBatchingStrategy.TimeBatch<>(Utils.fakeCollection(2), 5000);
-        TimeBatchingStrategy.TimeBatch timeBatchInfo1 = new TimeBatchingStrategy.TimeBatch<>(Utils.fakeCollection(2), 5000);
+        ArrayList<Data> list1 = Utils.fakeCollection(2);
+        ArrayList<Data> list2 = new ArrayList<>(list1);
+        TimeBatchingStrategy.TimeBatch timeBatchInfo = new TimeBatchingStrategy.TimeBatch<>(list1, 5000);
+        TimeBatchingStrategy.TimeBatch timeBatchInfo1 = new TimeBatchingStrategy.TimeBatch<>(list2, 5000);
 
         Assert.assertTrue(timeBatchInfo.equals(timeBatchInfo1));
         Assert.assertTrue(!timeBatchInfo.equals("a"));

@@ -10,6 +10,7 @@ import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchController;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.BuildConfig;
+import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.data.Tag;
 import com.flipkart.batching.data.TagData;
@@ -211,8 +212,12 @@ public class TagBatchingTest {
 
     @Test
     public void testTagBatchingInfo() {
-        TagBatchingStrategy.TagBatch tagBatchInfo = new TagBatchingStrategy.TagBatch(AD_TAG, new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5));
-        TagBatchingStrategy.TagBatch tagBatchInfo1 = new TagBatchingStrategy.TagBatch(AD_TAG, new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5));
+
+        ArrayList<Data> list1 = Utils.fakeCollection(5);
+        ArrayList<Data> list2 = new ArrayList<>(list1);
+
+        TagBatchingStrategy.TagBatch tagBatchInfo = new TagBatchingStrategy.TagBatch(AD_TAG, new SizeBatchingStrategy.SizeBatch<>(list1, 5));
+        TagBatchingStrategy.TagBatch tagBatchInfo1 = new TagBatchingStrategy.TagBatch(AD_TAG, new SizeBatchingStrategy.SizeBatch<>(list2, 5));
 
         Assert.assertNotNull(tagBatchInfo.getTag());
         Assert.assertTrue(tagBatchInfo.equals(tagBatchInfo1));

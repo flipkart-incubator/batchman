@@ -35,6 +35,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -158,24 +159,24 @@ public class PersistedBatchReadyTest extends BaseTestClass {
 
         SizeBatchingStrategy.SizeBatch<Data> firstBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
         persistedBatchReadyListener.onReady(strategy, firstBatch);
-        SizeBatchingStrategy.SizeBatch<Data> subsequentBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
-        persistedBatchReadyListener.onReady(strategy, subsequentBatch);
-        subsequentBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
-        persistedBatchReadyListener.onReady(strategy, subsequentBatch);
-        subsequentBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
-        persistedBatchReadyListener.onReady(strategy, subsequentBatch);
-        subsequentBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
-        persistedBatchReadyListener.onReady(strategy, subsequentBatch);
+        SizeBatchingStrategy.SizeBatch<Data> secondBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        persistedBatchReadyListener.onReady(strategy, secondBatch);
+        SizeBatchingStrategy.SizeBatch<Data> thirdBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        persistedBatchReadyListener.onReady(strategy, thirdBatch);
+        SizeBatchingStrategy.SizeBatch<Data> fourthBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        persistedBatchReadyListener.onReady(strategy, fourthBatch);
+
 
         shadowLooper.runToEndOfTasks();
 
         verify(persistedBatchCallback,times(1)).onPersistSuccess(firstBatch);
         persistedBatchReadyListener.finish(firstBatch);
         shadowLooper.runToEndOfTasks();
-        verify(persistedBatchCallback,times(2)).onPersistSuccess(firstBatch);
-        persistedBatchReadyListener.finish(firstBatch);
+        verify(persistedBatchCallback,times(1)).onPersistSuccess(secondBatch);
+        persistedBatchReadyListener.finish(secondBatch);
         shadowLooper.runToEndOfTasks();
-        verify(persistedBatchCallback,times(3)).onPersistSuccess(firstBatch);
+        verify(persistedBatchCallback,times(1)).onPersistSuccess(thirdBatch);
+        verifyNoMoreInteractions(persistedBatchCallback);
 
     }
 

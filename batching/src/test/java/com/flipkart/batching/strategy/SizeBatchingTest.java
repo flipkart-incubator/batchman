@@ -227,8 +227,10 @@ public class SizeBatchingTest {
 
     @Test
     public void testSizeBatchInfo() {
-        SizeBatchingStrategy.SizeBatch sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
-        SizeBatchingStrategy.SizeBatch sizeBatchInfo1 = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        ArrayList<Data> list1 = Utils.fakeCollection(5);
+        ArrayList<Data> list2 = new ArrayList<>(list1);
+        SizeBatchingStrategy.SizeBatch sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(list1, 5);
+        SizeBatchingStrategy.SizeBatch sizeBatchInfo1 = new SizeBatchingStrategy.SizeBatch<>(list2, 5);
 
         Assert.assertTrue(sizeBatchInfo.equals(sizeBatchInfo1));
         Assert.assertTrue(!sizeBatchInfo.equals("event"));

@@ -200,7 +200,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         Handler handler = new Handler(looper);
         ShadowLooper shadowLooper = Shadows.shadowOf(looper);
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
-        SizeBatchingStrategy.SizeBatch<Data> firstBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SizeBatchingStrategy.SizeBatch<Data> firstBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 3);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
@@ -214,17 +214,17 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
 
         // PURPOSE : if network broadcast is received, perform request should only be called if no requests are pending
         ArgumentCaptor<ValueCallback> valueCallbackCapture = ArgumentCaptor.forClass(ValueCallback.class);
-        verify(networkBatchListener, times(1)).performNetworkRequest(any(Batch.class), valueCallbackCapture.capture());
+        verify(networkBatchListener, times(1)).performNetworkRequest(eq(firstBatch), valueCallbackCapture.capture());
         sendFakeNetworkBroadcast(context);
-        shadowLooper.idle(100);
-        verify(networkBatchListener, times(1)).performNetworkRequest(any(Batch.class), any(ValueCallback.class));
-        NetworkPersistedBatchReadyListener.NetworkRequestResponse requestResponse = new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, 200);
-        valueCallbackCapture.getValue().onReceiveValue(requestResponse);
+        shadowLooper.runToEndOfTasks();
+        verify(networkBatchListener, times(1)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
+        //NetworkPersistedBatchReadyListener.NetworkRequestResponse requestResponse = new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, 200);
+        //valueCallbackCapture.getValue().onReceiveValue(requestResponse);
 
 
         //PURPOSE : if network broadcast is received, perform any pending requests which were paused due to no network
         networkBatchListener.setMockedNetworkConnected(false); //simulating network not connected
-        SizeBatchingStrategy.SizeBatch<Data> secondBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SizeBatchingStrategy.SizeBatch<Data> secondBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 4);
         networkPersistedBatchReadyListener.onReady(strategy, secondBatch);
         shadowLooper.idle(100);
         // no new request is sent since no network exists
@@ -294,7 +294,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         requestResponse.httpErrorCode = 200;
         sendFakeNetworkBroadcast(context);
         shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 2); // this will call second batch
-        verify(networkBatchListener, times(7)).performNetworkRequest(eq(secondBatch), any(ValueCallback.class));
+        verify(networkBatchListener, times(1)).performNetworkRequest(eq(secondBatch), any(ValueCallback.class));
         shadowLooper.runToEndOfTasks();
 
         verify(networkBatchListener, atLeastOnce()).isNetworkConnected(context);
