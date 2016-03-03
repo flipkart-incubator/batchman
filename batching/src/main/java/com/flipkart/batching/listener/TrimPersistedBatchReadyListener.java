@@ -8,17 +8,18 @@ import com.flipkart.batching.Data;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.squareup.tape.QueueFile;
 
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by anirudh.r on 23/02/16.
  */
-@Slf4j
 public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends PersistedBatchReadyListener<E, T> {
 
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(TrimPersistedBatchReadyListener.class);
     protected final Handler handler;
     private final TrimmedBatchCallback trimListener;
     private int trimSize, queueSize;

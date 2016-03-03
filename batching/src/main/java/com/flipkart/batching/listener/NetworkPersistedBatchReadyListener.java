@@ -15,16 +15,16 @@ import com.flipkart.batching.Data;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.squareup.tape.QueueFile;
 
-import java.io.File;
+import org.slf4j.LoggerFactory;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
 
 /**
  * Created by kushal.sharma on 29/02/16 at 11:58 AM.
  */
-@Slf4j
 public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends TrimPersistedBatchReadyListener<E, T> {
 
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(NetworkPersistedBatchReadyListener.class);
     private static final int HTTP_SERVER_ERROR_CODE_RANGE_START = 500;
     private static final int HTTP_SERVER_ERROR_CODE_RANGE_END = 599;
     public int defaultTimeoutMs = 2500;
