@@ -6,6 +6,7 @@ import org.junit.Test;
 
 /**
  * Created by anirudh.r on 19/02/16.
+ * Test to verify {@link Tag}
  */
 public class TagTest {
 

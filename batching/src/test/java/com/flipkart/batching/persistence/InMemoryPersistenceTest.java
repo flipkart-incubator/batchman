@@ -5,33 +5,24 @@ import com.flipkart.batching.Data;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 /**
  * Created by anirudh.r on 11/02/16.
+ * Test for {@link InMemoryPersistenceStrategy}
  */
 public class InMemoryPersistenceTest {
-
-    InMemoryPersistenceStrategy<Data> persistenceStrategy;
-
-    @Mock
-    Data Data;
-
-    @Before
-    public void setUp() {
-        persistenceStrategy = new InMemoryPersistenceStrategy<>();
-    }
 
     /**
      * Test to verify that data is retained in InMemoryList after {@link PersistenceStrategy#add(Collection)} is called.
      */
     @Test
     public void testIfDataInMemory() {
+        InMemoryPersistenceStrategy<Data> persistenceStrategy = new InMemoryPersistenceStrategy<>();
+
         ArrayList<Data> data = Utils.fakeCollection(5);
         persistenceStrategy.add(data);
 
@@ -43,6 +34,7 @@ public class InMemoryPersistenceTest {
      */
     @Test
     public void testIfDuplicateEntryNotPresent() {
+        InMemoryPersistenceStrategy<Data> persistenceStrategy = new InMemoryPersistenceStrategy<>();
 
         //creates unique data
         ArrayList<Data> data = Utils.fakeCollection(5);
@@ -52,10 +44,11 @@ public class InMemoryPersistenceTest {
     }
 
     /**
-     * Test to verify that {@link PersistenceStrategy#removeData(Collection)} is clearing the InMemoryList.
+     * Test to verify that {@link PersistenceStrategy#removeData(Collection)} is clearing the inMemoryList.
      */
     @Test
     public void testIfRemoveData() {
+        InMemoryPersistenceStrategy<Data> persistenceStrategy = new InMemoryPersistenceStrategy<>();
         ArrayList<Data> data = Utils.fakeCollection(5);
         persistenceStrategy.add(data);
         persistenceStrategy.removeData(data);
@@ -67,9 +60,8 @@ public class InMemoryPersistenceTest {
      */
     @Test
     public void testOnInitialized() {
+        InMemoryPersistenceStrategy<Data> persistenceStrategy = new InMemoryPersistenceStrategy<>();
         persistenceStrategy.onInitialized();
         Assert.assertTrue(persistenceStrategy.isInitialized());
     }
-
-
 }

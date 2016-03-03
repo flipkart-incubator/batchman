@@ -32,14 +32,13 @@ import static org.mockito.Mockito.verify;
 
 /**
  * Created by anirudh.r on 25/02/16.
+ * Test for {@link TrimPersistedBatchReadyListener}
  */
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class TrimPersistedBatchReadyTest extends BaseTestClass {
 
-    private int MAX_QUEUE_SIZE = 3;
-    private int TRIM_TO_SIZE = 1;
 
     /**
      * Test to verify {@link TrimmedBatchCallback#onTrimmed(int, int)} is called
@@ -49,8 +48,10 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
      */
     @Test
     public void testOnTrimmedCalled() throws IOException, SerializeException {
-        File file = createRandomFile();
+        int MAX_QUEUE_SIZE = 3;
+        int TRIM_TO_SIZE = 1;
 
+        File file = createRandomFile();
         GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
@@ -85,8 +86,10 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
      */
     @Test
     public void testTrimmedNotCalled() throws IOException, SerializeException {
-        File file = createRandomFile();
+        int MAX_QUEUE_SIZE = 3;
+        int TRIM_TO_SIZE = 1;
 
+        File file = createRandomFile();
         GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
@@ -120,8 +123,10 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
      */
     @Test
     public void testTrimMode() throws IOException, SerializeException {
-        File file = createRandomFile();
+        int MAX_QUEUE_SIZE = 3;
+        int TRIM_TO_SIZE = 1;
 
+        File file = createRandomFile();
         GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
@@ -154,16 +159,18 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
         shadowLooper.runToEndOfTasks();
         //verify that onTrimmed gets called
         verify(trimmedBatchCallback, times(1)).onTrimmed(MAX_QUEUE_SIZE, TRIM_TO_SIZE);
-
     }
 
     /**
-     * Test to verify that exception is thrown when {@link TrimPersistedBatchReadyListener#trimSize} > {@link TrimPersistedBatchReadyListener#queueSize}
+     * Test to verify that exception is thrown
+     * when {@link TrimPersistedBatchReadyListener#trimSize} > {@link TrimPersistedBatchReadyListener#queueSize}
+     *
      */
     @Test(expected = IllegalArgumentException.class)
     public void testThrowException() {
-        File file = createRandomFile();
+        int MAX_QUEUE_SIZE = 3;
 
+        File file = createRandomFile();
         GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
@@ -183,7 +190,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
     }
 
     /**
-     * Delete all test files after test ends
+     * Delete all test_files after test ends
      */
     @After
     public void afterTest() {

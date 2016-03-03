@@ -8,10 +8,9 @@ import org.junit.Test;
 
 /**
  * Created by anirudh.r on 20/02/16.
+ * Test to verify {@link Data}
  */
 public class DataTest {
-
-    Tag AD_TAG = new Tag("ADS");
 
     /**
      * Test to verify {@link Data#equals(Object)}
@@ -47,7 +46,21 @@ public class DataTest {
      */
     @Test
     public void testTagData() {
+        Tag AD_TAG = new Tag("ADS");
         TagData tagData = new TagData(AD_TAG, "Event 1");
         Assert.assertTrue(tagData.getTag() == AD_TAG);
+    }
+
+    /**
+     * Test to verify the equals method in {@link TagData}
+     */
+    @Test
+    public void testTagEqualsData() {
+        Tag AD_TAG = new Tag("ADS");
+        Tag DEBUG_TAG = new Tag("DEBUG");
+        TagData adsTagData = new TagData(AD_TAG, "Event 1");
+        TagData debugTagData = new TagData(DEBUG_TAG, "Event 1");
+        Assert.assertTrue(!adsTagData.equals(debugTagData));
+        Assert.assertTrue(!adsTagData.equals(""));
     }
 }

@@ -14,50 +14,36 @@ import com.flipkart.batching.persistence.PersistenceStrategy;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * Created by anirudh.r on 15/02/16.
+ * Test for {@link BaseBatchingStrategy}
  */
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class BaseBatchingStrategyTest {
 
-    @Mock
-    PersistenceStrategy<Data> persistenceStrategy;
-    @Mock
-    BatchController batchController;
-    @Mock
-    Context context;
-    @Mock
-    OnBatchReadyListener<Data, Batch<Data>> onBatchReadyListener;
-    @Mock
-    Handler handler;
-
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
-
     /**
-     * Test {@link BaseBatchingStrategy#onDataPushed(Collection)}
+     * Test for {@link BaseBatchingStrategy#onDataPushed(Collection)}
      */
     @Test
     public void testOnDataPushed() {
+        PersistenceStrategy<Data> persistenceStrategy = mock(PersistenceStrategy.class);
+
         BaseBatchingStrategy<Data, Batch<Data>> baseBatchingStrategy = new BaseBatchingStrategy<Data, Batch<Data>>(persistenceStrategy) {
             @Override
             public void flush(boolean forced) {
@@ -69,14 +55,20 @@ public class BaseBatchingStrategyTest {
         baseBatchingStrategy.onDataPushed(arrayList);
         baseBatchingStrategy.flush(false);
         when(persistenceStrategy.getData()).thenReturn(arrayList);
+        //verify that it gets called once
         verify(persistenceStrategy, times(1)).add(arrayList);
     }
 
     /**
-     * Test {@link BatchingStrategy#onInitialized(Context, OnBatchReadyListener, Handler)}
+     * Test for {@link BatchingStrategy#onInitialized(Context, OnBatchReadyListener, Handler)}
      */
     @Test
     public void testOnInitialized() {
+        PersistenceStrategy<Data> persistenceStrategy = mock(PersistenceStrategy.class);
+        Context context = RuntimeEnvironment.application;
+        OnBatchReadyListener onBatchReadyListener = mock(OnBatchReadyListener.class);
+        Handler handler = new Handler();
+
         BaseBatchingStrategy<Data, Batch<Data>> baseBatchingStrategy = new BaseBatchingStrategy<Data, Batch<Data>>(persistenceStrategy) {
             @Override
             public void flush(boolean forced) {
@@ -85,13 +77,21 @@ public class BaseBatchingStrategyTest {
         };
         baseBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         Assert.assertTrue(baseBatchingStrategy.isInitialized());
-
         Assert.assertNotNull(baseBatchingStrategy.getContext());
         Assert.assertNotNull(baseBatchingStrategy.getOnReadyListener());
     }
 
+    /**
+     * Test that {@link BaseBatchingStrategy#getPersistenceStrategy()} is not null
+     */
     @Test
     public void testPersistenceNotNull(){
+        PersistenceStrategy<Data> persistenceStrategy = mock(PersistenceStrategy.class);
+        BatchController batchController = mock(BatchController.class);
+        Context context = RuntimeEnvironment.application;
+        OnBatchReadyListener onBatchReadyListener = mock(OnBatchReadyListener.class);
+        Handler handler = new Handler();
+
         BaseBatchingStrategy<Data, Batch<Data>> baseBatchingStrategy = new BaseBatchingStrategy<Data, Batch<Data>>(persistenceStrategy) {
             @Override
             public void flush(boolean forced) {
@@ -103,8 +103,15 @@ public class BaseBatchingStrategyTest {
         Assert.assertNotNull(baseBatchingStrategy.getPersistenceStrategy());
     }
 
+    /**
+     * Throw {@link IllegalArgumentException} when {@link BaseBatchingStrategy#getPersistenceStrategy()} is null
+     */
     @Test(expected = IllegalArgumentException.class)
     public void testPersistenceNull(){
+        Context context = RuntimeEnvironment.application;
+        OnBatchReadyListener onBatchReadyListener = mock(OnBatchReadyListener.class);
+        Handler handler = new Handler();
+
         BaseBatchingStrategy<Data, Batch<Data>> baseBatchingStrategy = new BaseBatchingStrategy<Data, Batch<Data>>(null) {
             @Override
             public void flush(boolean forced) {

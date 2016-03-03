@@ -6,7 +6,8 @@ import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.flipkart.Utils;
-import com.flipkart.batching.BatchController;
+import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.listener.PersistedBatchReadyListener;
@@ -14,23 +15,21 @@ import com.flipkart.batching.persistence.PersistenceStrategy;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLooper;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,71 +37,83 @@ import static org.mockito.Mockito.when;
 
 /**
  * Created by anirudh.r on 11/02/16.
+ * Test for {@link TimeBatchingStrategy}
  */
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class TimeBatchingTest {
 
-    @Mock
-    TimeBatchingStrategy timeBatchInfo;
-    @Mock
-    private PersistenceStrategy persistenceStrategy;
-    @Mock
-    private Data eventData;
-    @Mock
-    private Context context;
-    @Mock
-    private BatchController controller;
-    @Mock
-    private PersistedBatchReadyListener onBatchReadyListener;
-    private long TIME_OUT = 5000;
-    private ShadowLooper shadowLooper;
-    private TimeBatchingStrategy timeBatchingStrategy;
-
     /**
-     * Setting up the test environment.
-     */
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
-
-    /**
-     * This test is to ensure the working of {@link TimeBatchingStrategy#onDataPushed(Collection)} )
+     * Test for {@link TimeBatchingStrategy#onDataPushed(Collection)} )
      */
     @Test
     public void testOnDataPushed() {
-        initializeTimeBatchingStrategy();
+        long TIME_OUT = 5000;
+
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        Context context = RuntimeEnvironment.application;
+        PersistedBatchReadyListener onBatchReadyListener = mock(PersistedBatchReadyListener.class);
+        TimeBatchingStrategy timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        Handler handler = new Handler(looper);
+        timeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
+
         ArrayList<Data> dataList = Utils.fakeCollection(1);
         timeBatchingStrategy.onDataPushed(dataList);
+        //verify it gets called once
         verify(persistenceStrategy, times(1)).add(dataList);
     }
 
     /**
-     * This test is to ensure the working of {@link TimeBatchingStrategy#flush(boolean)}
+     * Test for {@link TimeBatchingStrategy#flush(boolean)}
      * Whenever this method is invoked, {@link PersistenceStrategy#removeData(Collection)} should be called
      */
     @Test
     public void testFlush() {
-        initializeTimeBatchingStrategy();
+        long TIME_OUT = 5000;
+
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        Context context = RuntimeEnvironment.application;
+        PersistedBatchReadyListener onBatchReadyListener = mock(PersistedBatchReadyListener.class);
+        TimeBatchingStrategy timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        Handler handler = new Handler(looper);
+        timeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         ArrayList<Data> dataList = Utils.fakeCollection(1);
         timeBatchingStrategy.onDataPushed(dataList);
         when(persistenceStrategy.getData()).thenReturn(dataList);
         timeBatchingStrategy.flush(true);
+        //verify it gets called once
         verify(persistenceStrategy, times(1)).removeData(eq(dataList));
     }
 
-
+    /**
+     * Test for {@link PersistedBatchReadyListener#onReady(BatchingStrategy, Batch)} when flush is true.
+     */
     @Test
     public void testOnReadyCallbackFlushTrue() {
-        initializeTimeBatchingStrategy();
+        long TIME_OUT = 5000;
 
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        Context context = RuntimeEnvironment.application;
+        PersistedBatchReadyListener onBatchReadyListener = mock(PersistedBatchReadyListener.class);
+        TimeBatchingStrategy timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        Handler handler = new Handler(looper);
+        timeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         //verify that onReady is called, as flush force is true
         ArrayList<Data> data = Utils.fakeCollection(2);
         timeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         timeBatchingStrategy.flush(true);
+        //verify that it gets called once
         verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
 
         data.clear();
@@ -111,33 +122,62 @@ public class TimeBatchingTest {
         timeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         timeBatchingStrategy.flush(true);
+        //verify that it gets called once
         verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
     }
 
+    /**
+     * Test for {@link PersistedBatchReadyListener#onReady(BatchingStrategy, Batch)}
+     */
     @Test
     public void testOnReadyCallbackData() {
-        initializeTimeBatchingStrategy();
+        long TIME_OUT = 5000;
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        Context context = RuntimeEnvironment.application;
+        PersistedBatchReadyListener onBatchReadyListener = mock(PersistedBatchReadyListener.class);
+        TimeBatchingStrategy timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
+        Handler handler = new Handler(looper);
+        timeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         ArrayList<Data> data = Utils.fakeCollection(3);
         timeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         timeBatchingStrategy.flush(false);
         shadowLooper.idle(TIME_OUT);
+        //verify that it gets called once
         verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
 
         reset(onBatchReadyListener);
         data.clear();
-        List<Data> singleData = Collections.singletonList(eventData);
+        List<Data> singleData = Utils.fakeCollection(2);
         data.addAll(singleData);
         timeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
         timeBatchingStrategy.flush(false);
         shadowLooper.idle(TIME_OUT);
+        //verify that it gets called once
         verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
     }
 
+    /**
+     * Test for {@link PersistedBatchReadyListener#onReady(BatchingStrategy, Batch)} for empty data
+     */
     @Test
     public void testOnReadyForEmptyData() {
-        initializeTimeBatchingStrategy();
+        long TIME_OUT = 5000;
+
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        Context context = RuntimeEnvironment.application;
+        PersistedBatchReadyListener onBatchReadyListener = mock(PersistedBatchReadyListener.class);
+        TimeBatchingStrategy timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        Handler handler = new Handler(looper);
+        timeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         ArrayList<Data> data = new ArrayList<>();
         timeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
@@ -146,8 +186,11 @@ public class TimeBatchingTest {
         verify(onBatchReadyListener, times(0)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
     }
 
+    /**
+     * Test for {@link TimeBatchingStrategy#equals(Object)}
+     */
     @Test
-    public void testTimeBatchingInfo() {
+    public void testTimeBatch() {
         ArrayList<Data> list1 = Utils.fakeCollection(2);
         ArrayList<Data> list2 = new ArrayList<>(list1);
         TimeBatchingStrategy.TimeBatch timeBatchInfo = new TimeBatchingStrategy.TimeBatch<>(list1, 5000);
@@ -155,7 +198,6 @@ public class TimeBatchingTest {
 
         Assert.assertTrue(timeBatchInfo.equals(timeBatchInfo1));
         Assert.assertTrue(!timeBatchInfo.equals("a"));
-
     }
 
     /**
@@ -163,6 +205,18 @@ public class TimeBatchingTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testIfTimeOutIsZero() {
+        long TIME_OUT = 5000;
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        Context context = RuntimeEnvironment.application;
+        PersistedBatchReadyListener onBatchReadyListener = mock(PersistedBatchReadyListener.class);
+        TimeBatchingStrategy timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        Handler handler = new Handler(looper);
+        timeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
+
+        //will throw exception as time is 0
         new TimeBatchingStrategy(0, persistenceStrategy);
     }
 
@@ -171,6 +225,18 @@ public class TimeBatchingTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testIfTimeOutNegative() {
+        long TIME_OUT = 5000;
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        Context context = RuntimeEnvironment.application;
+        PersistedBatchReadyListener onBatchReadyListener = mock(PersistedBatchReadyListener.class);
+        TimeBatchingStrategy timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        Handler handler = new Handler(looper);
+        timeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
+
+        //will throw exception as time is negative
         new TimeBatchingStrategy(-4000, persistenceStrategy);
     }
 
@@ -179,19 +245,7 @@ public class TimeBatchingTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testIfPersistenceNull() {
+        //will throw exception as persistence is null
         new TimeBatchingStrategy(5000, null);
-    }
-
-    /**
-     * Initialize the {@link TimeBatchingStrategy}.
-     */
-    private void initializeTimeBatchingStrategy() {
-        timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
-        HandlerThread handlerThread = new HandlerThread("test");
-        handlerThread.start();
-        Looper looper = handlerThread.getLooper();
-        shadowLooper = Shadows.shadowOf(looper);
-        Handler handler = new Handler(looper);
-        timeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
     }
 }

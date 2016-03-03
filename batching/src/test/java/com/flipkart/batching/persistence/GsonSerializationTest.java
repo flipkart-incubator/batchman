@@ -5,17 +5,13 @@ import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.data.EventData;
-import com.flipkart.batching.data.Tag;
 import com.flipkart.batching.exception.DeserializeException;
 import com.flipkart.batching.exception.SerializeException;
 import com.google.gson.JsonSyntaxException;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -24,32 +20,24 @@ import java.util.HashMap;
 
 /**
  * Created by anirudh.r on 12/02/16.
+ * Test for {@link GsonSerializationStrategy}
  */
 public class GsonSerializationTest {
 
-    @Mock
-    PersistenceStrategy<Data> inMemoryPersistenceStrategy;
-    private GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy;
-    private Batch<Data> batch;
 
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    /**
+     * Test the working of {@link GsonSerializationStrategy#serializeBatch(Batch)}
+     * and {@link GsonSerializationStrategy#deserializeBatch(byte[])}
+     *
+     */
+    @Test
+    public void testGSONSerialization() {
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy;
         serializationStrategy = new GsonSerializationStrategy<>();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         ArrayList<Data> dataCollection = Utils.fakeCollection(4);
-        batch = new Batch<>(dataCollection);
-    }
 
-    /**
-     * Test the working of GSONSerializationStrategy
-     *
-     * @throws SerializeException
-     * @throws DeserializeException
-     */
-    @Test
-    public void testGSONSerialization() {
         byte[] serializedData;
         try {
             Batch<Data> batch = new Batch<>(Utils.fakeCollection(3));
@@ -64,13 +52,20 @@ public class GsonSerializationTest {
     }
 
     /**
-     * Test to verify {@link JsonSyntaxException} is thrown.
+     * Test to verify {@link JsonSyntaxException} is thrown, when the byte to be deserialized gets corrupted
      *
      * @throws SerializeException
      * @throws DeserializeException
      */
     @Test(expected = Exception.class)
     public void testIfExceptionThrownWhenCorrupt() throws SerializeException, DeserializeException {
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy;
+        ArrayList<Data> dataCollection = Utils.fakeCollection(4);
+        serializationStrategy = new GsonSerializationStrategy<>();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+        Batch<Data> batch = new Batch<>(dataCollection);
+
         byte[] serializedData = serializationStrategy.serializeBatch(batch);
         try {
             String foo = new String(serializedData, "UTF-8");
@@ -82,9 +77,19 @@ public class GsonSerializationTest {
         serializationStrategy.deserializeData(serializedData);
     }
 
+    /**
+     * Test the working of {@link GsonSerializationStrategy#serializeCollection(Collection)}
+     * and {@link GsonSerializationStrategy#deserializeCollection(byte[])}
+     */
     @Test
     public void testCollectionSerialization() {
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy;
+        ArrayList<Data> dataCollection = Utils.fakeCollection(4);
+        serializationStrategy = new GsonSerializationStrategy<>();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
         Collection<Data> fakeCollection = Utils.fakeCollection(4);
+
         byte[] serializedData;
         try {
             serializedData = serializationStrategy.serializeCollection(fakeCollection);
@@ -97,8 +102,18 @@ public class GsonSerializationTest {
         }
     }
 
+    /**
+     * Test to verify that {@link IllegalStateException} gets thrown when {@link GsonSerializationStrategy#build()} is not called
+     */
     @Test(expected = IllegalStateException.class)
     public void testIfBuildNotCalled() {
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy;
+        ArrayList<Data> dataCollection = Utils.fakeCollection(4);
+        serializationStrategy = new GsonSerializationStrategy<>();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+        Batch<Data> batch = new Batch<>(dataCollection);
+
         serializationStrategy = new GsonSerializationStrategy<>();
         ArrayList<Data> fakeCollection = Utils.fakeCollection(4);
         try {
@@ -128,7 +143,6 @@ public class GsonSerializationTest {
         byte[] serializedData = serializationStrategy.serializeData(eventData);
         Data data = serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(eventData, data);
-        //test to serialize arraylist
 
         ArrayList<String> arrayList = new ArrayList<>();
         arrayList.add("Event1");
@@ -138,31 +152,5 @@ public class GsonSerializationTest {
         serializedData = serializationStrategy.serializeData(eventData);
         data = serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(eventData, data);
-    }
-
-    private static class CustomData extends Data {
-        /**
-         * Constructor for Data object. This constructor takes {@link Tag} and {@link Object} as
-         * parameter and generates an eventId = (System.currentTimeMillis() + System.nanoTime())
-         *
-         * @param data data object
-         */
-
-        public CustomData(HashMap<String, Object> data) {
-            super(data);
-        }
-
-        public CustomData(ArrayList<String> strings) {
-            super(strings);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof CustomData) {
-                return ((CustomData) o).getEventId() == getEventId() && ((CustomData) o).getData().equals(getData());
-            } else {
-                return super.equals(o);
-            }
-        }
     }
 }

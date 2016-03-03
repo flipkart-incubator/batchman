@@ -27,14 +27,12 @@ import static junit.framework.Assert.assertEquals;
 
 /**
  * Created by anirudh.r on 12/02/16.
+ * Test for {@link DatabaseHelper}
  */
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class DatabaseHelperTest {
-    private DatabaseHelper<Data, Batch<Data>> databaseHelper;
-    private Context context;
-    private GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
 
     /**
      * Test to verify the {@link DatabaseHelper#addData(Collection)} adds the data in the db
@@ -44,6 +42,10 @@ public class DatabaseHelperTest {
      */
     @Test
     public void testAddData() throws DeserializeException, SerializeException {
+        DatabaseHelper<Data, Batch<Data>> databaseHelper;
+        Context context;
+        GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
+
         gsonSerializationStrategy = new GsonSerializationStrategy<>();
         BatchManager.registerBuiltInTypes(gsonSerializationStrategy);
         gsonSerializationStrategy.build();
@@ -56,7 +58,7 @@ public class DatabaseHelperTest {
     }
 
     /**
-     * Test to verify the {@link DatabaseHelper#getAllData()} return the data in the db
+     * Test to verify the {@link DatabaseHelper#getAllData()} return the data from the db
      *
      * @throws DeserializeException
      * @throws SerializeException
@@ -64,6 +66,10 @@ public class DatabaseHelperTest {
 
     @Test
     public void testGetAllData() throws DeserializeException, SerializeException {
+        DatabaseHelper<Data, Batch<Data>> databaseHelper;
+        Context context;
+        GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
+
         gsonSerializationStrategy = new GsonSerializationStrategy<>();
         BatchManager.registerBuiltInTypes(gsonSerializationStrategy);
         gsonSerializationStrategy.build();
@@ -85,6 +91,10 @@ public class DatabaseHelperTest {
      */
     @Test
     public void testDeleteParticularData() throws SerializeException, DeserializeException {
+        DatabaseHelper<Data, Batch<Data>> databaseHelper;
+        Context context;
+        GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
+
         gsonSerializationStrategy = new GsonSerializationStrategy<>();
         BatchManager.registerBuiltInTypes(gsonSerializationStrategy);
         gsonSerializationStrategy.build();
@@ -108,6 +118,10 @@ public class DatabaseHelperTest {
      */
     @Test
     public void testDeleteAllData() throws SerializeException, DeserializeException {
+        DatabaseHelper<Data, Batch<Data>> databaseHelper;
+        Context context;
+        GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
+
         gsonSerializationStrategy = new GsonSerializationStrategy<>();
         BatchManager.registerBuiltInTypes(gsonSerializationStrategy);
         gsonSerializationStrategy.build();
@@ -130,6 +144,10 @@ public class DatabaseHelperTest {
      */
     @Test
     public void testIfDataInDB() throws SerializeException {
+        DatabaseHelper<Data, Batch<Data>> databaseHelper;
+        Context context;
+        GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
+
         gsonSerializationStrategy = new GsonSerializationStrategy<>();
         BatchManager.registerBuiltInTypes(gsonSerializationStrategy);
         gsonSerializationStrategy.build();
@@ -144,8 +162,14 @@ public class DatabaseHelperTest {
         Assert.assertTrue(databaseHelper.isDataInDB(String.valueOf(dataArrayList.get(0).getEventId())));
     }
 
+    /**
+     * Test to verify the {@link DatabaseHelper#onUpgrade(SQLiteDatabase, int, int)}
+     */
     @Test
     public void testOnUpgrade() {
+        Context context;
+        GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
+
         gsonSerializationStrategy = new GsonSerializationStrategy<>();
         BatchManager.registerBuiltInTypes(gsonSerializationStrategy);
         gsonSerializationStrategy.build();

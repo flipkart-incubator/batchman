@@ -19,19 +19,19 @@ import java.util.ArrayList;
 
 /**
  * Created by anirudh.r on 25/02/16.
+ * Test for {@link TapePersistenceStrategy}
  */
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class TapePersistenceTest extends BaseTestClass {
 
-    private TapePersistenceStrategy<Data> persistenceStrategy;
-
     /**
      * Test to verify if data is persisted
+     * Verifies {@link TapePersistenceStrategy#syncData()} when it gets initialized
      */
     @Test
     public void testIfDataIsPersisted() {
-        initializeTapePersistence();
+        PersistenceStrategy persistenceStrategy = initializeTapePersistence();
         ArrayList<Data> data = Utils.fakeCollection(5);
         persistenceStrategy.add(data);
         //verify that the data that was added, has been persisted and it correct form
@@ -40,17 +40,17 @@ public class TapePersistenceTest extends BaseTestClass {
 
     @Test
     public void testIfDataIsNullException() {
-        initializeTapePersistence();
+        PersistenceStrategy persistenceStrategy = initializeTapePersistence();
         persistenceStrategy.add(new ArrayList<Data>());
     }
 
     /**
-     * Test to verify that the data has been deleted from the db
+     * Test to verify that the data has been deleted from the tape
      * Also verifies that {@link TapePersistenceStrategy#syncData()} should not contain any data
      */
     @Test
     public void testIfDataIsRemoved() {
-        initializeTapePersistence();
+        PersistenceStrategy persistenceStrategy = initializeTapePersistence();
         ArrayList<Data> dataArrayList = Utils.fakeCollection(5);
         persistenceStrategy.add(dataArrayList);
 
@@ -62,9 +62,12 @@ public class TapePersistenceTest extends BaseTestClass {
         Assert.assertEquals(persistenceStrategy.getData().size(), 0);
     }
 
+    /**
+     * Test to verify the performance of tape by ingesting high range of data to it
+     */
     @Test
     public void testInsertHugeData() {
-        initializeTapePersistence();
+        PersistenceStrategy persistenceStrategy = initializeTapePersistence();
         ArrayList<Data> dataArrayList = Utils.fakeCollection(1000);
         persistenceStrategy.add(dataArrayList);
 
@@ -73,17 +76,22 @@ public class TapePersistenceTest extends BaseTestClass {
     }
 
     /**
-     * Initialize the TapePersistence
+     * Initialize the TapePersistenceStrategy
      */
-    private void initializeTapePersistence() {
+    private PersistenceStrategy<Data> initializeTapePersistence() {
         File file = createRandomFile();
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
-        persistenceStrategy = new TapePersistenceStrategy<>(file, serializationStrategy);
+        TapePersistenceStrategy<Data> persistenceStrategy = new TapePersistenceStrategy<>(file, serializationStrategy);
         persistenceStrategy.onInitialized();
+
+        return persistenceStrategy;
     }
 
+    /**
+     * Delete all the test_files when the test ends
+     */
     @After
     public void afterTest() {
         deleteRandomFiles();

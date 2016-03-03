@@ -20,14 +20,11 @@ import java.util.Collection;
 
 /**
  * Created by anirudh.r on 11/02/16.
+ * Test for {@link SQLPersistenceStrategy}
  */
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class SQLPersistenceTest {
-
-    private PersistenceStrategy<Data> persistenceStrategy;
-    private Context context;
-
 
     /**
      * Test to verify that data is retained in InMemoryList after {@link PersistenceStrategy#add(Collection)} is called.
@@ -35,8 +32,7 @@ public class SQLPersistenceTest {
      */
     @Test
     public void testIfDataIsPersisted() {
-
-        initializeSQLPersistence();
+        PersistenceStrategy persistenceStrategy = initializeSQLPersistence();
         ArrayList<Data> data = Utils.fakeCollection(5);
         persistenceStrategy.add(data);
         //verify that the data that was added, has been persisted and it correct form
@@ -45,7 +41,7 @@ public class SQLPersistenceTest {
 
     @Test
     public void testIfDataIsNullException() {
-        initializeSQLPersistence();
+        PersistenceStrategy persistenceStrategy = initializeSQLPersistence();
         persistenceStrategy.add(new ArrayList<Data>());
     }
 
@@ -55,7 +51,7 @@ public class SQLPersistenceTest {
      */
     @Test
     public void testIfDataIsRemoved() {
-        initializeSQLPersistence();
+        PersistenceStrategy persistenceStrategy = initializeSQLPersistence();
         ArrayList<Data> dataArrayList = Utils.fakeCollection(5);
         persistenceStrategy.add(dataArrayList);
 
@@ -68,19 +64,25 @@ public class SQLPersistenceTest {
     }
 
     /**
-     * Initialize the SQLPersistence
+     * Initialize the SQLPersistenceStrategy
      */
-    private void initializeSQLPersistence() {
+    private PersistenceStrategy<Data> initializeSQLPersistence() {
+        PersistenceStrategy<Data> persistenceStrategy;
+        Context context;
         context = RuntimeEnvironment.application;
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         persistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, "test", context);
         persistenceStrategy.onInitialized();
+
+        return persistenceStrategy;
     }
 
     @Test(expected = Exception.class)
     public void testSerializeException() {
+        PersistenceStrategy<Data> persistenceStrategy;
+        Context context;
         context = RuntimeEnvironment.application;
         persistenceStrategy = new SQLPersistenceStrategy<>(new GsonSerializationStrategy<>(), "test", context);
         persistenceStrategy.onInitialized();

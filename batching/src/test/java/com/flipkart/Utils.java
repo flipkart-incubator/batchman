@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 /**
  * Created by anirudh.r on 12/02/16.
+ * Utils class for Test
  */
 public class Utils {
 
@@ -16,7 +17,7 @@ public class Utils {
      * Method to create fake array list of Data.
      *
      * @param size
-     * @return
+     * @return dataList
      */
     static Data eventData;
 

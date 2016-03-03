@@ -40,6 +40,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Created by anirudh.r on 19/02/16.
+ * Test for {@link PersistedBatchReadyListener}
  */
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
@@ -69,6 +70,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         shadowLooper.runToEndOfTasks();
         //should be initialized first time
         Assert.assertTrue(persistedBatchReadyListener.isInitialized());
+        Assert.assertTrue(persistedBatchReadyListener.getQueueFile() != null);
     }
 
     /**
@@ -93,6 +95,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
         shadowLooper.runToEndOfTasks();
 
+        //verify that it gets called once
         verify(persistedBatchCallback, times(1)).onPersistSuccess(any(Batch.class));
     }
 
@@ -133,6 +136,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         doThrow(new IOException()).when(queueFile).remove();
         persistedBatchReadyListener.finish(sizeBatchInfo);
 
+        //verify that finish method gets called
         verify(persistedBatchCallback,times(1)).onFinish();
     }
 
@@ -166,20 +170,28 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         SizeBatchingStrategy.SizeBatch<Data> fourthBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
         persistedBatchReadyListener.onReady(strategy, fourthBatch);
 
-
         shadowLooper.runToEndOfTasks();
 
+        //verify that it gets called with firstBatch
         verify(persistedBatchCallback,times(1)).onPersistSuccess(firstBatch);
         persistedBatchReadyListener.finish(firstBatch);
         shadowLooper.runToEndOfTasks();
+        //verify that it gets called with secondBatch
         verify(persistedBatchCallback,times(1)).onPersistSuccess(secondBatch);
         persistedBatchReadyListener.finish(secondBatch);
         shadowLooper.runToEndOfTasks();
+        //verify that it gets called with thirdBatch
         verify(persistedBatchCallback,times(1)).onPersistSuccess(thirdBatch);
+        //verify that there is no more interactions
         verifyNoMoreInteractions(persistedBatchCallback);
-
     }
 
+    /**
+     * Test to verify that finish throws an {@link IllegalStateException} when it gets called with a different batch.
+     *
+     * @throws SerializeException
+     * @throws IOException
+     */
     @Test(expected = IllegalStateException.class)
     public void testFinishException() throws SerializeException, IOException {
         File file = createRandomFile();
@@ -237,6 +249,9 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         shadowLooper.runToEndOfTasks();
     }
 
+    /**
+     * Test to verify that {@link PersistedBatchReadyListener#getListener()} is not null
+     */
     @Test
     public void testListenerNotNull() {
         File file = createRandomFile();
@@ -255,8 +270,16 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
 
         Assert.assertTrue(persistedBatchReadyListener.getListener() != null);
+
+        persistedBatchReadyListener = new PersistedBatchReadyListener(file, serializationStrategy, handler, null);
+        persistedBatchReadyListener.setListener(persistedBatchCallback);
+        Assert.assertTrue(persistedBatchReadyListener.getListener() != null);
+
     }
 
+    /**
+     * Delete all the test_files after test ends
+     */
     @After
     public void afterTest() {
         deleteRandomFiles();

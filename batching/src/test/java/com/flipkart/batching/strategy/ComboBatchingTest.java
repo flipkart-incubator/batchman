@@ -16,12 +16,10 @@ import com.flipkart.batching.persistence.PersistenceStrategy;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLooper;
@@ -32,6 +30,7 @@ import java.util.Collection;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -39,43 +38,32 @@ import static org.mockito.Mockito.when;
 
 /**
  * Created by anirudh.r on 13/02/16.
+ * Test for {@link ComboBatchingStrategy}
  */
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class ComboBatchingTest {
-    @Mock
-    private PersistenceStrategy<Data> persistenceStrategy;
-    @Mock
-    private Data eventData;
-    @Mock
-    private Context context;
-    @Mock
-    private BatchController<Data,Batch<Data>> controller;
-    @Mock
-    private OnBatchReadyListener onBatchReadyListener;
-
-    private long TIME_OUT = 5000;
-    private int BATCH_SIZE = 5;
-    private ShadowLooper shadowLooper;
-    private TimeBatchingStrategy<Data> timeBatchingStrategy;
-    private SizeBatchingStrategy<Data> sizeBatchingStrategy;
-    private ComboBatchingStrategy<Data, Batch<Data>> comboBatchingStrategy;
 
     /**
-     * Setting up the test environment.
-     */
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
-
-    /**
-     * Test to verify the working of {@link ComboBatchingStrategy#onDataPushed(Collection)}
+     * Test to verify the {@link ComboBatchingStrategy#onDataPushed(Collection)}
      */
     @Test
     public void testOnDataPushed() {
-        initializeComboBatching();
+        long TIME_OUT = 5000;
+        int BATCH_SIZE = 5;
+        Context context = RuntimeEnvironment.application;
+        OnBatchReadyListener onBatchReadyListener = mock(OnBatchReadyListener.class);
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        SizeBatchingStrategy<Data> sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        TimeBatchingStrategy<Data> timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
+        ComboBatchingStrategy<Data, Batch<Data>> comboBatchingStrategy = new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        Handler handler = new Handler(looper);
+
+        comboBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         ArrayList<Data> dataArrayList = Utils.fakeCollection(5);
         comboBatchingStrategy.onDataPushed(dataArrayList);
         //verify that add method is called two times, one for size and one for time batching strategy
@@ -88,7 +76,21 @@ public class ComboBatchingTest {
      */
     @Test
     public void testFlush() {
-        initializeComboBatching();
+        long TIME_OUT = 5000;
+        int BATCH_SIZE = 5;
+        Context context = RuntimeEnvironment.application;
+        OnBatchReadyListener onBatchReadyListener = mock(OnBatchReadyListener.class);
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        SizeBatchingStrategy<Data> sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        TimeBatchingStrategy<Data> timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
+        ComboBatchingStrategy<Data, Batch<Data>> comboBatchingStrategy = new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
+        Handler handler = new Handler(looper);
+        comboBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
+
         ArrayList<Data> dataList = Utils.fakeCollection(1);
         comboBatchingStrategy.onDataPushed(dataList);
         when(persistenceStrategy.getData()).thenReturn(dataList);
@@ -96,8 +98,11 @@ public class ComboBatchingTest {
         //removeData method should not be called
         verify(persistenceStrategy, times(0)).removeData(eq(dataList));
 
-
-        initializeComboBatching();
+        persistenceStrategy = mock(PersistenceStrategy.class);
+        sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
+        comboBatchingStrategy = new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
+        comboBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         dataList.clear();
         dataList = Utils.fakeCollection(1);
         comboBatchingStrategy.onDataPushed(dataList);
@@ -107,7 +112,11 @@ public class ComboBatchingTest {
         //verify removeData method gets called 1 time from TimeBatchingStrategy
         verify(persistenceStrategy, times(1)).removeData(eq(dataList));
 
-        initializeComboBatching();
+        persistenceStrategy = mock(PersistenceStrategy.class);
+        sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
+        comboBatchingStrategy = new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
+        comboBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         dataList.clear();
         dataList = Utils.fakeCollection(1);
         comboBatchingStrategy.onDataPushed(dataList);
@@ -117,9 +126,25 @@ public class ComboBatchingTest {
         verify(persistenceStrategy, times(2)).removeData(eq(dataList));
     }
 
+    /**
+     * Test for onReady when flush is false
+     */
     @Test
     public void testOnReadyCallbackFlushFalse() {
-        initializeComboBatching();
+        long TIME_OUT = 5000;
+        int BATCH_SIZE = 5;
+        Context context = RuntimeEnvironment.application;
+        OnBatchReadyListener onBatchReadyListener = mock(OnBatchReadyListener.class);
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        SizeBatchingStrategy<Data> sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        TimeBatchingStrategy<Data> timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
+        ComboBatchingStrategy<Data, Batch<Data>> comboBatchingStrategy = new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
+        Handler handler = new Handler(looper);
+        comboBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
 
         //verify that onReady is called, as flush force is true
         ArrayList<Data> data = Utils.fakeCollection(2);
@@ -140,9 +165,26 @@ public class ComboBatchingTest {
         verify(onBatchReadyListener, times(1)).onReady(eq(comboBatchingStrategy), any(Batch.class));
     }
 
+    /**
+     * Test for onReady when flush is true.
+     */
     @Test
     public void testOnReadyCallbackFlushTrue() {
-        initializeComboBatching();
+        long TIME_OUT = 5000;
+        int BATCH_SIZE = 5;
+        Context context = RuntimeEnvironment.application;
+
+        OnBatchReadyListener onBatchReadyListener = mock(OnBatchReadyListener.class);
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        SizeBatchingStrategy<Data> sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        TimeBatchingStrategy<Data> timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
+        ComboBatchingStrategy<Data, Batch<Data>> comboBatchingStrategy = new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
+        HandlerThread handlerThread = new HandlerThread("test");
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
+        Handler handler = new Handler(looper);
+        comboBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
 
         //verify that onReady is called, as flush force is true
         ArrayList<Data> data = Utils.fakeCollection(2);
@@ -162,20 +204,32 @@ public class ComboBatchingTest {
     }
 
     /**
-     * Test to verify that {@link BatchingStrategy#isInitialized()} is working
+     * Test for {@link BatchingStrategy#isInitialized()}
      */
     @Test
     public void testOnInitialized() {
+        long TIME_OUT = 5000;
+        int BATCH_SIZE = 5;
+        Context context = RuntimeEnvironment.application;
+        BatchController<Data, Batch<Data>> controller = mock(BatchController.class);
+        OnBatchReadyListener onBatchReadyListener = mock(OnBatchReadyListener.class);
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        SizeBatchingStrategy<Data> sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
+        TimeBatchingStrategy<Data> timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
+        ComboBatchingStrategy<Data, Batch<Data>> comboBatchingStrategy = new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
         HandlerThread handlerThread = new HandlerThread("test");
         handlerThread.start();
         Looper looper = handlerThread.getLooper();
+        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
-        ComboBatchingStrategy comboBatchingStrategy = new ComboBatchingStrategy();
-        comboBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
 
+        comboBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         Assert.assertTrue(comboBatchingStrategy.isInitialized());
     }
 
+    /**
+     * Test to verify {@link ComboBatchingStrategy.ComboBatch#getDataCollection()} is not null
+     */
     @Test
     public void testDataCollectionNotNull() {
         ArrayList<Data> datas = Utils.fakeCollection(4);
@@ -186,18 +240,16 @@ public class ComboBatchingTest {
     }
 
     /**
-     * Initialize the ComboBatchingStrategy
+     * Test to verify {@link com.flipkart.batching.strategy.ComboBatchingStrategy.ComboBatch#equals(Object)}
      */
-    private void initializeComboBatching() {
-        sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
-        timeBatchingStrategy = new TimeBatchingStrategy(TIME_OUT, persistenceStrategy);
-        comboBatchingStrategy = new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
-        HandlerThread handlerThread = new HandlerThread("test");
-        handlerThread.start();
-        Looper looper = handlerThread.getLooper();
-        shadowLooper = Shadows.shadowOf(looper);
-        Handler handler = new Handler(looper);
-        comboBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
-    }
+    @Test
+    public void testComboBatchInfo() {
+        ArrayList<Data> list1 = Utils.fakeCollection(5);
+        ArrayList<Data> list2 = new ArrayList<>(list1);
+        ComboBatchingStrategy.ComboBatch comboBatch = new ComboBatchingStrategy.ComboBatch(new SizeBatchingStrategy.SizeBatch<>(list1, 5));
+        ComboBatchingStrategy.ComboBatch comboBatch1 = new ComboBatchingStrategy.ComboBatch(new SizeBatchingStrategy.SizeBatch<>(list2, 5));
 
+        Assert.assertTrue(!comboBatch.equals(comboBatch1));
+        Assert.assertTrue(!comboBatch.equals("event"));
+    }
 }

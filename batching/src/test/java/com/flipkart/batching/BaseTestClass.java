@@ -4,16 +4,27 @@ import java.io.File;
 
 /**
  * Created by anirudh.r on 26/02/16.
+ * Base Test Class, contains methods used by other tests
  */
 public class BaseTestClass {
     private static final String TEST_FILE_SUFFIX = ".tmp";
     private static final String TEST_FILE_DIR = "test_files";
 
+    /**
+     * Create a random string
+     *
+     * @return string
+     */
     public String createRandomString() {
         double random = Math.random();
         return "Random" + random;
     }
 
+    /**
+     * Create a file with random name
+     *
+     * @return file
+     */
     public File createRandomFile() {
         String randomFile = createRandomString() + TEST_FILE_SUFFIX;
         File folder = new File(TEST_FILE_DIR);
@@ -25,15 +36,18 @@ public class BaseTestClass {
         return file;
     }
 
+    /**
+     * Delete test files
+     */
     public void deleteRandomFiles() {
         File folder = new File(TEST_FILE_DIR);
         File fList[] = folder.listFiles();
-        for (int i = 0; i < fList.length; i++) {
-            File testFile = fList[i];
-            if (testFile.getName().endsWith(TEST_FILE_SUFFIX)) {
-                testFile.delete();
-            }
-        }
+//        for (int i = 0; i < fList.length; i++) {
+//            File testFile = fList[i];
+//            if (testFile.getName().endsWith(TEST_FILE_SUFFIX)) {
+//                testFile.delete();
+//            }
+//        }
         folder.delete();
     }
 }

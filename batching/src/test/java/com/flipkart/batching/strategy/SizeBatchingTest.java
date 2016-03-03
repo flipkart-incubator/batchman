@@ -5,17 +5,15 @@ import android.os.Handler;
 
 import com.flipkart.Utils;
 import com.flipkart.batching.Batch;
-import com.flipkart.batching.BatchController;
+import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.listener.PersistedBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.robolectric.RuntimeEnvironment;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,48 +22,34 @@ import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Created by anirudh.r on 13/02/16.
+ * Test for {@link SizeBatchingStrategy}
+ */
 public class SizeBatchingTest {
-    @Mock
-    private PersistenceStrategy persistenceStrategy;
-    @Mock
-    private Data eventData;
-    @Mock
-    private Context context;
-    @Mock
-    private Handler handler;
-    @Mock
-    private BatchController controller;
-    @Mock
-    private PersistedBatchReadyListener onBatchReadyListener;
-    @Mock
-    private Exception e;
-    @Mock
-    private SizeBatchingStrategy.SizeBatch batchInfo;
-
-    private int BATCH_SIZE = 5;
 
     /**
-     * Setting up the test environment.
-     */
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
-
-    /**
-     * This test is to ensure the working of {@link SizeBatchingStrategy#onDataPushed(Collection)} )
+     * Test for {@link SizeBatchingStrategy#onDataPushed(Collection)})
      */
     @Test
     public void testOnDataPushed() {
+        int BATCH_SIZE = 5;
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        Context context = RuntimeEnvironment.application;
+        Handler handler = new Handler();
+        PersistedBatchReadyListener onBatchReadyListener = mock(PersistedBatchReadyListener.class);
+
         SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
         sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         ArrayList<Data> fakeCollection = Utils.fakeCollection(1);
         sizeBatchingStrategy.onDataPushed(fakeCollection);
+        //verify that it gets called once
         verify(persistenceStrategy, times(1)).add(eq(fakeCollection));
     }
 
@@ -75,18 +59,34 @@ public class SizeBatchingTest {
      */
     @Test
     public void testFlush() {
+        int BATCH_SIZE = 5;
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        Context context = RuntimeEnvironment.application;
+        Handler handler = new Handler();
+        PersistedBatchReadyListener onBatchReadyListener = mock(PersistedBatchReadyListener.class);
+
         SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
         sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         ArrayList<Data> fakeCollection = Utils.fakeCollection(1);
         sizeBatchingStrategy.onDataPushed(fakeCollection);
         when(persistenceStrategy.getData()).thenReturn(fakeCollection);
         sizeBatchingStrategy.flush(true);
+        //verify that it gets called once
         verify(persistenceStrategy, times(1)).removeData(eq(fakeCollection));
     }
 
-
+    /**
+     * Test for {@link com.flipkart.batching.OnBatchReadyListener#onReady(BatchingStrategy, Batch)}
+     * when flush is false
+     */
     @Test
     public void testOnReadyCallbackFlushFalse() {
+        int BATCH_SIZE = 5;
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        Context context = RuntimeEnvironment.application;
+        Handler handler = new Handler();
+        PersistedBatchReadyListener onBatchReadyListener = mock(PersistedBatchReadyListener.class);
+
         SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
         sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
 
@@ -135,8 +135,17 @@ public class SizeBatchingTest {
         verify(persistenceStrategy, times(1)).removeData(data);
     }
 
+    /**
+     * Test for {@link com.flipkart.batching.OnBatchReadyListener#onReady(BatchingStrategy, Batch)}
+     * when flush is true
+     */
     @Test
     public void testOnReadyCallbackFlushTrue() {
+        int BATCH_SIZE = 5;
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        Context context = RuntimeEnvironment.application;
+        Handler handler = new Handler();
+        PersistedBatchReadyListener onBatchReadyListener = mock(PersistedBatchReadyListener.class);
 
         SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
         sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
@@ -157,8 +166,18 @@ public class SizeBatchingTest {
         verify(onBatchReadyListener, times(1)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
     }
 
+    /**
+     * Test for {@link com.flipkart.batching.OnBatchReadyListener#onReady(BatchingStrategy, Batch)}
+     */
     @Test
     public void testOnReadyCallbackData() {
+        int BATCH_SIZE = 5;
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        Context context = RuntimeEnvironment.application;
+        Handler handler = new Handler();
+        PersistedBatchReadyListener onBatchReadyListener = mock(PersistedBatchReadyListener.class);
+        Data eventData = mock(Data.class);
+
         SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
         sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
 
@@ -189,8 +208,18 @@ public class SizeBatchingTest {
         verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
     }
 
+    /**
+     * Test for {@link com.flipkart.batching.OnBatchReadyListener#onReady(BatchingStrategy, Batch)}
+     * for empty data
+     */
     @Test
     public void testOnReadyForEmptyData() {
+        int BATCH_SIZE = 5;
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
+        Context context = RuntimeEnvironment.application;
+        Handler handler = new Handler();
+        PersistedBatchReadyListener onBatchReadyListener = mock(PersistedBatchReadyListener.class);
+
         SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(BATCH_SIZE, persistenceStrategy);
         sizeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         ArrayList<Data> data = new ArrayList<>();
@@ -206,6 +235,7 @@ public class SizeBatchingTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testIfBatchSizeIsZero() {
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
         new SizeBatchingStrategy(0, persistenceStrategy);
     }
 
@@ -214,6 +244,7 @@ public class SizeBatchingTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testIfBatchSizeNegative() {
+        PersistenceStrategy persistenceStrategy = mock(PersistenceStrategy.class);
         new SizeBatchingStrategy(-4, persistenceStrategy);
     }
 

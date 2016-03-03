@@ -8,6 +8,7 @@ import java.io.IOException;
 
 /**
  * Created by anirudh.r on 20/02/16.
+ * Test for {@link DeserializeException}
  */
 public class DeserializeExceptionTest {
 

@@ -10,10 +10,8 @@ import com.flipkart.batching.data.Tag;
 import com.flipkart.batching.data.TagData;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
@@ -23,29 +21,24 @@ import java.util.Collection;
 
 /**
  * Created by anirudh.r on 12/02/16.
+ * Test for {@link TagBasedPersistenceStrategy}
  */
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class TagBasedPersistenceTest {
 
-    private TagBasedPersistenceStrategy<TagData> tagBasedPersistenceStrategy;
-    private PersistenceStrategy<TagData> inMemoryPersistenceStrategy;
-    private PersistenceStrategy<TagData> sqlPersistenceStrategy;
-    private Tag ad_tag = new Tag("AD");
-    private Tag debug_tag = new Tag("DEBUG");
-    private Tag buisness_tag = new Tag("BUISNESS");
-
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
-
     /**
      * Test to verify {@link TagBasedPersistenceStrategy#add(Collection)}
      */
     @Test
     public void testAddData() {
+        TagBasedPersistenceStrategy<TagData> tagBasedPersistenceStrategy;
+        PersistenceStrategy<TagData> inMemoryPersistenceStrategy;
+        PersistenceStrategy<TagData> sqlPersistenceStrategy;
+        Tag ad_tag = new Tag("AD");
+        Tag debug_tag = new Tag("DEBUG");
+
         Context context = RuntimeEnvironment.application;
         inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
         sqlPersistenceStrategy = new SQLPersistenceStrategy<>(new GsonSerializationStrategy<TagData, Batch<TagData>>(), "test", context);
@@ -70,7 +63,7 @@ public class TagBasedPersistenceTest {
      * @param persistenceStrategy
      */
     private void initializeTagBasedPersistence(Tag tag, PersistenceStrategy<TagData> persistenceStrategy) {
-        tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy<>(tag, persistenceStrategy);
+        new TagBasedPersistenceStrategy<>(tag, persistenceStrategy);
     }
 
     /**
@@ -94,6 +87,12 @@ public class TagBasedPersistenceTest {
      */
     @Test
     public void testGetData() {
+        TagBasedPersistenceStrategy<TagData> tagBasedPersistenceStrategy;
+        PersistenceStrategy<TagData> inMemoryPersistenceStrategy;
+        PersistenceStrategy<TagData> sqlPersistenceStrategy;
+        Tag ad_tag = new Tag("AD");
+        Tag debug_tag = new Tag("DEBUG");
+
         Context context = RuntimeEnvironment.application;
         inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
@@ -118,6 +117,12 @@ public class TagBasedPersistenceTest {
      */
     @Test
     public void testRemoveData() {
+        TagBasedPersistenceStrategy<TagData> tagBasedPersistenceStrategy;
+        PersistenceStrategy<TagData> inMemoryPersistenceStrategy;
+        PersistenceStrategy<TagData> sqlPersistenceStrategy;
+        Tag ad_tag = new Tag("AD");
+        Tag debug_tag = new Tag("DEBUG");
+
         Context context = RuntimeEnvironment.application;
         inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
@@ -126,7 +131,6 @@ public class TagBasedPersistenceTest {
 
         sqlPersistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, "test", context);
         sqlPersistenceStrategy.onInitialized();
-        tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy<>(ad_tag, inMemoryPersistenceStrategy);
         tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy<>(debug_tag, sqlPersistenceStrategy);
         ArrayList<TagData> fakeAdsCollection = Utils.fakeTagAdsCollection(4);
         ArrayList<TagData> fakeDebugCollection = Utils.fakeTagDebugCollection(4);
@@ -143,6 +147,12 @@ public class TagBasedPersistenceTest {
      */
     @Test
     public void testOnInitialized() {
+        TagBasedPersistenceStrategy<TagData> tagBasedPersistenceStrategy;
+        PersistenceStrategy<TagData> inMemoryPersistenceStrategy;
+        PersistenceStrategy<TagData> sqlPersistenceStrategy;
+        Tag ad_tag = new Tag("AD");
+        Tag debug_tag = new Tag("DEBUG");
+
         Context context = RuntimeEnvironment.application;
         inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
@@ -151,7 +161,6 @@ public class TagBasedPersistenceTest {
 
         sqlPersistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, "test", context);
         sqlPersistenceStrategy.onInitialized();
-        tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy<>(ad_tag, inMemoryPersistenceStrategy);
         tagBasedPersistenceStrategy = new TagBasedPersistenceStrategy<>(debug_tag, sqlPersistenceStrategy);
         tagBasedPersistenceStrategy.onInitialized();
     }

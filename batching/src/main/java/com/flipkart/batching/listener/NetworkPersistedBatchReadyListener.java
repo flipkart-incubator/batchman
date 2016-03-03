@@ -243,14 +243,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             this.complete = isComplete;
             this.httpErrorCode = httpErrorCode;
         }
-
-        public void setComplete(boolean complete) {
-            this.complete = complete;
-        }
-
-        public void setHttpErrorCode(int httpErrorCode) {
-            this.httpErrorCode = httpErrorCode;
-        }
     }
 
     public class NetworkBroadcastReceiver extends BroadcastReceiver {
