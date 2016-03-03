@@ -42,12 +42,13 @@ public class BaseTestClass {
     public void deleteRandomFiles() {
         File folder = new File(TEST_FILE_DIR);
         File fList[] = folder.listFiles();
-//        for (int i = 0; i < fList.length; i++) {
-//            File testFile = fList[i];
-//            if (testFile.getName().endsWith(TEST_FILE_SUFFIX)) {
-//                testFile.delete();
-//            }
-//        }
+        if(fList != null) {
+            for (File testFile : fList) {
+                if (testFile.getName().endsWith(TEST_FILE_SUFFIX)) {
+                    testFile.delete();
+                }
+            }
+        }
         folder.delete();
     }
 }
