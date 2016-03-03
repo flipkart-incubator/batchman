@@ -27,9 +27,13 @@ public class BaseTestClass {
      */
     public File createRandomFile() {
         String randomFile = createRandomString() + TEST_FILE_SUFFIX;
+        return createTestFile(randomFile);
+    }
+
+    public File createTestFile(String fileName) {
         File folder = new File(TEST_FILE_DIR);
         folder.mkdirs();
-        File file = new File(TEST_FILE_DIR, randomFile);
+        File file = new File(TEST_FILE_DIR, fileName);
         if (file.isDirectory()) {
             file.delete();
         }
