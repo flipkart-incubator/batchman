@@ -23,6 +23,14 @@ public class DataCollection<T extends Data> {
         this.dataCollection = dataCollection;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof DataCollection) {
+            return dataCollection.equals(((DataCollection) o).dataCollection);
+        }
+        return super.equals(o);
+    }
+
     public static class Serializer implements JsonSerializer<DataCollection> {
         @Override
         public JsonElement serialize(DataCollection src, Type typeOfSrc, JsonSerializationContext context) {
@@ -54,5 +62,4 @@ public class DataCollection<T extends Data> {
             return null;
         }
     }
-
 }

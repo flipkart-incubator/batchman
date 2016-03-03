@@ -22,4 +22,12 @@ public class TagData extends Data {
     public Tag getTag() {
         return tag;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof TagData) {
+            return ((TagData) o).tag.equals(tag) && super.equals(o);
+        }
+        return false;
+    }
 }

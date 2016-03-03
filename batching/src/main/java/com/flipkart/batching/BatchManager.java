@@ -85,6 +85,7 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
         handler.post(new Runnable() {
             @Override
             public void run() {
+                assignEventIds(dataCollection);
                 if (batchingStrategy.isInitialized()) {
                     batchingStrategy.onDataPushed(dataCollection);
                     batchingStrategy.flush(false);
@@ -93,6 +94,15 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
                 }
             }
         });
+    }
+
+    private void assignEventIds(Collection<E> dataCollection) {
+        int i = 0;
+        for (E data : dataCollection) {
+            i++;
+            data.setEventId(System.currentTimeMillis() + System.nanoTime() + i);
+        }
+
     }
 
     @Override
