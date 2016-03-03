@@ -354,7 +354,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         Context context = RuntimeEnvironment.application;
         NetworkPersistedBatchReadyListener.NetworkBatchListener networkBatchListener = new NetworkPersistedBatchReadyListener.NetworkBatchListener() {
             @Override
-            void performNetworkRequest(Batch batch, ValueCallback callback) {
+            public void performNetworkRequest(Batch batch, ValueCallback callback) {
 
             }
 

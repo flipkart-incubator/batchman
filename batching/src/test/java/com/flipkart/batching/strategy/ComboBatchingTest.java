@@ -234,7 +234,7 @@ public class ComboBatchingTest {
     public void testDataCollectionNotNull() {
         ArrayList<Data> datas = Utils.fakeCollection(4);
         SizeBatchingStrategy.SizeBatch sizeBatch = new SizeBatchingStrategy.SizeBatch(datas, 5);
-        ComboBatchingStrategy.ComboBatch<Data, Batch<Data>> comboBatch = new ComboBatchingStrategy.ComboBatch(sizeBatch);
+        ComboBatchingStrategy.ComboBatch<Data> comboBatch = new ComboBatchingStrategy.ComboBatch(sizeBatch);
 
         Assert.assertNotNull(comboBatch.getDataCollection());
     }

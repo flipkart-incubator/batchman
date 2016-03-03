@@ -117,7 +117,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                             if (batch != null && batch.equals(peekedBatch)) {
                                 queueFile.remove();
                             } else {
-                                new IllegalStateException("Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
+                                throw new IllegalStateException("Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
                             }
                         }
                     } catch (IOException | DeserializeException e) {

@@ -216,7 +216,13 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         shadowLooper.runToEndOfTasks();
 
         SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo1 = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeAdsCollection(4), 5);
-        persistedBatchReadyListener.finish(sizeBatchInfo1);
+        try {
+            persistedBatchReadyListener.finish(sizeBatchInfo1);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         shadowLooper.runToEndOfTasks();
     }
 

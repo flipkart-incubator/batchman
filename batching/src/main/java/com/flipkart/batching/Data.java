@@ -26,8 +26,10 @@ public abstract class Data implements Serializable {
      * @param data data object
      */
 
+
     public Data(Object data) {
         this.data = data;
+        this.eventId = System.currentTimeMillis() + System.nanoTime();
     }
 
     public Object getData() {
