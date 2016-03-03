@@ -28,7 +28,7 @@ import java.util.Collection;
  * @see TagBatchingStrategy
  */
 
-public class ComboBatchingStrategy<E extends Data, C extends Batch<E>> implements BatchingStrategy<E, ComboBatchingStrategy.ComboBatch<E, C>> {
+public class ComboBatchingStrategy<E extends Data, C extends Batch<E>> implements BatchingStrategy<E, ComboBatchingStrategy.ComboBatch<E>> {
     private BatchingStrategy<E, C>[] batchingStrategies;
     private boolean initialized = false;
 
@@ -38,7 +38,7 @@ public class ComboBatchingStrategy<E extends Data, C extends Batch<E>> implement
     }
 
     @Override
-    public void onInitialized(Context context, final OnBatchReadyListener<E, ComboBatch<E, C>> parentBatchReadyListener, Handler handler) {
+    public void onInitialized(Context context, final OnBatchReadyListener<E, ComboBatch<E>> parentBatchReadyListener, Handler handler) {
         initialized = true;
         OnBatchReadyListener childBatchReadyListener = new OnBatchReadyListener<E, Batch<E>>() {
             @Override
@@ -71,10 +71,10 @@ public class ComboBatchingStrategy<E extends Data, C extends Batch<E>> implement
     }
 
 
-    public static class ComboBatch<T extends Data, C extends Batch<T>> extends Batch<T> {
-        private C batch;
+    public static class ComboBatch<T extends Data> extends Batch<T> {
+        private Batch<T> batch;
 
-        public ComboBatch(C batch) {
+        public ComboBatch(Batch<T> batch) {
             super(null);
             this.batch = batch;
         }
