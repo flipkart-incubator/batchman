@@ -33,6 +33,10 @@ public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
         }
     }
 
+    public void setMaxBatchSize(int maxBatchSize) {
+        this.maxBatchSize = maxBatchSize;
+    }
+
     @Override
     public void onDataPushed(Collection<E> dataCollection) {
         super.onDataPushed(dataCollection);

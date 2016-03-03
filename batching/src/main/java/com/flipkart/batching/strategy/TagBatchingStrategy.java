@@ -99,16 +99,10 @@ public class TagBatchingStrategy<E extends TagData> implements BatchingStrategy<
 
     public static class TagBatch<T extends TagData> extends Batch<T> {
         private Tag tag;
-        private Batch<T> batch;
 
         public TagBatch(Tag tag, Batch<T> batch) {
-            super(null);
+            super(batch.getDataCollection());
             this.tag = tag;
-            this.batch = batch;
-        }
-
-        public Batch<T> getBatch() {
-            return batch;
         }
 
         public Tag getTag() {
@@ -116,14 +110,9 @@ public class TagBatchingStrategy<E extends TagData> implements BatchingStrategy<
         }
 
         @Override
-        public Collection<T> getDataCollection() {
-            return batch.getDataCollection();
-        }
-
-        @Override
         public boolean equals(Object o) {
             if (o instanceof TagBatch) {
-                return ((TagBatch) o).getTag().equals(tag) && ((TagBatch) o).getBatch().equals(getBatch());
+                return ((TagBatch) o).getTag().equals(tag) && super.equals(o);
             }
             return super.equals(o);
         }

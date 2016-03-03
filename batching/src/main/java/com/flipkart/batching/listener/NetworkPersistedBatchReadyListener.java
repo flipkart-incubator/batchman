@@ -53,11 +53,11 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             lastBatch = batch;
             registerReceiverIfRequired();
             handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        makeNetworkRequest(batch, false);
-                    }
-                });
+                @Override
+                public void run() {
+                    makeNetworkRequest(batch, false);
+                }
+            });
         }
 
         @Override
@@ -74,9 +74,14 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         this.setListener(persistedBatchCallback);
     }
 
+    public void setNetworkBatchListener(NetworkBatchListener<E, T> networkBatchListener) {
+        this.networkBatchListener = networkBatchListener;
+    }
+
     public int getDefaultTimeoutMs() {
         return defaultTimeoutMs;
     }
+
 
     public void setDefaultTimeoutMs(int defaultTimeoutMs) {
         this.defaultTimeoutMs = defaultTimeoutMs;
@@ -115,6 +120,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             retryLimitReached = false;
             resume();
         }
+
     }
 
     @Override
@@ -223,7 +229,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
          * @param batch
          * @param callback
          */
-        abstract void performNetworkRequest(final T batch, final ValueCallback<NetworkRequestResponse> callback);
+        public abstract void performNetworkRequest(final T batch, final ValueCallback<NetworkRequestResponse> callback);
 
         /**
          * @return true if network is connected
@@ -238,7 +244,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     public static class NetworkRequestResponse {
         public boolean complete; //indicates whether a network response was received.
         public int httpErrorCode;
-
         public NetworkRequestResponse(boolean isComplete, int httpErrorCode){
             this.complete = isComplete;
             this.httpErrorCode = httpErrorCode;

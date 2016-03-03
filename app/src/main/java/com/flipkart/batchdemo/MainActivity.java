@@ -3,7 +3,6 @@ package com.flipkart.batchdemo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -29,6 +28,7 @@ import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.InMemoryPersistenceStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.persistence.TagBasedPersistenceStrategy;
+import com.flipkart.batching.persistence.TapePersistenceStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
 import com.flipkart.batching.strategy.TimeBatchingStrategy;
@@ -62,15 +62,15 @@ public class MainActivity extends AppCompatActivity
         dgTag = new Tag(DG_LOGGER_GROUPID);
 
 
-        InMemoryPersistenceStrategy<TagData> prefInMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
+        InMemoryPersistenceStrategy<TagData> prefInMemoryPersistenceStrategy = new TapePersistenceStrategy<>(new File(getCacheDir(), "pe"), serializationStrategy);
         TagBasedPersistenceStrategy<TagData> prefTagBatchingPersistence = new TagBasedPersistenceStrategy<>(perfTag, prefInMemoryPersistenceStrategy);
         BatchingStrategy<TagData, Batch<TagData>> prefSizeBatchingStrategy = new SizeBatchingStrategy(2, prefTagBatchingPersistence);
 
-        InMemoryPersistenceStrategy<TagData> debugInMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
+        InMemoryPersistenceStrategy<TagData> debugInMemoryPersistenceStrategy = new TapePersistenceStrategy<>(new File(getCacheDir(), "de"), serializationStrategy);
         TagBasedPersistenceStrategy<TagData> debugTagBatchingPersistence = new TagBasedPersistenceStrategy<>(debugTag, debugInMemoryPersistenceStrategy);
         BatchingStrategy<TagData, Batch<TagData>> debugTimeBatchingStrategy = new TimeBatchingStrategy(5000, debugTagBatchingPersistence);
 
-        InMemoryPersistenceStrategy<TagData> dgInMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
+        InMemoryPersistenceStrategy<TagData> dgInMemoryPersistenceStrategy = new TapePersistenceStrategy<>(new File(getCacheDir(), "dg"), serializationStrategy);
         TagBasedPersistenceStrategy<TagData> dgTagBatchingPersistence = new TagBasedPersistenceStrategy<>(dgTag, dgInMemoryPersistenceStrategy);
         BatchingStrategy<TagData, Batch<TagData>> dgTimeBatchingStrategy = new SizeBatchingStrategy(2, dgTagBatchingPersistence);
 
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onPersistSuccess(Batch batch) {
-                SystemClock.sleep(2000);
+                //SystemClock.sleep(2000);
                 perfListener.finish(batch);
                 Log.e("Perf", "Finish Called");
             }
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onPersistSuccess(TagBatchingStrategy.TagBatch<TagData> batch) {
-                SystemClock.sleep(2000);
+                // SystemClock.sleep(2000);
                 debugListener.finish(batch);
                 Log.e("Debug", "Finish Called");
             }
@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onPersistSuccess(TagBatchingStrategy.TagBatch<TagData> batch) {
-                SystemClock.sleep(2000);
+                //SystemClock.sleep(2000);
                 dgListener.finish(batch);
                 Log.e("Dg", "Finish Called");
             }
@@ -220,13 +220,13 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            batchManager.addToBatch(Collections.singleton(new TagData(perfTag, "Event 2")));
+            batchManager.addToBatch(Collections.singleton(new TagData(perfTag, "Event 2 "+System.currentTimeMillis())));
 
         } else if (id == R.id.nav_gallery) {
-            batchManager.addToBatch(Collections.singleton(new TagData(dgTag, "Event 3")));
+            batchManager.addToBatch(Collections.singleton(new TagData(dgTag, "Event 3 "+System.currentTimeMillis())));
 
         } else if (id == R.id.nav_slideshow) {
-            batchManager.addToBatch(Collections.singleton(new TagData(debugTag, "Event 4")));
+            batchManager.addToBatch(Collections.singleton(new TagData(debugTag, "Event 4 "+System.currentTimeMillis())));
 
         } else if (id == R.id.nav_manage) {
             batchManager.addToBatch(Collections.singleton(new TagData(perfTag, "Event 5")));

@@ -28,7 +28,6 @@ public abstract class Data implements Serializable {
 
     public Data(Object data) {
         this.data = data;
-        this.eventId = (System.currentTimeMillis() + System.nanoTime());
     }
 
     public Object getData() {
@@ -38,14 +37,19 @@ public abstract class Data implements Serializable {
     public void setData(Object data) {
         this.data = data;
     }
+
     public long getEventId() {
         return eventId;
+    }
+
+    public void setEventId(long eventId) {
+        this.eventId = eventId;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o instanceof Data) {
-            return ((Data) o).getEventId() == getEventId() && ((Data) o).getData().equals(getData());
+            return ((Data) o).getEventId() == getEventId();
         } else {
             return super.equals(o);
         }
