@@ -19,13 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends PersistedBatchReadyListener<E, T> {
 
-    private final Handler handler;
+    protected final Handler handler;
     private final TrimmedBatchCallback trimListener;
     private int trimSize, queueSize;
     public final static int MODE_TRIM_NONE = 0;
     public final static int MODE_TRIM_AT_START = 1;
     public final static int MODE_TRIM_ON_READY = 1 << 1;
-    public int mode;
+    private int mode;
 
     public TrimPersistedBatchReadyListener(File file, SerializationStrategy<E, T> serializationStrategy, Handler handler, int maxQueueSize, int trimToSize, int mode, PersistedBatchCallback<T> persistedBatchCallback, TrimmedBatchCallback trimmedBatchCallback) {
         super(file, serializationStrategy, handler, persistedBatchCallback);

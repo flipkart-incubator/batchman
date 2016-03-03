@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
  * Created by kushal.sharma on 29/02/16 at 11:58 AM.
  */
 @Slf4j
-public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends PersistedBatchReadyListener<E, T> {
+public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends TrimPersistedBatchReadyListener<E, T> {
 
     private static final int HTTP_SERVER_ERROR_CODE_RANGE_START = 500;
     private static final int HTTP_SERVER_ERROR_CODE_RANGE_END = 599;
@@ -39,6 +39,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     private boolean retryLimitReached = false;
     private boolean waitingForCallback = false;
     private boolean receiverRegistered;
+
     private PersistedBatchCallback<T> persistedBatchCallback = new PersistedBatchCallback<T>() {
         @Override
         public void onPersistFailure(T batch, Exception e) {
@@ -65,8 +66,8 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             unregisterReceiver();
         }
     };
-    public NetworkPersistedBatchReadyListener(final Context context, File file, SerializationStrategy<E, T> serializationStrategy, final Handler handler, NetworkBatchListener<E, T> listener, int maxRetryCount) {
-        super(file, serializationStrategy, handler, null);
+    public NetworkPersistedBatchReadyListener(final Context context, File file, SerializationStrategy<E, T> serializationStrategy, final Handler handler, NetworkBatchListener<E, T> listener, int maxRetryCount, int maxQueueSize, int trimToSize, int trimmingMode, TrimmedBatchCallback trimmedBatchCallback) {
+        super(file, serializationStrategy, handler, maxQueueSize, trimToSize, trimmingMode, null, trimmedBatchCallback);
         this.context = context;
         this.networkBatchListener = listener;
         this.maxRetryCount = maxRetryCount;

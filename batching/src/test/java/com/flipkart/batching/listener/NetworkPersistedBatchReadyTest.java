@@ -76,8 +76,9 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
 
+        TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
         MockNetworkPersistedBatchReadyListener networkBatchListener = spy(new MockNetworkPersistedBatchReadyListener(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, ERROR_CODE_5XX), handler, callbackIdle, context));
-        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, maxRetryCount);
+        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, maxRetryCount, 50, 10, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, trimmedBatchCallback);
         networkPersistedBatchReadyListener.onReady(strategy, firstBatch);
         shadowLooper.runToEndOfTasks();
 
@@ -144,9 +145,10 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
+        TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
 
         MockNetworkPersistedBatchReadyListener networkBatchListener = spy(new MockNetworkPersistedBatchReadyListener(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, ERROR_CODE_4XX), handler, callbackIdle, context));
-        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, maxRetryCount);
+        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, maxRetryCount, 50, 10, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, trimmedBatchCallback);
         networkPersistedBatchReadyListener.onReady(strategy, firstBatch);
         shadowLooper.runToEndOfTasks();
         //verify that it gets called once
@@ -179,9 +181,10 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
+        TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
 
         MockNetworkPersistedBatchReadyListener networkBatchListener = spy(new MockNetworkPersistedBatchReadyListener(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, ERROR_CODE_2XX), handler, callbackIdle, context));
-        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, 0);
+        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, 5, 50, 10, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, trimmedBatchCallback);
         networkPersistedBatchReadyListener.onReady(strategy, firstBatch);
         shadowLooper.runToEndOfTasks();
         //verify that it gets called once
@@ -211,9 +214,10 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
+        TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
 
         MockNetworkPersistedBatchReadyListener networkBatchListener = spy(new MockNetworkPersistedBatchReadyListener(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, ERROR_CODE_2XX), handler, callbackIdle, context));
-        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, 0);
+        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, 5, 50, 10, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, trimmedBatchCallback);
         networkPersistedBatchReadyListener.onReady(strategy, firstBatch);
         shadowLooper.runToEndOfTasks();
 
@@ -268,9 +272,10 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         NetworkPersistedBatchReadyListener.NetworkRequestResponse requestResponse = new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, errorCode);
+        TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
 
         MockNetworkPersistedBatchReadyListener networkBatchListener = spy(new MockNetworkPersistedBatchReadyListener(requestResponse, handler, callbackIdle, context));
-        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, retryCount);
+        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, retryCount, 50, 10, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, trimmedBatchCallback);
         networkPersistedBatchReadyListener.onReady(strategy, firstBatch);
         shadowLooper.runToEndOfTasks();
 
@@ -325,6 +330,8 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         int retryCount = 4;
         int timeOut = 2500;
         float backOffMultiplier = 1f;
+        int maxQueueSize = 5;
+        int trimToSize = 2;
 
         Context context = RuntimeEnvironment.application;
         File file = createRandomFile();
@@ -336,9 +343,10 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         NetworkPersistedBatchReadyListener.NetworkRequestResponse requestResponse = new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, errorCode);
+        TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
 
         MockNetworkPersistedBatchReadyListener networkBatchListener = spy(new MockNetworkPersistedBatchReadyListener(requestResponse, handler, callbackIdle, context));
-        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, retryCount);
+        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, retryCount, 50, 10, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, trimmedBatchCallback);
         networkPersistedBatchReadyListener.setDefaultTimeoutMs(timeOut);
         networkPersistedBatchReadyListener.setDefaultBackoffMultiplier(backOffMultiplier);
 
