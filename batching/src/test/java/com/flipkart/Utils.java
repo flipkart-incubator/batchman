@@ -24,7 +24,7 @@ public class Utils {
     public static ArrayList<Data> fakeCollection(int size) {
         ArrayList<Data> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            eventData = new EventData("Event " + i);
+            eventData = new EventData();
             dataList.add(eventData);
         }
         return dataList;
@@ -33,7 +33,7 @@ public class Utils {
     public static ArrayList<Data> fakeAdsCollection(int size) {
         ArrayList<Data> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            eventData = new EventData("Event " + i);
+            eventData = new EventData();
             dataList.add(eventData);
         }
         return dataList;
@@ -42,7 +42,7 @@ public class Utils {
     public static ArrayList<Data> fakeDebugCollection(int size) {
         ArrayList<Data> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            eventData = new EventData("Event " + i);
+            eventData = new EventData();
             dataList.add(eventData);
         }
         return dataList;
@@ -51,7 +51,7 @@ public class Utils {
     public static ArrayList<Data> fakeBuisnessCollection(int size) {
         ArrayList<Data> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            eventData = new EventData("Event " + i);
+            eventData = new EventData();
             dataList.add(eventData);
         }
         return dataList;
@@ -60,7 +60,7 @@ public class Utils {
     public static ArrayList<TagData> fakeTagAdsCollection(int size) {
         ArrayList<TagData> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            TagData eventData = new TagData(new Tag("ADS"), "Event " + i);
+            TagData eventData = new TagData(new Tag("ADS"));
             dataList.add(eventData);
         }
         return dataList;
@@ -69,7 +69,7 @@ public class Utils {
     public static ArrayList<TagData> fakeTagDebugCollection(int size) {
         ArrayList<TagData> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            TagData eventData = new TagData(new Tag("DEBUG"), "Event " + i);
+            TagData eventData = new TagData(new Tag("DEBUG"));
             dataList.add(eventData);
         }
         return dataList;

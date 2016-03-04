@@ -12,10 +12,9 @@ public class TagData extends Data {
      * Constructor for Data object. This constructor takes {@link Tag} and {@link Object} as
      * parameter and generates an eventId = (System.currentTimeMillis() + System.nanoTime())
      *
-     * @param data data object
      */
-    public TagData(Tag tag, Object data) {
-        super(data);
+    public TagData(Tag tag) {
+        super();
         this.tag = tag;
     }
 
