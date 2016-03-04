@@ -249,7 +249,7 @@ public class ComboBatchingTest {
         ComboBatchingStrategy.ComboBatch comboBatch = new ComboBatchingStrategy.ComboBatch(new SizeBatchingStrategy.SizeBatch<>(list1, 5));
         ComboBatchingStrategy.ComboBatch comboBatch1 = new ComboBatchingStrategy.ComboBatch(new SizeBatchingStrategy.SizeBatch<>(list2, 5));
 
-        Assert.assertTrue(!comboBatch.equals(comboBatch1));
+        Assert.assertTrue(comboBatch.equals(comboBatch1));
         Assert.assertTrue(!comboBatch.equals("event"));
     }
 }
