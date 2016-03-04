@@ -8,6 +8,8 @@ import com.flipkart.batching.exception.SerializeException;
 import com.flipkart.batching.toolbox.RuntimeTypeAdapterFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -73,7 +75,11 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     @Override
     public byte[] serializeData(E data) throws SerializeException {
         checkIfBuildCalled();
-        return gson.toJson(data, Data.class).getBytes();
+        try {
+            return gson.toJson(data, Data.class).getBytes();
+        } catch (JsonParseException e) {
+            throw new SerializeException(e);
+        }
     }
 
     @Override
@@ -81,32 +87,53 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         checkIfBuildCalled();
         Type type = new TypeToken<Collection<Data>>() {
         }.getType();
-        return gson.toJson(data, type).getBytes();
+        try {
+            return gson.toJson(data, type).getBytes();
+        } catch (JsonParseException e) {
+            throw new SerializeException(e);
+        }
     }
 
     @Override
     public byte[] serializeBatch(T batch) throws SerializeException {
         checkIfBuildCalled();
-        return gson.toJson(batch, Batch.class).getBytes();
+        try {
+            return gson.toJson(batch, Batch.class).getBytes();
+        } catch (JsonParseException e) {
+            throw new SerializeException(e);
+        }
     }
 
     @Override
     public E deserializeData(byte[] data) throws DeserializeException {
         checkIfBuildCalled();
-        return (E) gson.fromJson(new String(data), Data.class);
+        try {
+            return (E) gson.fromJson(new String(data), Data.class);
+        } catch (JsonParseException e) {
+            throw new DeserializeException(e);
+        }
     }
 
     @Override
     public Collection<E> deserializeCollection(byte[] data) throws DeserializeException {
         checkIfBuildCalled();
+
         Type type = new TypeToken<Collection<Data>>() {
         }.getType();
-        return gson.fromJson(new String(data), type);
+        try {
+            return gson.fromJson(new String(data), type);
+        } catch (JsonParseException e) {
+            throw new DeserializeException(e);
+        }
     }
 
     @Override
     public T deserializeBatch(byte[] data) throws DeserializeException {
         checkIfBuildCalled();
-        return (T) gson.fromJson(new String(data), Batch.class);
+        try {
+            return (T) gson.fromJson(new String(data), Batch.class);
+        } catch (JsonParseException e) {
+            throw new DeserializeException(e);
+        }
     }
 }

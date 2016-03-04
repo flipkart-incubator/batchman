@@ -25,6 +25,7 @@ public class Utils {
         ArrayList<Data> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             eventData = new EventData();
+            eventData.setEventId(System.currentTimeMillis()+System.nanoTime()+i);
             dataList.add(eventData);
         }
         return dataList;
@@ -34,6 +35,7 @@ public class Utils {
         ArrayList<Data> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             eventData = new EventData();
+            eventData.setEventId(System.currentTimeMillis()+System.nanoTime()+i);
             dataList.add(eventData);
         }
         return dataList;
@@ -43,6 +45,7 @@ public class Utils {
         ArrayList<Data> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             eventData = new EventData();
+            eventData.setEventId(System.currentTimeMillis()+System.nanoTime()+i);
             dataList.add(eventData);
         }
         return dataList;
@@ -52,6 +55,7 @@ public class Utils {
         ArrayList<Data> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             eventData = new EventData();
+            eventData.setEventId(System.currentTimeMillis()+System.nanoTime()+i);
             dataList.add(eventData);
         }
         return dataList;
@@ -61,6 +65,7 @@ public class Utils {
         ArrayList<TagData> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             TagData eventData = new TagData(new Tag("ADS"));
+            eventData.setEventId(System.currentTimeMillis()+System.nanoTime()+i);
             dataList.add(eventData);
         }
         return dataList;
@@ -70,6 +75,7 @@ public class Utils {
         ArrayList<TagData> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             TagData eventData = new TagData(new Tag("DEBUG"));
+            eventData.setEventId(System.currentTimeMillis()+System.nanoTime()+i);
             dataList.add(eventData);
         }
         return dataList;
