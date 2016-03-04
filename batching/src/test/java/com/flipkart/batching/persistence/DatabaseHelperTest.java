@@ -154,7 +154,7 @@ public class DatabaseHelperTest {
         context = RuntimeEnvironment.application;
         databaseHelper = new DatabaseHelper<>(gsonSerializationStrategy, "test", context);
         ArrayList<Data> dataArrayList = new ArrayList<>();
-        Data eventData = new EventData("");
+        Data eventData = new EventData();
         dataArrayList.add(eventData);
         databaseHelper.addData(dataArrayList);
         databaseHelper = new DatabaseHelper<>(gsonSerializationStrategy, "test", context);

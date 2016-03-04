@@ -6,20 +6,20 @@ import com.flipkart.batching.exception.DeserializeException;
 import com.flipkart.batching.exception.SerializeException;
 import com.squareup.tape.QueueFile;
 
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by kushal.sharma on 23/02/16.
  * Simple class for Tape Persistence Strategy that extends In Memory Persistence Strategy
  */
-@Slf4j
 public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> {
-
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(TapePersistenceStrategy.class);
     private File file;
     private QueueFile queueFile;
     private SerializationStrategy<E, ? extends Batch> serializationStrategy;

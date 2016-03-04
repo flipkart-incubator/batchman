@@ -11,18 +11,19 @@ import com.flipkart.batching.persistence.SerializationStrategy;
 import com.squareup.tape.QueueFile;
 
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by kushal.sharma on 13/02/16.
  * Todo Document
  */
-@Slf4j
 public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T> {
+
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(PersistedBatchReadyListener.class);
     protected final Handler handler;
     private final File file;
     private final SerializationStrategy<E, T> serializationStrategy;

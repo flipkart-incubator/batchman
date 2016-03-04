@@ -139,7 +139,7 @@ public class GsonSerializationTest {
 
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("key", "value");
-        Data eventData = new EventData(hashMap);
+        Data eventData = new EventData();
         byte[] serializedData = serializationStrategy.serializeData(eventData);
         Data data = serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(eventData, data);
@@ -148,7 +148,7 @@ public class GsonSerializationTest {
         arrayList.add("Event1");
         arrayList.add("Event2");
         arrayList.add("Event3");
-        eventData = new EventData(arrayList);
+        eventData = new EventData();
         serializedData = serializationStrategy.serializeData(eventData);
         data = serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(eventData, data);
