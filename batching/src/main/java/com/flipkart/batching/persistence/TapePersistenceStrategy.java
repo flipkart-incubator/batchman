@@ -23,24 +23,33 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
     private File file;
     private QueueFile queueFile;
     private SerializationStrategy<E, ? extends Batch> serializationStrategy;
-
     public TapePersistenceStrategy(File file, SerializationStrategy<E, ? extends Batch> serializationStrategy) {
         this.file = file;
         this.serializationStrategy = serializationStrategy;
     }
 
+    public QueueFile getQueueFile() {
+        return queueFile;
+    }
+
     @Override
-    public void add(Collection<E> dataCollection) {
-        super.add(dataCollection);
+    public boolean add(Collection<E> dataCollection) {
+        boolean isAdded = false;
+        Collection<E> oldData = getData();
         for (E data : dataCollection) {
             try {
-                queueFile.add(serializationStrategy.serializeData(data));
+                if(!oldData.contains(data)) {
+                    isAdded = true;
+                    queueFile.add(serializationStrategy.serializeData(data));
+                }
             } catch (IOException | SerializeException e) {
                 if (log.isErrorEnabled()) {
                     log.error(e.getLocalizedMessage());
                 }
             }
         }
+        super.add(dataCollection);
+        return isAdded;
     }
 
     @Override
