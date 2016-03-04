@@ -84,6 +84,10 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
         super.add(getAllDataFromTapeQueue());
     }
 
+    /**
+     * Very expensive operation
+     * @return
+     */
     private Collection<E> getAllDataFromTapeQueue() {
         ArrayList<E> dataList = new ArrayList<>();
         int size = queueFile.size();
