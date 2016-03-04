@@ -4,29 +4,44 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.Log;
+import android.webkit.ValueCallback;
 
 import com.flipkart.Utils;
+import com.flipkart.batching.data.EventData;
+import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
+import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener.NetworkBatchListener;
+import com.flipkart.batching.listener.TrimPersistedBatchReadyListener;
+import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.PersistenceStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
+import com.flipkart.batching.persistence.TapePersistenceStrategy;
 import com.flipkart.batching.strategy.BaseBatchingStrategy;
+import com.flipkart.batching.strategy.ComboBatchingStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
+import com.flipkart.batching.strategy.TimeBatchingStrategy;
+import com.squareup.tape.QueueFile;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLooper;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,7 +52,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
-public class BatchManagerTest {
+public class BatchManagerTest extends BaseTestClass {
 
     /**
      * Test for {@link BatchManager#addToBatch(Collection)}
@@ -246,5 +261,93 @@ public class BatchManagerTest {
 
         batchController.addToBatch(Utils.fakeCollection(4));
         shadowLooper.runToEndOfTasks();
+    }
+
+    @Test
+    public void testReInitialized() {
+        ShadowLooper shadowLooper = Shadows.shadowOf(Looper.getMainLooper());
+        Handler handler = new Handler();
+        File persistence1 = createRandomFile();
+        File persistence2 = createRandomFile();
+        SerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
+        TapePersistenceStrategy<Data> persistenceStrategy = new TapePersistenceStrategy<>(persistence1, serializationStrategy);
+        Context context = RuntimeEnvironment.application;
+        BatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(2, persistenceStrategy);
+        TimeBatchingStrategy timeBatchingStrategy = new TimeBatchingStrategy(5000, persistenceStrategy);
+        ComboBatchingStrategy comboBatchingStrategy = new ComboBatchingStrategy(timeBatchingStrategy, sizeBatchingStrategy);
+
+        NetworkBatchListener batchListener = new NetworkBatchListener() {
+            @Override
+            public void performNetworkRequest(Batch batch, ValueCallback callback) {
+                callback.onReceiveValue(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(false, 500));
+            }
+        };
+        NetworkPersistedBatchReadyListener batchReadyListener = new NetworkPersistedBatchReadyListener(context, persistence2, serializationStrategy, handler, batchListener, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null);
+        BatchController batchController = new BatchManager.Builder()
+                .setSerializationStrategy(serializationStrategy)
+                .setBatchingStrategy(comboBatchingStrategy)
+                .setHandler(handler)
+                .setOnBatchReadyListener(batchReadyListener)
+                .build(context);
+
+        ArrayList<Data> firstBatch = Utils.fakeCollection(2);
+        ArrayList<Data> secondBatch = Utils.fakeCollection(1);
+        ArrayList<Data> thirdBatch = Utils.fakeCollection(1);
+        ArrayList<Data> fourthBatch = Utils.fakeCollection(1);
+        ArrayList<Data> fifthBatch = Utils.fakeCollection(1);
+
+        batchController.addToBatch(firstBatch);
+        shadowLooper.runToEndOfTasks();
+        batchController.addToBatch(secondBatch);
+        shadowLooper.runToEndOfTasks();
+        batchController.addToBatch(thirdBatch);
+        shadowLooper.runToEndOfTasks();
+
+        QueueFile oldQueueFile = batchReadyListener.getQueueFile();
+        Assert.assertTrue(oldQueueFile.size() == 3);
+        batchReadyListener.setQueueFile(oldQueueFile);
+
+        final ArrayList outputData = new ArrayList();
+
+        NetworkBatchListener batchListener2 = new NetworkBatchListener() {
+            @Override
+            public void performNetworkRequest(Batch batch, ValueCallback callback) {
+                callback.onReceiveValue(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, 200));
+                outputData.addAll(batch.getDataCollection());
+            }
+
+            @Override
+            public boolean isNetworkConnected(Context context) {
+                return true;
+            }
+        };
+
+        try {
+            persistenceStrategy.getQueueFile().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        persistenceStrategy = new TapePersistenceStrategy<>(persistence1, serializationStrategy);
+        sizeBatchingStrategy = new SizeBatchingStrategy(2, persistenceStrategy);
+        timeBatchingStrategy = new TimeBatchingStrategy(5000, persistenceStrategy);
+        comboBatchingStrategy = new ComboBatchingStrategy(timeBatchingStrategy, sizeBatchingStrategy);
+
+        NetworkBatchListener batchListener2Spy = spy(batchListener2);
+        batchReadyListener = new NetworkPersistedBatchReadyListener(context, persistence2, serializationStrategy, handler, batchListener2Spy, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null);
+
+        batchController = new BatchManager.Builder()
+                .setSerializationStrategy(serializationStrategy)
+                .setBatchingStrategy(comboBatchingStrategy)
+                .setHandler(handler)
+                .setOnBatchReadyListener(batchReadyListener)
+                .build(context);
+
+        batchController.addToBatch(fourthBatch);
+        batchController.addToBatch(fifthBatch);
+        shadowLooper.runToEndOfTasks();
+
+        verify(batchListener2Spy, times(4)).performNetworkRequest(any(Batch.class), any(ValueCallback.class));
+        Assert.assertTrue(outputData.size() == 6);
+
     }
 }

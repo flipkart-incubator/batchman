@@ -34,7 +34,7 @@ public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceS
     }
 
     @Override
-    public void add(final Collection<E> dataCollection) {
+    public boolean add(final Collection<E> dataCollection) {
         super.add(dataCollection);
         try {
             databaseHelper.addData(dataCollection);
@@ -43,6 +43,7 @@ public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceS
                 log.error(e.getLocalizedMessage());
             }
         }
+        return true;
     }
 
     /**

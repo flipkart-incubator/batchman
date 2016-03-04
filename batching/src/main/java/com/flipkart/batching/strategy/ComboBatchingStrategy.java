@@ -87,7 +87,7 @@ public class ComboBatchingStrategy<E extends Data, C extends Batch<E>> implement
         @Override
         public boolean equals(Object o) {
             if (o instanceof ComboBatch) {
-                return ((ComboBatch) o).batch.equals(o);
+                return ((ComboBatch) o).batch.equals(batch);
             }
             return super.equals(o);
         }

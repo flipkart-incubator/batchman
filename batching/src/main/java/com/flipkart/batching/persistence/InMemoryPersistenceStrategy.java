@@ -19,10 +19,15 @@ public class InMemoryPersistenceStrategy<E extends Data> implements PersistenceS
     }
 
     @Override
-    public void add(Collection<E> dataCollection) {
+    public boolean add(Collection<E> dataCollection) {
+        boolean isAdded = false;
         for (E data : dataCollection) {
-            if (!dataList.contains(data)) dataList.add(data);
+            if (!dataList.contains(data)) {
+                dataList.add(data);
+                isAdded = true;
+            }
         }
+        return isAdded;
     }
 
     @Override

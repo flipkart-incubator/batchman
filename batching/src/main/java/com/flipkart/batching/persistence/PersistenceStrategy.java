@@ -17,7 +17,7 @@ public interface PersistenceStrategy<E extends Data> {
      *
      * @param dataCollection collection of {@link Data} objects
      */
-    void add(Collection<E> dataCollection);
+    boolean add(Collection<E> dataCollection);
 
     /**
      * This method returns {@link Collection} of persisted {@link Data} objects.

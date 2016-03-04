@@ -48,8 +48,8 @@ public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
         currentBatchSize = getPersistenceStrategy().getData().size();
         if ((forced || isBatchReady()) && currentBatchSize > 0) {
             Collection<E> data = getPersistenceStrategy().getData();
-            getOnReadyListener().onReady(this, new SizeBatch<E>(data, maxBatchSize));
             getPersistenceStrategy().removeData(data);
+            getOnReadyListener().onReady(this, new SizeBatch<E>(data, maxBatchSize));
         }
     }
 

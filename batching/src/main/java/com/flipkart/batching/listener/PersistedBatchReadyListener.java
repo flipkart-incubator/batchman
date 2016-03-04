@@ -45,7 +45,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
         this.listener = listener;
     }
 
-    protected QueueFile getQueueFile() {
+    public QueueFile getQueueFile() {
         return queueFile;
     }
 
