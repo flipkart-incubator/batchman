@@ -23,4 +23,5 @@ public class Batch<T extends Data> implements Serializable {
         }
         return super.equals(o);
     }
+
 }

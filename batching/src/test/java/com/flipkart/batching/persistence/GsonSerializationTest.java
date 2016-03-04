@@ -57,7 +57,7 @@ public class GsonSerializationTest {
      * @throws SerializeException
      * @throws DeserializeException
      */
-    @Test(expected = Exception.class)
+    @Test(expected = DeserializeException.class)
     public void testIfExceptionThrownWhenCorrupt() throws SerializeException, DeserializeException {
         GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy;
         ArrayList<Data> dataCollection = Utils.fakeCollection(4);

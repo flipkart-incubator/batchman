@@ -17,6 +17,7 @@ import com.flipkart.batching.exception.SerializeException;
 import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
+import com.squareup.tape.QueueFile;
 
 import junit.framework.Assert;
 
@@ -253,6 +254,45 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         verifyNoMoreInteractions(networkBatchListener);
     }
 
+    @Test
+    public void testReinitialize() {
+        long callbackIdle = 1000;
+
+        Context context = RuntimeEnvironment.application;
+        File file = createRandomFile();
+        Handler handler = new Handler();
+        ShadowLooper shadowLooper = Shadows.shadowOf(Looper.getMainLooper());
+        SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+        TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
+
+        NetworkPersistedBatchReadyListener.NetworkRequestResponse networkRequestResponse = new NetworkPersistedBatchReadyListener.NetworkRequestResponse(false, 500);
+        MockNetworkPersistedBatchReadyListener networkBatchListener = spy(new MockNetworkPersistedBatchReadyListener(networkRequestResponse, handler, callbackIdle, context));
+        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, 1, 50, 10, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, trimmedBatchCallback);
+        SizeBatchingStrategy.SizeBatch<Data> firstBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 3);
+        networkPersistedBatchReadyListener.onReady(strategy, firstBatch);
+        shadowLooper.runToEndOfTasks();
+        SizeBatchingStrategy.SizeBatch<Data> secondBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 3);
+        networkPersistedBatchReadyListener.onReady(strategy, secondBatch);
+        shadowLooper.runToEndOfTasks();
+
+        QueueFile oldQueueFile = networkPersistedBatchReadyListener.getQueueFile();
+
+        //reinitialize
+        networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, file, serializationStrategy, handler, networkBatchListener, 5, 50, 10, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, trimmedBatchCallback);
+        networkPersistedBatchReadyListener.setQueueFile(oldQueueFile); //since 2 queuefiles cannot point to same disk file, we had to do this
+        networkRequestResponse.complete = true;
+        networkRequestResponse.httpErrorCode = 200;
+        SizeBatchingStrategy.SizeBatch<Data> thirdBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 3);
+        networkPersistedBatchReadyListener.onReady(strategy, thirdBatch);
+        shadowLooper.runToEndOfTasks(); //all retries finished
+
+
+
+    }
+
     /**
      * Test to verify the retry policy
      */
@@ -389,10 +429,10 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
     /**
      * Delete all the test_files when the test ends
      */
-    @After
-    public void afterTest() {
-        deleteRandomFiles();
-    }
+//    @After
+//    public void afterTest() {
+//        deleteRandomFiles();
+//    }
 
     /**
      * Custom MockNetworkPersistedBatchReadyListener
@@ -429,5 +469,10 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         public boolean isNetworkConnected(Context context) {
             return mockedNetworkConnected;
         }
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        deleteRandomFiles();
     }
 }

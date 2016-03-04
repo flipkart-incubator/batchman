@@ -16,4 +16,9 @@ public class EventData extends Data {
     public EventData(Object data) {
         super(data);
     }
+
+    @Override
+    public String toString() {
+        return super.toString()+":"+getEventId();
+    }
 }

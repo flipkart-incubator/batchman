@@ -281,7 +281,9 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         persistedBatchReadyListener.setListener(persistedBatchCallback);
         Assert.assertTrue(persistedBatchReadyListener.getListener() != null);
 
+
     }
+
 
     /**
      * Delete all the test_files after test ends

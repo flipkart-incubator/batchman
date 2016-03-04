@@ -3,6 +3,7 @@ package com.flipkart.batching.persistence;
 import android.content.Context;
 
 import com.flipkart.Utils;
+import com.flipkart.batching.BaseTestClass;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.Data;
@@ -24,7 +25,7 @@ import java.util.Collection;
  */
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
-public class SQLPersistenceTest {
+public class SQLPersistenceTest extends BaseTestClass{
 
     /**
      * Test to verify that data is retained in InMemoryList after {@link PersistenceStrategy#add(Collection)} is called.
@@ -73,7 +74,7 @@ public class SQLPersistenceTest {
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
-        persistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, "test", context);
+        persistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, createRandomString(), context);
         persistenceStrategy.onInitialized();
 
         return persistenceStrategy;
@@ -84,7 +85,7 @@ public class SQLPersistenceTest {
         PersistenceStrategy<Data> persistenceStrategy;
         Context context;
         context = RuntimeEnvironment.application;
-        persistenceStrategy = new SQLPersistenceStrategy<>(new GsonSerializationStrategy<>(), "test", context);
+        persistenceStrategy = new SQLPersistenceStrategy<>(new GsonSerializationStrategy<>(), createRandomString(), context);
         persistenceStrategy.onInitialized();
         persistenceStrategy.add(Utils.fakeCollection(4));
     }
