@@ -16,7 +16,7 @@ The library has been written in a more flexible way, so that the client can plug
 
 ###Sample Code
 
-````
+````java
 
       int MAX_BATCH_SIZE = 5;
       
