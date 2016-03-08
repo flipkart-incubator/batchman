@@ -9,6 +9,7 @@ import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.data.Tag;
 import com.flipkart.batching.data.TagData;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -98,6 +99,8 @@ public class TagBatchingStrategy<E extends TagData> implements BatchingStrategy<
 
 
     public static class TagBatch<T extends TagData> extends Batch<T> {
+
+        @SerializedName("tag")
         private Tag tag;
 
         public TagBatch(Tag tag, Batch<T> batch) {

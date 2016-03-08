@@ -8,6 +8,7 @@ import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.Collection;
 
@@ -79,6 +80,8 @@ public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
     }
 
     public static class TimeBatch<D extends Data> extends Batch<D> {
+
+        @SerializedName("timeOut")
         private long timeOut;
 
         public TimeBatch(Collection<D> dataCollection, long timeOut) {

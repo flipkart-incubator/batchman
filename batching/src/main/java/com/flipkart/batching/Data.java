@@ -1,6 +1,7 @@
 package com.flipkart.batching;
 
 import com.flipkart.batching.data.Tag;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
@@ -16,6 +17,7 @@ import java.io.Serializable;
 
 public abstract class Data implements Serializable {
 
+    @SerializedName("eventId")
     private long eventId;
 
     /**

@@ -29,9 +29,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
     private final SerializationStrategy<E, T> serializationStrategy;
     private PersistedBatchCallback<T> listener;
     private QueueFile queueFile;
-    private boolean initialized;
     private boolean isWaitingToFinish;
-
     public PersistedBatchReadyListener(File file, SerializationStrategy<E, T> serializationStrategy, Handler handler, @Nullable PersistedBatchCallback<T> listener) {
         this.file = file;
         this.serializationStrategy = serializationStrategy;
@@ -51,8 +49,12 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
         return queueFile;
     }
 
+    public void setQueueFile(QueueFile queueFile) {
+        this.queueFile = queueFile;
+    }
+
     public boolean isInitialized() {
-        return initialized;
+        return queueFile!=null;
     }
 
     @Override
@@ -63,7 +65,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                 initializeIfRequired();
                 try {
                     queueFile.add(serializationStrategy.serializeBatch(batch));
-                    callPersistSuccess(batch);
+                    checkPendingAndContinue();
                 } catch (Exception e) {
                     if (log.isErrorEnabled()) {
                         log.error(e.getLocalizedMessage());
@@ -90,8 +92,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
     }
 
     private void initializeIfRequired() {
-        if (!initialized) {
-            initialized = true;
+        if (!isInitialized()) {
             try {
                 this.queueFile = new QueueFile(file);
                 onInitialized(queueFile);
@@ -99,6 +100,18 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                 if (log.isErrorEnabled()) {
                     log.error(e.getLocalizedMessage());
                 }
+            }
+        }
+    }
+
+    public void close()
+    {
+        if(queueFile!=null)
+        {
+            try {
+                queueFile.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -121,10 +134,16 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                                 throw new IllegalStateException("Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
                             }
                         }
-                    } catch (IOException | DeserializeException e) {
+                    } catch (DeserializeException e) {
                         if (log.isErrorEnabled()) {
                             log.error(e.getLocalizedMessage());
                         }
+                        throw new IllegalStateException("Finish cannot be done due to Deserialize exception " + e.getRealException().getLocalizedMessage());
+                    } catch (IOException e) {
+                        if (log.isErrorEnabled()) {
+                            log.error(e.getLocalizedMessage());
+                        }
+                        throw new IllegalStateException("Finish (removing from queue) cannot be done due to IO exception " + e.getLocalizedMessage());
                     }
                     isWaitingToFinish = false;
                     checkPendingAndContinue();
