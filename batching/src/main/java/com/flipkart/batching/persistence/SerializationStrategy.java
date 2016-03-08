@@ -11,12 +11,10 @@ import java.util.Collection;
  * This is an interface for serialization strategy. An implementation of this class
  * must override all it's methods.
  *
- * @see ByteArraySerializationStrategy
  * @see GsonSerializationStrategy
  */
 
 public interface SerializationStrategy<E extends Data, T extends Batch> {
-
     /**
      * Register sub classes of {@link Data}
      *
@@ -59,5 +57,4 @@ public interface SerializationStrategy<E extends Data, T extends Batch> {
     Collection<E> deserializeCollection(byte[] data) throws DeserializeException;
 
     T deserializeBatch(byte[] data) throws DeserializeException;
-
 }

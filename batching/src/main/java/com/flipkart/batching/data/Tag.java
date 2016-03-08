@@ -1,7 +1,6 @@
 package com.flipkart.batching.data;
 
 import com.flipkart.batching.Data;
-import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 

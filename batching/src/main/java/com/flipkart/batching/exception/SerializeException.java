@@ -7,7 +7,6 @@ package com.flipkart.batching.exception;
  */
 
 public class SerializeException extends Exception {
-
     private final Exception realException;
 
     public SerializeException(Exception realException) {

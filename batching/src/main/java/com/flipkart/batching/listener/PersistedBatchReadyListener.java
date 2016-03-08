@@ -19,10 +19,10 @@ import java.io.IOException;
 
 /**
  * Created by kushal.sharma on 13/02/16.
- * Todo Document
+ * Todo Persisted Batch Ready Listener Document
  */
-public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T> {
 
+public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(PersistedBatchReadyListener.class);
     protected final Handler handler;
     private final File file;
@@ -30,6 +30,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
     private PersistedBatchCallback<T> listener;
     private QueueFile queueFile;
     private boolean isWaitingToFinish;
+
     public PersistedBatchReadyListener(File file, SerializationStrategy<E, T> serializationStrategy, Handler handler, @Nullable PersistedBatchCallback<T> listener) {
         this.file = file;
         this.serializationStrategy = serializationStrategy;
@@ -45,7 +46,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
         this.listener = listener;
     }
 
-    protected QueueFile getQueueFile() {
+    public QueueFile getQueueFile() {
         return queueFile;
     }
 
@@ -54,7 +55,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
     }
 
     public boolean isInitialized() {
-        return queueFile!=null;
+        return queueFile != null;
     }
 
     @Override
@@ -104,10 +105,8 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
         }
     }
 
-    public void close()
-    {
-        if(queueFile!=null)
-        {
+    public void close() {
+        if (queueFile != null) {
             try {
                 queueFile.close();
             } catch (IOException e) {

@@ -121,6 +121,7 @@ import java.util.Map;
  *       .registerSubtype(Diamond.class);
  * }</pre>
  */
+
 public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
     private final Class<?> baseType;
     private final String typeFieldName;

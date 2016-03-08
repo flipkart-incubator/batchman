@@ -17,7 +17,7 @@ public interface PersistenceStrategy<E extends Data> {
      *
      * @param dataCollection collection of {@link Data} objects
      */
-    void add(Collection<E> dataCollection);
+    boolean add(Collection<E> dataCollection);
 
     /**
      * This method returns {@link Collection} of persisted {@link Data} objects.
@@ -35,5 +35,4 @@ public interface PersistenceStrategy<E extends Data> {
     void removeData(Collection<E> dataCollection);
 
     void onInitialized();
-
 }

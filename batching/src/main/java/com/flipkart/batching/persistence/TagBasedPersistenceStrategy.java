@@ -32,9 +32,9 @@ public class TagBasedPersistenceStrategy<E extends Data> implements PersistenceS
     }
 
     @Override
-    public void add(Collection<E> dataCollection) {
+    public boolean add(Collection<E> dataCollection) {
         filterByTag(dataCollection);
-        persistenceStrategy.add(dataCollection);
+        return persistenceStrategy.add(dataCollection);
     }
 
     @Override
