@@ -7,6 +7,7 @@ import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.Collection;
 
@@ -71,6 +72,8 @@ public class ComboBatchingStrategy<E extends Data, C extends Batch<E>> implement
     }
 
     public static class ComboBatch<T extends Data> extends Batch<T> {
+
+        @SerializedName("batch")
         private Batch<T> batch;
 
         public ComboBatch(Batch<T> batch) {

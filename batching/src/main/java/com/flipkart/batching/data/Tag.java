@@ -7,9 +7,12 @@ import java.io.Serializable;
 /**
  * Tag is a simple class to store information about the {@link Data} object.
  * A tag implements {@link Serializable} and consists of Id, Priority and Url.
+ * <p/>
  */
 
 public class Tag implements Serializable {
+
+    @SerializedName("id")
     private String id;
 
     public Tag(String id) {
