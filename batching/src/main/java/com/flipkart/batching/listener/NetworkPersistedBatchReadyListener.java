@@ -21,9 +21,10 @@ import java.io.File;
 
 /**
  * Created by kushal.sharma on 29/02/16 at 11:58 AM.
+ * Network Persisted Batch Ready Listener
  */
-public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends TrimPersistedBatchReadyListener<E, T> {
 
+public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends TrimPersistedBatchReadyListener<E, T> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(NetworkPersistedBatchReadyListener.class);
     private static final int HTTP_SERVER_ERROR_CODE_RANGE_START = 500;
     private static final int HTTP_SERVER_ERROR_CODE_RANGE_END = 599;
@@ -66,6 +67,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             unregisterReceiver();
         }
     };
+
     public NetworkPersistedBatchReadyListener(final Context context, File file, SerializationStrategy<E, T> serializationStrategy, final Handler handler, NetworkBatchListener<E, T> listener, int maxRetryCount, int maxQueueSize, int trimToSize, int trimmingMode, TrimmedBatchCallback trimmedBatchCallback) {
         super(file, serializationStrategy, handler, maxQueueSize, trimToSize, trimmingMode, null, trimmedBatchCallback);
         this.context = context;
@@ -121,7 +123,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             retryLimitReached = false;
             resume();
         }
-
     }
 
     @Override
@@ -186,12 +187,12 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     /**
      * Backoff time to retry the batch for 5XX Server errors.
      *
-     * @return
+     * @return new timeOut
      */
     private int exponentialBackOff() {
-        int timeout = mCurrentTimeoutMs;
+        int timeOut = mCurrentTimeoutMs;
         mCurrentTimeoutMs += (mCurrentTimeoutMs * defaultBackoffMultiplier);
-        return timeout;
+        return timeOut;
     }
 
     @Override
@@ -224,7 +225,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
          * While invoking the networkBatchListener, pass a {@link NetworkRequestResponse} object with the following data.
          * If the network response was successfully received, set complete to true, and set httpErrorCode to the status code from server. If status code is 5XX, this batch will be retried. If status code is 200 or 4XX the batch will be discarded and next batch will be processed.
          * If the network response was not received (timeout or not connected or any other network error), set complete to false. This will cause a retry until max retries are reached.
-         * <p>
+         * <p/>
          * Note: If there is a network redirect, do not call the networkBatchListener, and wait for the final redirected response and pass that one.
          *
          * @param batch
@@ -245,7 +246,8 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     public static class NetworkRequestResponse {
         public boolean complete; //indicates whether a network response was received.
         public int httpErrorCode;
-        public NetworkRequestResponse(boolean isComplete, int httpErrorCode){
+
+        public NetworkRequestResponse(boolean isComplete, int httpErrorCode) {
             this.complete = isComplete;
             this.httpErrorCode = httpErrorCode;
         }

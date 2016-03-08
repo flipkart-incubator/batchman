@@ -21,7 +21,6 @@ import java.util.List;
  */
 
 public class DatabaseHelper<E extends Data, T extends Batch> extends SQLiteOpenHelper {
-
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_EVENT_DATA = "tableEventData";
     private static final String KEY_ID = "id";

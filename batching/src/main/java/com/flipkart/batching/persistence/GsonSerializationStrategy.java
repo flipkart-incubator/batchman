@@ -9,7 +9,6 @@ import com.flipkart.batching.toolbox.RuntimeTypeAdapterFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -22,7 +21,6 @@ import java.util.Set;
  * Implementation of {@link SerializationStrategy}.
  *
  * @see SerializationStrategy
- * @see ByteArraySerializationStrategy
  */
 
 public class GsonSerializationStrategy<E extends Data, T extends Batch> implements SerializationStrategy<E, T> {
@@ -63,7 +61,6 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         gsonBuilder.registerTypeAdapter(DataCollection.class, new DataCollection.DeSerializer());
         //gsonBuilder.registerTypeAdapterFactory(collectionAdapter);
         gson = gsonBuilder.create();
-
     }
 
     private void checkIfBuildCalled() {

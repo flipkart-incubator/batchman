@@ -4,15 +4,12 @@ import com.flipkart.batching.Data;
 
 /**
  * Created by kushal.sharma on 24/02/16.
+ * Tag Data Class.
  */
+
 public class TagData extends Data {
     private final Tag tag;
 
-    /**
-     * Constructor for Data object. This constructor takes {@link Tag} and {@link Object} as
-     * parameter and generates an eventId = (System.currentTimeMillis() + System.nanoTime())
-     *
-     */
     public TagData(Tag tag) {
         super();
         this.tag = tag;

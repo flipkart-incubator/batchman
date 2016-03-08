@@ -7,7 +7,6 @@ package com.flipkart.batching.exception;
  */
 
 public class DeserializeException extends Exception {
-
     private final Exception realException;
 
     public DeserializeException(Exception realException) {

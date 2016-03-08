@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
-
 /**
  * SQLPersistenceStrategy extends {@link InMemoryPersistenceStrategy} which is an implementation
  * of {@link PersistenceStrategy}. This persistence strategy persists the data in SQL Database and
@@ -19,6 +18,7 @@ import java.util.Collection;
  * and all the overridden methods must call super method, to initialize and perform operations on
  * InMemory data list.
  */
+
 public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(SQLPersistenceStrategy.class);
     private DatabaseHelper<E, ? extends Batch> databaseHelper;

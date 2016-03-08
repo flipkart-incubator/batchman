@@ -44,5 +44,4 @@ public class InMemoryPersistenceStrategy<E extends Data> implements PersistenceS
     public void onInitialized() {
         initialized = true;
     }
-
 }

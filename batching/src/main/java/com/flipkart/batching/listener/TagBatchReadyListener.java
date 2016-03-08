@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * Created by kushal.sharma on 13/02/16.
- * Todo Document
+ * Todo Document Tag Batch Ready Listener
  */
 
 public class TagBatchReadyListener<E extends TagData> implements OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E>> {

@@ -13,16 +13,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 /**
  * Created by kushal.sharma on 23/02/16.
  * Simple class for Tape Persistence Strategy that extends In Memory Persistence Strategy
  */
+
 public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(TapePersistenceStrategy.class);
     private File file;
     private QueueFile queueFile;
     private SerializationStrategy<E, ? extends Batch> serializationStrategy;
+
     public TapePersistenceStrategy(File file, SerializationStrategy<E, ? extends Batch> serializationStrategy) {
         this.file = file;
         this.serializationStrategy = serializationStrategy;
@@ -38,7 +39,7 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
         Collection<E> oldData = getData();
         for (E data : dataCollection) {
             try {
-                if(!oldData.contains(data)) {
+                if (!oldData.contains(data)) {
                     isAdded = true;
                     queueFile.add(serializationStrategy.serializeData(data));
                 }
@@ -95,7 +96,8 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
 
     /**
      * Very expensive operation
-     * @return
+     *
+     * @return collection of data
      */
     private Collection<E> getAllDataFromTapeQueue() {
         ArrayList<E> dataList = new ArrayList<>();

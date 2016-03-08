@@ -14,7 +14,9 @@ import java.util.Collection;
 
 /**
  * Created by kushal.sharma on 01/03/16.
+ * Data Collection
  */
+
 public class DataCollection<T extends Data> {
 
     Collection<T> dataCollection;
@@ -62,5 +64,4 @@ public class DataCollection<T extends Data> {
             return null;
         }
     }
-
 }

@@ -35,5 +35,4 @@ public interface PersistenceStrategy<E extends Data> {
     void removeData(Collection<E> dataCollection);
 
     void onInitialized();
-
 }

@@ -3,9 +3,7 @@ package com.flipkart.batching;
 import java.io.Serializable;
 import java.util.Collection;
 
-
 public class Batch<T extends Data> implements Serializable {
-
     private DataCollection dataCollection;
 
     public Batch(Collection<T> dataCollection) {
@@ -23,5 +21,4 @@ public class Batch<T extends Data> implements Serializable {
         }
         return super.equals(o);
     }
-
 }

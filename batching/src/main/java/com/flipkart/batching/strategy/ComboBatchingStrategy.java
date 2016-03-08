@@ -70,7 +70,6 @@ public class ComboBatchingStrategy<E extends Data, C extends Batch<E>> implement
         return initialized;
     }
 
-
     public static class ComboBatch<T extends Data> extends Batch<T> {
         private Batch<T> batch;
 

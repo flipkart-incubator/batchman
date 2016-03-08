@@ -12,7 +12,6 @@ import java.util.Collection;
  */
 
 public interface BatchController<E extends Data, T extends Batch<E>> {
-
     /**
      * This method takes {@link Data} type {@link Collection} as parameter and notifies the provided
      * {@link BatchingStrategy} about the added data.
