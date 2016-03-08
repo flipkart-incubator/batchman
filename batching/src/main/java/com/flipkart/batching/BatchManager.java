@@ -12,6 +12,9 @@ import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
 import com.flipkart.batching.strategy.TimeBatchingStrategy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,6 +41,7 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
     private Handler handler;
     private BatchingStrategy<E, T> batchingStrategy;
     private SerializationStrategy<E, T> serializationStrategy;
+    private Logger logger = LoggerFactory.getLogger(BatchManager.class);
 
     protected BatchManager(Builder builder, final Context context) {
         final OnBatchReadyListener onBatchReadyListener = builder.getOnBatchReadyListener();
@@ -86,6 +90,7 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
             @Override
             public void run() {
                 assignEventIds(dataCollection);
+                logEvents(dataCollection);
                 if (batchingStrategy.isInitialized()) {
                     batchingStrategy.onDataPushed(dataCollection);
                     batchingStrategy.flush(false);
@@ -94,6 +99,12 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
                 }
             }
         });
+    }
+
+    private void logEvents(Collection<E> dataCollection) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Data added {}", dataCollection);
+        }
     }
 
     private void assignEventIds(Collection<E> dataCollection) {

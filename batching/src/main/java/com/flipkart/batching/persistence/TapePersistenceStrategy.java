@@ -13,11 +13,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 /**
  * Created by kushal.sharma on 23/02/16.
  * Simple class for Tape Persistence Strategy that extends In Memory Persistence Strategy
  */
+
 public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(TapePersistenceStrategy.class);
     private File file;
@@ -29,18 +29,28 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
         this.serializationStrategy = serializationStrategy;
     }
 
+    public QueueFile getQueueFile() {
+        return queueFile;
+    }
+
     @Override
-    public void add(Collection<E> dataCollection) {
-        super.add(dataCollection);
+    public boolean add(Collection<E> dataCollection) {
+        boolean isAdded = false;
+        Collection<E> oldData = getData();
         for (E data : dataCollection) {
             try {
-                queueFile.add(serializationStrategy.serializeData(data));
+                if (!oldData.contains(data)) {
+                    isAdded = true;
+                    queueFile.add(serializationStrategy.serializeData(data));
+                }
             } catch (IOException | SerializeException e) {
                 if (log.isErrorEnabled()) {
                     log.error(e.getLocalizedMessage());
                 }
             }
         }
+        super.add(dataCollection);
+        return isAdded;
     }
 
     @Override
@@ -86,7 +96,8 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
 
     /**
      * Very expensive operation
-     * @return
+     *
+     * @return collection of data
      */
     private Collection<E> getAllDataFromTapeQueue() {
         ArrayList<E> dataList = new ArrayList<>();

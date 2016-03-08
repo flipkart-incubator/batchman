@@ -16,9 +16,10 @@ import java.io.IOException;
 
 /**
  * Created by anirudh.r on 23/02/16.
+ * Trim Persisted BatchReady Listener
  */
-public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends PersistedBatchReadyListener<E, T> {
 
+public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends PersistedBatchReadyListener<E, T> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(TrimPersistedBatchReadyListener.class);
     protected final Handler handler;
     private final TrimmedBatchCallback trimListener;
@@ -83,5 +84,4 @@ public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>>
             trimListener.onTrimmed(oldSize, newSize);
         }
     }
-
 }

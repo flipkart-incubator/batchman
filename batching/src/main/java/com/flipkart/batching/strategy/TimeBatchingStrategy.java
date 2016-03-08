@@ -29,6 +29,7 @@ public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
             flush(true);
         }
     };
+
     public TimeBatchingStrategy(long timeOut, PersistenceStrategy<E> persistenceStrategy) {
         super(persistenceStrategy);
         if (timeOut <= 0) {

@@ -11,7 +11,6 @@ import java.util.Collection;
  */
 
 public interface BatchingStrategy<E extends Data, T extends Batch<E>> {
-
     /**
      * This method tells the BatchingStrategy about added data. This method should send the
      * provided {@link Collection} of {@link Data} objects to the provided implementation of
@@ -44,6 +43,7 @@ public interface BatchingStrategy<E extends Data, T extends Batch<E>> {
     /**
      * Instance of {@link BatchController}, {@link Context}, {@link OnBatchReadyListener},
      * and {@link Handler} from {@link BatchController}.
+     *
      * @param context              context
      * @param onBatchReadyListener instance of {@link OnBatchReadyListener}
      * @param handler              instance of {@link Handler}
