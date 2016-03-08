@@ -1,6 +1,7 @@
 package com.flipkart.batching.data;
 
 import com.flipkart.batching.Data;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
@@ -12,6 +13,7 @@ import java.io.Serializable;
 
 public class Tag implements Serializable {
 
+    @SerializedName("id")
     private String id;
 
     public Tag(String id) {

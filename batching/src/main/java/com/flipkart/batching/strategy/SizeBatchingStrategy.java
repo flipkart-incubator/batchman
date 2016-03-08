@@ -8,6 +8,7 @@ import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.Collection;
 
@@ -69,6 +70,8 @@ public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
     }
 
     public static class SizeBatch<T extends Data> extends Batch<T> {
+
+        @SerializedName("maxBatchSize")
         private int maxBatchSize;
 
         public SizeBatch(Collection dataCollection, int maxBatchSize) {
