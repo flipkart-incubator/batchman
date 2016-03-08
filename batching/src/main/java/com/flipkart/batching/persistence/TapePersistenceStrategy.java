@@ -56,7 +56,7 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
     @Override
     public void removeData(Collection<E> dataCollection) {
         super.removeData(dataCollection);
-        for (int i = 0; i < dataCollection.size(); i++) {
+        for (E ignored : dataCollection) {
             try {
                 if (dataCollection.contains(serializationStrategy.deserializeData(queueFile.peek()))) {
                     try {
