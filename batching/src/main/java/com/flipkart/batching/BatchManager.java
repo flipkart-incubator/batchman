@@ -126,6 +126,16 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
         return this.serializationStrategy;
     }
 
+    @Override
+    public void flush(final boolean forced) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                batchingStrategy.flush(forced);
+            }
+        });
+    }
+
     /**
      * This method takes {@link BatchController}, {@link Context}, {@link Handler} and
      * {@link OnBatchReadyListener} as parameters, after building the BatchManager and passes
