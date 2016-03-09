@@ -2,6 +2,7 @@ package com.flipkart.batching.listener;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -422,7 +423,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
      */
     private void sendFakeNetworkBroadcast(Context context) {
         Intent intent = new Intent();
-        intent.setAction(Context.CONNECTIVITY_SERVICE);
+        intent.setAction(ConnectivityManager.CONNECTIVITY_ACTION);
         context.sendBroadcast(intent);
     }
 
