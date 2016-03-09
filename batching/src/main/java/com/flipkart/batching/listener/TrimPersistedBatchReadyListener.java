@@ -29,12 +29,12 @@ public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>>
     public final static int MODE_TRIM_ON_READY = 1 << 1;
     private int mode;
 
-    public TrimPersistedBatchReadyListener(File file, SerializationStrategy<E, T> serializationStrategy, Handler handler, int maxQueueSize, int trimToSize, int mode, PersistedBatchCallback<T> persistedBatchCallback, TrimmedBatchCallback trimmedBatchCallback) {
+    public TrimPersistedBatchReadyListener(File file, SerializationStrategy<E, T> serializationStrategy, Handler handler, int maxQueueSize, int trimSize, int mode, PersistedBatchCallback<T> persistedBatchCallback, TrimmedBatchCallback trimmedBatchCallback) {
         super(file, serializationStrategy, handler, persistedBatchCallback);
-        if (trimToSize > maxQueueSize) {
-            throw new IllegalArgumentException("trimToSize must be smaller than maxQueueSize");
+        if (trimSize > maxQueueSize) {
+            throw new IllegalArgumentException("trimSize must be smaller than maxQueueSize");
         }
-        this.trimSize = trimToSize;
+        this.trimSize = trimSize;
         this.queueSize = maxQueueSize;
         this.handler = handler;
         this.mode = mode;
