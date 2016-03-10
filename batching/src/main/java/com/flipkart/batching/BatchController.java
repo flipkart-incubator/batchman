@@ -36,4 +36,6 @@ public interface BatchController<E extends Data, T extends Batch<E>> {
      */
 
     SerializationStrategy<E, T> getSerializationStrategy();
+
+    void flush(boolean forced);
 }

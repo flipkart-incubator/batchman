@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                batchManager.addToBatch(Collections.singleton(new TagData(perfTag, "Event 1")));
+                batchManager.addToBatch(Collections.singleton(new TagData(perfTag)));
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -220,27 +220,28 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            batchManager.addToBatch(Collections.singleton(new TagData(perfTag, "Event 2 "+System.currentTimeMillis())));
+            batchManager.addToBatch(Collections.singleton(new TagData(perfTag)));
 
         } else if (id == R.id.nav_gallery) {
-            batchManager.addToBatch(Collections.singleton(new TagData(dgTag, "Event 3 "+System.currentTimeMillis())));
+            batchManager.addToBatch(Collections.singleton(new TagData(dgTag)));
 
         } else if (id == R.id.nav_slideshow) {
-            batchManager.addToBatch(Collections.singleton(new TagData(debugTag, "Event 4 "+System.currentTimeMillis())));
+            batchManager.addToBatch(Collections.singleton(new TagData(debugTag)));
 
         } else if (id == R.id.nav_manage) {
-            batchManager.addToBatch(Collections.singleton(new TagData(perfTag, "Event 5")));
+            batchManager.addToBatch(Collections.singleton(new TagData(perfTag)));
 
         } else if (id == R.id.nav_share) {
-            batchManager.addToBatch(Collections.singleton(new TagData(dgTag, "Event 6")));
+            batchManager.addToBatch(Collections.singleton(new TagData(dgTag)));
 
         } else if (id == R.id.nav_send) {
-            batchManager.addToBatch(Collections.singleton(new TagData(perfTag, "Event 7")));
+            batchManager.addToBatch(Collections.singleton(new TagData(perfTag)));
 
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+
     }
 }

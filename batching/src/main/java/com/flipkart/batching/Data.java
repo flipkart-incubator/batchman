@@ -1,6 +1,7 @@
 package com.flipkart.batching;
 
 import com.flipkart.batching.data.Tag;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
@@ -15,11 +16,14 @@ import java.io.Serializable;
  */
 
 public abstract class Data implements Serializable {
+
+    @SerializedName("eventId")
     private long eventId;
 
     /**
      * Constructor for Data object. This constructor takes {@link Tag} and {@link Object} as
      * parameter and generates an eventId = (System.currentTimeMillis() + System.nanoTime())
+     *
      */
     public Data() {
         this.eventId = System.currentTimeMillis() + System.nanoTime();
