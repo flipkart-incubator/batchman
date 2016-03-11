@@ -20,6 +20,7 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,10 +41,61 @@ import java.util.Set;
 public class GsonSerializationStrategy<E extends Data, T extends Batch> implements SerializationStrategy<E, T> {
 
     private static final String IS_JSON_OBJECT = "_com.flipkart.batching.isJsonObject";
+    private static final String JSON_ARRAY_OBJECT = "_com.flipkart.batching.jsonArray";
 
     Set<Class<E>> dataTypes = new HashSet<>();
     Set<Class<T>> batchInfoTypes = new HashSet<>();
     private Gson gson;
+
+    private static Object getObjectFromJsonElement(JsonElement value, JsonDeserializationContext context) {
+        Object result = null;
+        if (value.isJsonObject()) {
+            if (value.getAsJsonObject().has(IS_JSON_OBJECT)) {
+                JSONObject jsonObject = context.deserialize(value, JSONObject.class);
+                if (null != jsonObject) {
+                    jsonObject.remove(IS_JSON_OBJECT);
+                }
+                return jsonObject;
+            } else if (value.getAsJsonObject().has(JSON_ARRAY_OBJECT)) {
+                return context.deserialize(value, JSONArray.class);
+            } else {
+                result = getMapFromJson(value.getAsJsonObject(), context);
+            }
+
+        } else if (value.isJsonPrimitive()) {
+            JsonPrimitive primitiveValue = value.getAsJsonPrimitive();
+            if (primitiveValue.isBoolean()) {
+                result = primitiveValue.getAsBoolean();
+            } else if (primitiveValue.isNumber()) {
+                result = primitiveValue.getAsNumber();
+            } else {
+                result = primitiveValue.getAsString();
+            }
+        } else if (value.isJsonNull()) {
+            result = null;
+        } else if (value.isJsonArray()) {
+            JsonArray jsonArray = value.getAsJsonArray();
+            ArrayList<Object> list = new ArrayList<>(jsonArray.size());
+            for (JsonElement element : jsonArray) {
+                list.add(getObjectFromJsonElement(element, context));
+            }
+            result = list;
+        }
+        return result;
+    }
+
+    public static Map<String, Object> getMapFromJson(JsonObject data, JsonDeserializationContext context) {
+        Map<String, Object> result = null;
+        if (null != data) {
+            result = new LinkedTreeMap<>();
+            for (Map.Entry<String, JsonElement> entry : data.entrySet()) {
+                result.put(entry.getKey(), getObjectFromJsonElement(entry.getValue(), context));
+            }
+        }
+        return result;
+    }
+
+
 
     @Override
     public void registerDataType(Class<E> subClass) {
@@ -75,8 +127,10 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         gsonBuilder.registerTypeAdapterFactory(batchInfoAdapter);
         gsonBuilder.registerTypeAdapter(DataCollection.class, new DataCollection.Serializer());
         gsonBuilder.registerTypeAdapter(DataCollection.class, new DataCollection.DeSerializer());
-        gsonBuilder.registerTypeAdapter(JSONObject.class, new JSONDeSerializer());
-        gsonBuilder.registerTypeAdapter(JSONObject.class, new JSONSerializer());
+        gsonBuilder.registerTypeAdapter(JSONObject.class, new JSONObjectDeSerializer());
+        gsonBuilder.registerTypeAdapter(JSONObject.class, new JSONObjectSerializer());
+        gsonBuilder.registerTypeAdapter(JSONArray.class, new JSONArrayDeSerializer());
+        gsonBuilder.registerTypeAdapter(JSONArray.class, new JSONArraySerializer());
         //gsonBuilder.registerTypeAdapterFactory(collectionAdapter);
         gson = gsonBuilder.create();
     }
@@ -152,8 +206,23 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         }
     }
 
+    public static JsonElement forJSONGenericObject(Object value, JsonSerializationContext context) {
+        JsonElement element;
+        if (null != value) {
+            if (value instanceof JSONObject) {
+                element = context.serialize(value, JSONObject.class);
+            } else if (value instanceof JSONArray) {
+                element = context.serialize(value, JSONArray.class);
+            } else {
+                element = context.serialize(value);
+            }
+        } else {
+            element = context.serialize(value);
+        }
+        return element;
+    }
 
-    public static class JSONSerializer implements JsonSerializer<JSONObject> {
+    public static class JSONObjectSerializer implements JsonSerializer<JSONObject> {
         @Override
         public JsonElement serialize(JSONObject src, Type typeOfSrc, JsonSerializationContext context) {
             JsonObject result = null;
@@ -164,16 +233,9 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
                     while (iterator.hasNext()) {
                         String key = iterator.next();
                         Object value = src.get(key);
-                        if ((null != value && value instanceof JSONObject)) {
-                            JsonElement jsonObject = context.serialize(value, JSONObject.class);
-                            if (null != jsonObject && jsonObject.isJsonObject()) {
-                                jsonObject.getAsJsonObject().addProperty(IS_JSON_OBJECT, true);
-                            }
-                            result.add(key, jsonObject);
-                        } else {
-                            result.add(key, context.serialize(value));
-                        }
-
+                        JsonElement element = forJSONGenericObject(value, context);
+                        result.add(key, element);
+                        result.addProperty(IS_JSON_OBJECT, true);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -184,53 +246,10 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         }
     }
 
-    public static class JSONDeSerializer implements JsonDeserializer<JSONObject> {
 
-        private static Object getObjectFromJsonElement(JsonElement value, JsonDeserializationContext context) {
-            Object result = null;
-            if (value.isJsonObject()) {
-                if (value.getAsJsonObject().has("_com.flipkart.batching.isJsonObject")) {
-                    JSONObject jsonObject = context.deserialize(value, JSONObject.class);
-                    if (null != jsonObject) {
-                        jsonObject.remove("_com.flipkart.batching.isJsonObject");
-                    }
-                    return jsonObject;
-                } else {
-                    result = getMapFromJson(value.getAsJsonObject(), context);
-                }
 
-            } else if (value.isJsonPrimitive()) {
-                JsonPrimitive primitiveValue = value.getAsJsonPrimitive();
-                if (primitiveValue.isBoolean()) {
-                    result = primitiveValue.getAsBoolean();
-                } else if (primitiveValue.isNumber()) {
-                    result = primitiveValue.getAsNumber();
-                } else {
-                    result = primitiveValue.getAsString();
-                }
-            } else if (value.isJsonNull()) {
-                result = null;
-            } else if (value.isJsonArray()) {
-                JsonArray jsonArray = value.getAsJsonArray();
-                ArrayList<Object> list = new ArrayList<>(jsonArray.size());
-                for (JsonElement element : jsonArray) {
-                    list.add(getObjectFromJsonElement(element, context));
-                }
-                result = list;
-            }
-            return result;
-        }
+    public static class JSONObjectDeSerializer implements JsonDeserializer<JSONObject> {
 
-        public static Map<String, Object> getMapFromJson(JsonObject data, JsonDeserializationContext context) {
-            Map<String, Object> result = null;
-            if (null != data) {
-                result = new LinkedTreeMap<>();
-                for (Map.Entry<String, JsonElement> entry : data.entrySet()) {
-                    result.put(entry.getKey(), getObjectFromJsonElement(entry.getValue(), context));
-                }
-            }
-            return result;
-        }
 
         @Override
         public JSONObject deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
@@ -252,6 +271,52 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
                     e.printStackTrace();
                 }
 
+            }
+            return result;
+        }
+    }
+
+    public static class JSONArraySerializer implements JsonSerializer<JSONArray> {
+
+        @Override
+        public JsonElement serialize(JSONArray src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonObject result = null;
+            try {
+                if (null != src) {
+                    result = new JsonObject();
+                    JsonArray jsonArray = new JsonArray();
+                    for (int idx = 0; idx < src.length(); idx++) {
+                        Object value = src.get(idx);
+                        JsonElement element = forJSONGenericObject(value, context);
+                        jsonArray.add(element);
+                    }
+                    result.add(JSON_ARRAY_OBJECT, jsonArray);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return result;
+        }
+    }
+
+    public static class JSONArrayDeSerializer implements JsonDeserializer<JSONArray> {
+
+        @Override
+        public JSONArray deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            JSONArray result = null;
+            if (null != json) {
+                result = new JSONArray();
+                if (json.isJsonObject() && json.getAsJsonObject().has(JSON_ARRAY_OBJECT)) {
+                    JsonArray jsonArray = json.getAsJsonObject().getAsJsonArray(JSON_ARRAY_OBJECT);
+                    for (JsonElement element : jsonArray) {
+                        if (null != element) {
+                            result.put(getObjectFromJsonElement(element, context));
+                        } else {
+                            result.put(null);
+                        }
+                    }
+                }
             }
             return result;
         }

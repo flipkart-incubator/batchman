@@ -34,6 +34,7 @@ import com.flipkart.batching.strategy.TagBatchingStrategy;
 import com.flipkart.batching.strategy.TimeBatchingStrategy;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity
@@ -55,7 +56,8 @@ public class MainActivity extends AppCompatActivity
         handlerThread.start();
         Handler backgroundHandler = new Handler(handlerThread.getLooper());
 
-        SerializationStrategy<TagData, TagBatchingStrategy.TagBatch<TagData>> serializationStrategy = new GsonSerializationStrategy<>();
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy<>();
+        serializationStrategy.registerDataType(CustomTagData.class);
 
         debugTag = new Tag(DEBUG_LOGGER_GROUPID);
         perfTag = new Tag(PERF_LOGGER_GROUPID);
@@ -96,6 +98,10 @@ public class MainActivity extends AppCompatActivity
                 //SystemClock.sleep(2000);
                 perfListener.finish(batch);
                 Log.e("Perf", "Finish Called");
+                ArrayList<CustomTagData> dataArrayList = (ArrayList<CustomTagData>) batch.getDataCollection();
+                for (CustomTagData data : dataArrayList) {
+                    Log.e("OUT", data.getEvent().toString());
+                }
             }
 
             @Override
@@ -163,7 +169,8 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                batchManager.addToBatch(Collections.singleton(new TagData(perfTag)));
+                Log.e("IN", TrackingHelper.getProductPageViewEvent("asd", "dfg", "fgh").toString());
+                batchManager.addToBatch(Collections.singleton(new CustomTagData(perfTag, TrackingHelper.getProductPageViewEvent("asd", "dfg", "fgh"))));
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
