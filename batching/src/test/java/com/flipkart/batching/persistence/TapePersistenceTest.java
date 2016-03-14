@@ -83,7 +83,7 @@ public class TapePersistenceTest extends BaseTestClass {
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
-        TapePersistenceStrategy<Data> persistenceStrategy = new TapePersistenceStrategy<>(file, serializationStrategy);
+        TapePersistenceStrategy<Data> persistenceStrategy = new TapePersistenceStrategy<>(createRandomString(), serializationStrategy);
         persistenceStrategy.onInitialized();
 
         return persistenceStrategy;

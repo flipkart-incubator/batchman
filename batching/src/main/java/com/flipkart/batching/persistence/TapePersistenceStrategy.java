@@ -20,12 +20,12 @@ import java.util.Collection;
 
 public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(TapePersistenceStrategy.class);
-    private File file;
+    private String filePath;
     private QueueFile queueFile;
     private SerializationStrategy<E, ? extends Batch> serializationStrategy;
 
-    public TapePersistenceStrategy(File file, SerializationStrategy<E, ? extends Batch> serializationStrategy) {
-        this.file = file;
+    public TapePersistenceStrategy(String filePath, SerializationStrategy<E, ? extends Batch> serializationStrategy) {
+        this.filePath = filePath;
         this.serializationStrategy = serializationStrategy;
     }
 
@@ -79,6 +79,7 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
     public void onInitialized() {
         if (!isInitialized()) {
             try {
+                File file = new File(filePath);
                 this.queueFile = new QueueFile(file);
             } catch (IOException e) {
                 if (log.isErrorEnabled()) {
