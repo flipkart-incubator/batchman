@@ -56,10 +56,10 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
 
         registerBuiltInTypes(serializationStrategy);
         registerSuppliedTypes(builder, serializationStrategy);
-        serializationStrategy.build();
         handler.post(new Runnable() {
             @Override
             public void run() {
+                serializationStrategy.build();
                 initialize(BatchManager.this, context, onBatchReadyListener, handler);
             }
         });
