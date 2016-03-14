@@ -17,8 +17,6 @@ import com.squareup.tape.QueueFile;
 
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-
 /**
  * Created by kushal.sharma on 29/02/16 at 11:58 AM.
  * Network Persisted Batch Ready Listener
@@ -63,8 +61,8 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         }
     };
 
-    public NetworkPersistedBatchReadyListener(final Context context, File file, SerializationStrategy<E, T> serializationStrategy, final Handler handler, NetworkBatchListener<E, T> listener, int maxRetryCount, int maxQueueSize, int trimToSize, int trimmingMode, TrimmedBatchCallback trimmedBatchCallback) {
-        super(file, serializationStrategy, handler, maxQueueSize, trimToSize, trimmingMode, null, trimmedBatchCallback);
+    public NetworkPersistedBatchReadyListener(final Context context, String filePath, SerializationStrategy<E, T> serializationStrategy, final Handler handler, NetworkBatchListener<E, T> listener, int maxRetryCount, int maxQueueSize, int trimToSize, int trimmingMode, TrimmedBatchCallback trimmedBatchCallback) {
+        super(filePath, serializationStrategy, handler, maxQueueSize, trimToSize, trimmingMode, null, trimmedBatchCallback);
         this.context = context;
         this.networkBatchListener = listener;
         this.maxRetryCount = maxRetryCount;
