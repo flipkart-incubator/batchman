@@ -1,5 +1,6 @@
 package com.flipkart.batchdemo;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -13,13 +14,19 @@ public class TrackingHelper {
             JSONObject jsonEvent = new JSONObject();
             jsonEvent.put("event", "PRODUCT_VIEW");
 
-            JSONObject dataJson = new JSONObject();
-            dataJson.put("listingId", listingId);
-            dataJson.put("productId", productId);
-            dataJson.put("requestId", requestId);
-            dataJson.put("timestamp", System.currentTimeMillis());
+            JSONArray jsonArray = new JSONArray();
+            for(int idx = 0 ; idx < 5; idx++)
+            {
+                JSONObject dataJson = new JSONObject();
+                dataJson.put("listingId", listingId);
+                dataJson.put("productId", productId);
+                dataJson.put("requestId", requestId);
+                dataJson.put("timestamp", System.currentTimeMillis());
+                jsonArray.put(dataJson);
+            }
 
-            jsonEvent.put("data", dataJson);
+
+            jsonEvent.put("data", jsonArray);
             return jsonEvent;
         } catch (Exception e) {
             e.printStackTrace();
