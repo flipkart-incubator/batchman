@@ -25,14 +25,14 @@ import java.io.IOException;
 public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(PersistedBatchReadyListener.class);
     protected final Handler handler;
-    private final File file;
+    private final String filePath;
     private final SerializationStrategy<E, T> serializationStrategy;
     private PersistedBatchCallback<T> listener;
     private QueueFile queueFile;
     private boolean isWaitingToFinish;
 
-    public PersistedBatchReadyListener(File file, SerializationStrategy<E, T> serializationStrategy, Handler handler, @Nullable PersistedBatchCallback<T> listener) {
-        this.file = file;
+    public PersistedBatchReadyListener(String filePath, SerializationStrategy<E, T> serializationStrategy, Handler handler, @Nullable PersistedBatchCallback<T> listener) {
+        this.filePath = filePath;
         this.serializationStrategy = serializationStrategy;
         this.handler = handler;
         this.listener = listener;
@@ -95,6 +95,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
     private void initializeIfRequired() {
         if (!isInitialized()) {
             try {
+                File file = new File(this.filePath);
                 this.queueFile = new QueueFile(file);
                 onInitialized(queueFile);
             } catch (IOException e) {
