@@ -10,7 +10,6 @@ import com.squareup.tape.QueueFile;
 
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 
 
@@ -29,8 +28,8 @@ public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>>
     public final static int MODE_TRIM_ON_READY = 1 << 1;
     private int mode;
 
-    public TrimPersistedBatchReadyListener(File file, SerializationStrategy<E, T> serializationStrategy, Handler handler, int maxQueueSize, int trimSize, int mode, PersistedBatchCallback<T> persistedBatchCallback, TrimmedBatchCallback trimmedBatchCallback) {
-        super(file, serializationStrategy, handler, persistedBatchCallback);
+    public TrimPersistedBatchReadyListener(String filePath, SerializationStrategy<E, T> serializationStrategy, Handler handler, int maxQueueSize, int trimSize, int mode, PersistedBatchCallback<T> persistedBatchCallback, TrimmedBatchCallback trimmedBatchCallback) {
+        super(filePath, serializationStrategy, handler, persistedBatchCallback);
         if (trimSize > maxQueueSize) {
             throw new IllegalArgumentException("trimSize must be smaller than maxQueueSize");
         }
