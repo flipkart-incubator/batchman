@@ -33,7 +33,6 @@ import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
 import com.flipkart.batching.strategy.TimeBatchingStrategy;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -63,16 +62,15 @@ public class MainActivity extends AppCompatActivity
         perfTag = new Tag(PERF_LOGGER_GROUPID);
         dgTag = new Tag(DG_LOGGER_GROUPID);
 
-
-        InMemoryPersistenceStrategy<TagData> prefInMemoryPersistenceStrategy = new TapePersistenceStrategy<>(new File(getCacheDir(), "pe"), serializationStrategy);
+        InMemoryPersistenceStrategy<TagData> prefInMemoryPersistenceStrategy = new TapePersistenceStrategy<>(getCacheDir() + "/" + "pe", serializationStrategy);
         TagBasedPersistenceStrategy<TagData> prefTagBatchingPersistence = new TagBasedPersistenceStrategy<>(perfTag, prefInMemoryPersistenceStrategy);
         BatchingStrategy<TagData, Batch<TagData>> prefSizeBatchingStrategy = new SizeBatchingStrategy(2, prefTagBatchingPersistence);
 
-        InMemoryPersistenceStrategy<TagData> debugInMemoryPersistenceStrategy = new TapePersistenceStrategy<>(new File(getCacheDir(), "de"), serializationStrategy);
+        InMemoryPersistenceStrategy<TagData> debugInMemoryPersistenceStrategy = new TapePersistenceStrategy<>(getCacheDir() + "/" + "de", serializationStrategy);
         TagBasedPersistenceStrategy<TagData> debugTagBatchingPersistence = new TagBasedPersistenceStrategy<>(debugTag, debugInMemoryPersistenceStrategy);
         BatchingStrategy<TagData, Batch<TagData>> debugTimeBatchingStrategy = new TimeBatchingStrategy(5000, debugTagBatchingPersistence);
 
-        InMemoryPersistenceStrategy<TagData> dgInMemoryPersistenceStrategy = new TapePersistenceStrategy<>(new File(getCacheDir(), "dg"), serializationStrategy);
+        InMemoryPersistenceStrategy<TagData> dgInMemoryPersistenceStrategy = new TapePersistenceStrategy<>(getCacheDir() + "/" + "dg", serializationStrategy);
         TagBasedPersistenceStrategy<TagData> dgTagBatchingPersistence = new TagBasedPersistenceStrategy<>(dgTag, dgInMemoryPersistenceStrategy);
         BatchingStrategy<TagData, Batch<TagData>> dgTimeBatchingStrategy = new SizeBatchingStrategy(2, dgTagBatchingPersistence);
 
@@ -82,11 +80,7 @@ public class MainActivity extends AppCompatActivity
         tagBatchingStrategy.addTagStrategy(debugTag, debugTimeBatchingStrategy);
         tagBatchingStrategy.addTagStrategy(dgTag, dgTimeBatchingStrategy);
 
-        File perfFile = new File(getCacheDir(), "perf");
-        File debugFile = new File(getCacheDir(), "debug");
-        File dgFile = new File(getCacheDir(), "dg");
-
-        final PersistedBatchReadyListener perfListener = new PersistedBatchReadyListener<>(perfFile, serializationStrategy, backgroundHandler, null);
+        final PersistedBatchReadyListener perfListener = new PersistedBatchReadyListener<>(getCacheDir() + "/" + "perf", serializationStrategy, backgroundHandler, null);
         perfListener.setListener(new PersistedBatchCallback() {
             @Override
             public void onPersistFailure(Batch batch, Exception e) {
@@ -110,7 +104,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        final PersistedBatchReadyListener debugListener = new PersistedBatchReadyListener<>(debugFile, serializationStrategy, backgroundHandler, null);
+        final PersistedBatchReadyListener debugListener = new PersistedBatchReadyListener<>(getCacheDir() + "/" + "debug", serializationStrategy, backgroundHandler, null);
         debugListener.setListener(new PersistedBatchCallback<TagBatchingStrategy.TagBatch<TagData>>() {
             @Override
             public void onPersistFailure(TagBatchingStrategy.TagBatch<TagData> batch, Exception e) {
@@ -130,7 +124,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        final PersistedBatchReadyListener dgListener = new PersistedBatchReadyListener<>(dgFile, serializationStrategy, backgroundHandler, null);
+        final PersistedBatchReadyListener dgListener = new PersistedBatchReadyListener<>(getCacheDir() + "/" + "dg", serializationStrategy, backgroundHandler, null);
         dgListener.setListener(new PersistedBatchCallback<TagBatchingStrategy.TagBatch<TagData>>() {
             @Override
             public void onPersistFailure(TagBatchingStrategy.TagBatch<TagData> batch, Exception e) {
