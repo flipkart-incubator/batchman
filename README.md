@@ -57,7 +57,7 @@ Gradle Dependency : ````compile 'com.flipkart.android.batching:batching:0.9.1.2'
 
 
 
-###[Wiki](www.google.com)
+###[Wiki](https://github.com/Flipkart/fk-android-batchnetworking/wiki)
 
 
 
