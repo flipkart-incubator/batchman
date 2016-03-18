@@ -65,7 +65,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
 
-        PersistedBatchReadyListener<Data, Batch<Data>> persistedBatchReadyListener = new PersistedBatchReadyListener<>(file, serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener<Data, Batch<Data>> persistedBatchReadyListener = new PersistedBatchReadyListener<>(createRandomString(), serializationStrategy, handler, persistedBatchCallback);
         persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
         shadowLooper.runToEndOfTasks();
         //should be initialized first time
@@ -91,7 +91,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         serializationStrategy.build();
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
 
-        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(file, serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomString(), serializationStrategy, handler, persistedBatchCallback);
         persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
         shadowLooper.runToEndOfTasks();
 
@@ -121,7 +121,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         serializationStrategy.build();
 
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
-        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(file, serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomString(), serializationStrategy, handler, persistedBatchCallback);
         ArrayList<Data> arrayList = Utils.fakeCollection(4);
 
         when(queueFile.peek()).thenReturn(serializationStrategy.serializeCollection(arrayList));
@@ -159,7 +159,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
-        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(file, serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomString(), serializationStrategy, handler, persistedBatchCallback);
 
         SizeBatchingStrategy.SizeBatch<Data> firstBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
         persistedBatchReadyListener.onReady(strategy, firstBatch);
@@ -208,7 +208,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         serializationStrategy.build();
 
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
-        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(file, serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomString(), serializationStrategy, handler, persistedBatchCallback);
         byte[] peeked = serializationStrategy.serializeBatch(sizeBatchInfo);
 
         when(queueFile.peek()).thenReturn(peeked);
@@ -247,7 +247,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
-        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(file, serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomString(), serializationStrategy, handler, persistedBatchCallback);
 
         byte[] data = serializationStrategy.serializeCollection(Utils.fakeAdsCollection(4));
         doThrow(new IOException()).when(queueFile).add(data);
@@ -272,12 +272,12 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
-        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(file, serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomString(), serializationStrategy, handler, persistedBatchCallback);
         persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
 
         Assert.assertTrue(persistedBatchReadyListener.getListener() != null);
 
-        persistedBatchReadyListener = new PersistedBatchReadyListener(file, serializationStrategy, handler, null);
+        persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomString(), serializationStrategy, handler, null);
         persistedBatchReadyListener.setListener(persistedBatchCallback);
         Assert.assertTrue(persistedBatchReadyListener.getListener() != null);
 

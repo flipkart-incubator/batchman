@@ -4,11 +4,9 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.util.Log;
 import android.webkit.ValueCallback;
 
 import com.flipkart.Utils;
-import com.flipkart.batching.data.EventData;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener.NetworkBatchListener;
 import com.flipkart.batching.listener.TrimPersistedBatchReadyListener;
@@ -26,14 +24,12 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLooper;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -267,10 +263,11 @@ public class BatchManagerTest extends BaseTestClass {
     public void testReInitialized() {
         ShadowLooper shadowLooper = Shadows.shadowOf(Looper.getMainLooper());
         Handler handler = new Handler();
-        File persistence1 = createRandomFile();
-        File persistence2 = createRandomFile();
+
+        String filePath = createRandomString();
+        String filePath1 = createRandomString();
         SerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
-        TapePersistenceStrategy<Data> persistenceStrategy = new TapePersistenceStrategy<>(persistence1, serializationStrategy);
+        TapePersistenceStrategy<Data> persistenceStrategy = new TapePersistenceStrategy<>(filePath1, serializationStrategy);
         Context context = RuntimeEnvironment.application;
         BatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(2, persistenceStrategy);
         TimeBatchingStrategy timeBatchingStrategy = new TimeBatchingStrategy(5000, persistenceStrategy);
@@ -282,7 +279,7 @@ public class BatchManagerTest extends BaseTestClass {
                 callback.onReceiveValue(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(false, 500));
             }
         };
-        NetworkPersistedBatchReadyListener batchReadyListener = new NetworkPersistedBatchReadyListener(context, persistence2, serializationStrategy, handler, batchListener, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null);
+        NetworkPersistedBatchReadyListener batchReadyListener = new NetworkPersistedBatchReadyListener(context, filePath, serializationStrategy, handler, batchListener, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null);
         BatchController batchController = new BatchManager.Builder()
                 .setSerializationStrategy(serializationStrategy)
                 .setBatchingStrategy(comboBatchingStrategy)
@@ -327,13 +324,13 @@ public class BatchManagerTest extends BaseTestClass {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        persistenceStrategy = new TapePersistenceStrategy<>(persistence1, serializationStrategy);
+        persistenceStrategy = new TapePersistenceStrategy<>(filePath1, serializationStrategy);
         sizeBatchingStrategy = new SizeBatchingStrategy(2, persistenceStrategy);
         timeBatchingStrategy = new TimeBatchingStrategy(5000, persistenceStrategy);
         comboBatchingStrategy = new ComboBatchingStrategy(timeBatchingStrategy, sizeBatchingStrategy);
 
         NetworkBatchListener batchListener2Spy = spy(batchListener2);
-        batchReadyListener = new NetworkPersistedBatchReadyListener(context, persistence2, serializationStrategy, handler, batchListener2Spy, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null);
+        batchReadyListener = new NetworkPersistedBatchReadyListener(context, filePath, serializationStrategy, handler, batchListener2Spy, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null);
 
         batchController = new BatchManager.Builder()
                 .setSerializationStrategy(serializationStrategy)
