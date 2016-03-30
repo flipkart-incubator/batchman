@@ -15,23 +15,19 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.ValueCallback;
 
 import com.flipkart.batching.Batch;
-import com.flipkart.batching.BatchManager;
-import com.flipkart.batching.BatchingStrategy;
+import com.flipkart.batching.ComboStrategyFactory;
+import com.flipkart.batching.TagBatchManager;
 import com.flipkart.batching.data.Tag;
 import com.flipkart.batching.data.TagData;
+import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.PersistedBatchCallback;
-import com.flipkart.batching.listener.PersistedBatchReadyListener;
-import com.flipkart.batching.listener.TagBatchReadyListener;
+import com.flipkart.batching.listener.TrimmedBatchCallback;
 import com.flipkart.batching.persistence.GsonSerializationStrategy;
-import com.flipkart.batching.persistence.InMemoryPersistenceStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
-import com.flipkart.batching.persistence.TagBasedPersistenceStrategy;
-import com.flipkart.batching.persistence.TapePersistenceStrategy;
-import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
-import com.flipkart.batching.strategy.TimeBatchingStrategy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +39,7 @@ public class MainActivity extends AppCompatActivity
     public final static String DG_LOGGER_GROUPID = "dg";
 
     public Tag debugTag, perfTag, dgTag;
-    public BatchManager batchManager;
+    public TagBatchManager batchManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,25 +58,20 @@ public class MainActivity extends AppCompatActivity
         perfTag = new Tag(PERF_LOGGER_GROUPID);
         dgTag = new Tag(DG_LOGGER_GROUPID);
 
-        InMemoryPersistenceStrategy<TagData> prefInMemoryPersistenceStrategy = new TapePersistenceStrategy<>(getCacheDir() + "/" + "pe", serializationStrategy);
-        TagBasedPersistenceStrategy<TagData> prefTagBatchingPersistence = new TagBasedPersistenceStrategy<>(perfTag, prefInMemoryPersistenceStrategy);
-        BatchingStrategy<TagData, Batch<TagData>> prefSizeBatchingStrategy = new SizeBatchingStrategy(2, prefTagBatchingPersistence);
 
-        InMemoryPersistenceStrategy<TagData> debugInMemoryPersistenceStrategy = new TapePersistenceStrategy<>(getCacheDir() + "/" + "de", serializationStrategy);
-        TagBasedPersistenceStrategy<TagData> debugTagBatchingPersistence = new TagBasedPersistenceStrategy<>(debugTag, debugInMemoryPersistenceStrategy);
-        BatchingStrategy<TagData, Batch<TagData>> debugTimeBatchingStrategy = new TimeBatchingStrategy(5000, debugTagBatchingPersistence);
+        final NetworkPersistedBatchReadyListener perfListener = new NetworkPersistedBatchReadyListener(getApplicationContext(), getCacheDir() + "/" + "perf",
+                serializationStrategy, backgroundHandler, new NetworkPersistedBatchReadyListener.NetworkBatchListener() {
+            @Override
+            public void performNetworkRequest(Batch batch, ValueCallback callback) {
 
-        InMemoryPersistenceStrategy<TagData> dgInMemoryPersistenceStrategy = new TapePersistenceStrategy<>(getCacheDir() + "/" + "dg", serializationStrategy);
-        TagBasedPersistenceStrategy<TagData> dgTagBatchingPersistence = new TagBasedPersistenceStrategy<>(dgTag, dgInMemoryPersistenceStrategy);
-        BatchingStrategy<TagData, Batch<TagData>> dgTimeBatchingStrategy = new SizeBatchingStrategy(2, dgTagBatchingPersistence);
+            }
+        }, 5, 100, 90, TRIM_MEMORY_BACKGROUND, new TrimmedBatchCallback() {
+            @Override
+            public void onTrimmed(int oldSize, int newSize) {
 
+            }
+        });
 
-        final TagBatchingStrategy<TagData> tagBatchingStrategy = new TagBatchingStrategy<>();
-        tagBatchingStrategy.addTagStrategy(perfTag, prefSizeBatchingStrategy);
-        tagBatchingStrategy.addTagStrategy(debugTag, debugTimeBatchingStrategy);
-        tagBatchingStrategy.addTagStrategy(dgTag, dgTimeBatchingStrategy);
-
-        final PersistedBatchReadyListener perfListener = new PersistedBatchReadyListener<>(getCacheDir() + "/" + "perf", serializationStrategy, backgroundHandler, null);
         perfListener.setListener(new PersistedBatchCallback() {
             @Override
             public void onPersistFailure(Batch batch, Exception e) {
@@ -104,7 +95,19 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        final PersistedBatchReadyListener debugListener = new PersistedBatchReadyListener<>(getCacheDir() + "/" + "debug", serializationStrategy, backgroundHandler, null);
+        final NetworkPersistedBatchReadyListener debugListener = new NetworkPersistedBatchReadyListener(getApplicationContext(),
+                getCacheDir() + "/" + "debug", serializationStrategy, backgroundHandler, new NetworkPersistedBatchReadyListener.NetworkBatchListener() {
+            @Override
+            public void performNetworkRequest(Batch batch, ValueCallback callback) {
+
+            }
+        }, 5, 100, 90, TRIM_MEMORY_BACKGROUND, new TrimmedBatchCallback() {
+            @Override
+            public void onTrimmed(int oldSize, int newSize) {
+
+            }
+        });
+
         debugListener.setListener(new PersistedBatchCallback<TagBatchingStrategy.TagBatch<TagData>>() {
             @Override
             public void onPersistFailure(TagBatchingStrategy.TagBatch<TagData> batch, Exception e) {
@@ -124,7 +127,19 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        final PersistedBatchReadyListener dgListener = new PersistedBatchReadyListener<>(getCacheDir() + "/" + "dg", serializationStrategy, backgroundHandler, null);
+        final NetworkPersistedBatchReadyListener dgListener = new NetworkPersistedBatchReadyListener(getApplicationContext(),
+                getCacheDir() + "/" + "dg", serializationStrategy, backgroundHandler, new NetworkPersistedBatchReadyListener.NetworkBatchListener() {
+            @Override
+            public void performNetworkRequest(Batch batch, ValueCallback callback) {
+
+            }
+        }, 5, 100, 90, TRIM_MEMORY_BACKGROUND, new TrimmedBatchCallback() {
+            @Override
+            public void onTrimmed(int oldSize, int newSize) {
+
+            }
+        });
+
         dgListener.setListener(new PersistedBatchCallback<TagBatchingStrategy.TagBatch<TagData>>() {
             @Override
             public void onPersistFailure(TagBatchingStrategy.TagBatch<TagData> batch, Exception e) {
@@ -144,15 +159,12 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        TagBatchReadyListener<TagData> tagBatchReadyListener = new TagBatchReadyListener<>();
-        tagBatchReadyListener.addListenerForTag(perfTag, perfListener);
-        tagBatchReadyListener.addListenerForTag(debugTag, debugListener);
-        tagBatchReadyListener.addListenerForTag(dgTag, dgListener);
-
-        batchManager = new BatchManager.Builder<>().setBatchingStrategy(tagBatchingStrategy)
+        batchManager = new TagBatchManager.Builder<>()
                 .setSerializationStrategy(serializationStrategy)
                 .setHandler(backgroundHandler)
-                .setOnBatchReadyListener(tagBatchReadyListener)
+                .addTag(perfTag, ComboStrategyFactory.createDefault(getApplicationContext(), perfTag, serializationStrategy), perfListener)
+                .addTag(debugTag, ComboStrategyFactory.createDefault(getApplicationContext(), debugTag, serializationStrategy), debugListener)
+                .addTag(dgTag, ComboStrategyFactory.createDefault(getApplicationContext(), dgTag, serializationStrategy), dgListener)
                 .build(getApplicationContext());
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
