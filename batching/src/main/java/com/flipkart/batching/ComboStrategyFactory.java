@@ -22,7 +22,7 @@ import java.io.File;
  */
 
 public class ComboStrategyFactory {
-    public static ComboBatchingStrategy createDefault(Context context, @Nullable Tag tag,
+    public static ComboBatchingStrategy createDefault(Context context, @NotNull Tag tag,
                                                       SerializationStrategy serializationStrategy) {
         return createWithTapePersistence(context, tag, serializationStrategy, 3, 10000);
     }
