@@ -36,7 +36,6 @@ public class ComboStrategyFactory {
             SizeBatchingStrategy<E> sizeBatchingStrategy = new SizeBatchingStrategy<>(size, tagBatchingPersistence);
             TimeBatchingStrategy<E> timeBatchingStrategy = new TimeBatchingStrategy<>(time, tagBatchingPersistence);
             return new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
-
         } else {
             InMemoryPersistenceStrategy<E> inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
             SizeBatchingStrategy<E> sizeBatchingStrategy = new SizeBatchingStrategy<>(size, inMemoryPersistenceStrategy);
@@ -47,16 +46,16 @@ public class ComboStrategyFactory {
 
     public static <E extends Data> ComboBatchingStrategy createWithSQLPersistence(Context context, @Nullable Tag tag,
                                                                                   @NotNull SerializationStrategy serializationStrategy,
+                                                                                  String databaseName,
                                                                                   int size, long time) {
         if (tag != null) {
-            SQLPersistenceStrategy<E> sqlPersistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, "batching", context);
+            SQLPersistenceStrategy<E> sqlPersistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, databaseName, context);
             TagBasedPersistenceStrategy<E> tagBatchingPersistence = new TagBasedPersistenceStrategy<>(tag, sqlPersistenceStrategy);
             SizeBatchingStrategy<E> sizeBatchingStrategy = new SizeBatchingStrategy<>(size, tagBatchingPersistence);
             TimeBatchingStrategy<E> timeBatchingStrategy = new TimeBatchingStrategy<>(time, tagBatchingPersistence);
             return new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
-
         } else {
-            SQLPersistenceStrategy<E> sqlPersistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, "batching", context);
+            SQLPersistenceStrategy<E> sqlPersistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, databaseName, context);
             SizeBatchingStrategy<E> sizeBatchingStrategy = new SizeBatchingStrategy<>(size, sqlPersistenceStrategy);
             TimeBatchingStrategy<E> timeBatchingStrategy = new TimeBatchingStrategy<>(time, sqlPersistenceStrategy);
             return new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
@@ -72,7 +71,6 @@ public class ComboStrategyFactory {
             SizeBatchingStrategy<E> sizeBatchingStrategy = new SizeBatchingStrategy<>(size, tagBatchingPersistence);
             TimeBatchingStrategy<E> timeBatchingStrategy = new TimeBatchingStrategy<>(time, tagBatchingPersistence);
             return new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
-
         } else {
             TapePersistenceStrategy<E> tapePersistenceStrategy = new TapePersistenceStrategy<>(getFilePathForPersistenceStrategy(context, tag.getId()), serializationStrategy);
             SizeBatchingStrategy<E> sizeBatchingStrategy = new SizeBatchingStrategy<>(size, tapePersistenceStrategy);
