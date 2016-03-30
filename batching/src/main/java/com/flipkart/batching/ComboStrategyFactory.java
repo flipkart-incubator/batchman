@@ -65,18 +65,20 @@ public class ComboStrategyFactory {
     public static <E extends Data> ComboBatchingStrategy createWithTapePersistence(Context context, @Nullable Tag tag,
                                                                                    @NotNull SerializationStrategy serializationStrategy,
                                                                                    int size, long time) {
-        if (tag != null) {
-            TapePersistenceStrategy<E> tapePersistenceStrategy = new TapePersistenceStrategy<>(getFilePathForPersistenceStrategy(context, tag.getId()), serializationStrategy);
-            TagBasedPersistenceStrategy<E> tagBatchingPersistence = new TagBasedPersistenceStrategy<>(tag, tapePersistenceStrategy);
-            SizeBatchingStrategy<E> sizeBatchingStrategy = new SizeBatchingStrategy<>(size, tagBatchingPersistence);
-            TimeBatchingStrategy<E> timeBatchingStrategy = new TimeBatchingStrategy<>(time, tagBatchingPersistence);
-            return new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
-        } else {
-            TapePersistenceStrategy<E> tapePersistenceStrategy = new TapePersistenceStrategy<>(getFilePathForPersistenceStrategy(context, tag.getId()), serializationStrategy);
-            SizeBatchingStrategy<E> sizeBatchingStrategy = new SizeBatchingStrategy<>(size, tapePersistenceStrategy);
-            TimeBatchingStrategy<E> timeBatchingStrategy = new TimeBatchingStrategy<>(time, tapePersistenceStrategy);
-            return new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
-        }
+        TapePersistenceStrategy<E> tapePersistenceStrategy = new TapePersistenceStrategy<>(getFilePathForPersistenceStrategy(context, tag.getId()), serializationStrategy);
+        TagBasedPersistenceStrategy<E> tagBatchingPersistence = new TagBasedPersistenceStrategy<>(tag, tapePersistenceStrategy);
+        SizeBatchingStrategy<E> sizeBatchingStrategy = new SizeBatchingStrategy<>(size, tagBatchingPersistence);
+        TimeBatchingStrategy<E> timeBatchingStrategy = new TimeBatchingStrategy<>(time, tagBatchingPersistence);
+        return new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
+    }
+
+    public static <E extends Data> ComboBatchingStrategy createWithTapePersistence(Context context, String persistenceFileName,
+                                                                                   @NotNull SerializationStrategy serializationStrategy,
+                                                                                   int size, long time) {
+        TapePersistenceStrategy<E> tapePersistenceStrategy = new TapePersistenceStrategy<>(getFilePathForPersistenceStrategy(context, persistenceFileName), serializationStrategy);
+        SizeBatchingStrategy<E> sizeBatchingStrategy = new SizeBatchingStrategy<>(size, tapePersistenceStrategy);
+        TimeBatchingStrategy<E> timeBatchingStrategy = new TimeBatchingStrategy<>(time, tapePersistenceStrategy);
+        return new ComboBatchingStrategy(sizeBatchingStrategy, timeBatchingStrategy);
     }
 
     private static String getFilePathForPersistenceStrategy(Context context, String tag) {
