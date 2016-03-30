@@ -62,7 +62,7 @@ public class ComboStrategyFactory {
         }
     }
 
-    public static <E extends Data> ComboBatchingStrategy createWithTapePersistence(Context context, @Nullable Tag tag,
+    public static <E extends Data> ComboBatchingStrategy createWithTapePersistence(Context context, @NotNull Tag tag,
                                                                                    @NotNull SerializationStrategy serializationStrategy,
                                                                                    int size, long time) {
         TapePersistenceStrategy<E> tapePersistenceStrategy = new TapePersistenceStrategy<>(getFilePathForPersistenceStrategy(context, tag.getId()), serializationStrategy);
@@ -73,7 +73,7 @@ public class ComboStrategyFactory {
     }
 
     public static <E extends Data> ComboBatchingStrategy createWithTapePersistence(Context context, String persistenceFileName,
-                                                                                   @NotNull SerializationStrategy serializationStrategy,
+                                                                                   SerializationStrategy serializationStrategy,
                                                                                    int size, long time) {
         TapePersistenceStrategy<E> tapePersistenceStrategy = new TapePersistenceStrategy<>(getFilePathForPersistenceStrategy(context, persistenceFileName), serializationStrategy);
         SizeBatchingStrategy<E> sizeBatchingStrategy = new SizeBatchingStrategy<>(size, tapePersistenceStrategy);
