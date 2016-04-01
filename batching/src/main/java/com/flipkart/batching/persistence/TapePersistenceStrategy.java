@@ -35,14 +35,9 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
 
     @Override
     public boolean add(Collection<E> dataCollection) {
-        boolean isAdded = false;
-        Collection<E> oldData = getData();
         for (E data : dataCollection) {
             try {
-                if (!oldData.contains(data)) {
-                    isAdded = true;
-                    queueFile.add(serializationStrategy.serializeData(data));
-                }
+                queueFile.add(serializationStrategy.serializeData(data));
             } catch (IOException | SerializeException e) {
                 if (log.isErrorEnabled()) {
                     log.error(e.getLocalizedMessage());
@@ -50,7 +45,7 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
             }
         }
         super.add(dataCollection);
-        return isAdded;
+        return true;
     }
 
     @Override
