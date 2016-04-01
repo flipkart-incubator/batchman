@@ -8,9 +8,12 @@ import com.flipkart.batching.BatchController;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
+import com.flipkart.batching.exception.SerializeException;
 import com.flipkart.batching.persistence.PersistenceStrategy;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * This abstract class implements {@link BatchingStrategy} interface. BaseBatchingStrategy
@@ -42,7 +45,12 @@ public abstract class BaseBatchingStrategy<E extends Data, T extends Batch<E>> i
 
     @Override
     public void onDataPushed(Collection<E> dataCollection) {
-        persistenceStrategy.add(dataCollection);
+        Collection<E> oldData = persistenceStrategy.getData();
+        for (E data : dataCollection) {
+            if (!oldData.contains(data)) {
+                persistenceStrategy.add(Collections.singleton(data));
+            }
+        }
     }
 
     @Override
