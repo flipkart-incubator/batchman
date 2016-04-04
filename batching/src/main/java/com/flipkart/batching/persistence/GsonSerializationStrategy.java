@@ -213,6 +213,12 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
                 element = context.serialize(value, JSONObject.class);
             } else if (value instanceof JSONArray) {
                 element = context.serialize(value, JSONArray.class);
+            } else if (value instanceof String) {
+                element = context.serialize(value, String.class);
+            } else if (value instanceof Number) {
+                element = context.serialize(value, Number.class);
+            } else if (value instanceof Boolean) {
+                element = context.serialize(value, Boolean.class);
             } else {
                 element = context.serialize(value);
             }
