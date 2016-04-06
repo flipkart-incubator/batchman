@@ -120,10 +120,10 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
     }
 
     public void finish(final T batch) {
-        if (!queueFile.isEmpty()) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (!queueFile.isEmpty()) {
                     try {
                         byte[] peeked = queueFile.peek();
                         if (peeked != null) {
@@ -148,8 +148,8 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                     isWaitingToFinish = false;
                     checkPendingAndContinue();
                 }
-            });
-        }
+            }
+        });
     }
 
     private void checkPendingAndContinue() {
