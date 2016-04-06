@@ -30,6 +30,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
     private PersistedBatchCallback<T> listener;
     private QueueFile queueFile;
     private boolean isWaitingToFinish;
+    private T peekedBatch;
 
     public PersistedBatchReadyListener(String filePath, SerializationStrategy<E, T> serializationStrategy, Handler handler, @Nullable PersistedBatchCallback<T> listener) {
         this.filePath = filePath;
@@ -120,36 +121,36 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
     }
 
     public void finish(final T batch) {
-        if (!queueFile.isEmpty()) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (!queueFile.isEmpty()) {
                     try {
-                        byte[] peeked = queueFile.peek();
-                        if (peeked != null) {
-                            T peekedBatch = serializationStrategy.deserializeBatch(peeked);
+                        if (peekedBatch != null) {
                             if (batch != null && batch.equals(peekedBatch)) {
                                 queueFile.remove();
                             } else {
-                                throw new IllegalStateException("Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
+                                // We are currently seeing this very very rarely. We want to get more info here before we throw this exception
+                                if (log.isErrorEnabled()) {
+                                    log.error("Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
+                                }
+                                //throw new IllegalStateException("Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
                             }
                         }
-                    } catch (DeserializeException e) {
-                        if (log.isErrorEnabled()) {
-                            log.error(e.getLocalizedMessage());
-                        }
-                        throw new IllegalStateException("Finish cannot be done due to Deserialize exception " + e.getRealException().getLocalizedMessage());
                     } catch (IOException e) {
                         if (log.isErrorEnabled()) {
                             log.error(e.getLocalizedMessage());
                         }
                         throw new IllegalStateException("Finish (removing from queue) cannot be done due to IO exception " + e.getLocalizedMessage());
                     }
+                    peekedBatch = null;
                     isWaitingToFinish = false;
                     checkPendingAndContinue();
+                } else {
+                    peekedBatch = null;
                 }
-            });
-        }
+            }
+        });
     }
 
     private void checkPendingAndContinue() {
@@ -158,8 +159,8 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
             try {
                 byte[] eldest = queueFile.peek();
                 if (eldest != null) {
-                    T batch = serializationStrategy.deserializeBatch(eldest);
-                    callPersistSuccess(batch);
+                    peekedBatch = serializationStrategy.deserializeBatch(eldest);
+                    callPersistSuccess(peekedBatch);
                 }
             } catch (IOException | DeserializeException e) {
                 if (log.isErrorEnabled()) {
