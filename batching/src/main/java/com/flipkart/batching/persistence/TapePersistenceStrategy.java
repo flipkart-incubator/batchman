@@ -4,7 +4,9 @@ import com.flipkart.batching.Batch;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.exception.DeserializeException;
 import com.flipkart.batching.exception.SerializeException;
-import com.squareup.tape.QueueFile;
+import com.flipkart.batching.toolbox.IQueueFile;
+import com.flipkart.batching.toolbox.InMemoryQueueFile;
+import com.flipkart.batching.toolbox.TapeQueueFile;
 
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +23,7 @@ import java.util.Collection;
 public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(TapePersistenceStrategy.class);
     private String filePath;
-    private QueueFile queueFile;
+    private IQueueFile queueFile;
     private SerializationStrategy<E, ? extends Batch> serializationStrategy;
 
     public TapePersistenceStrategy(String filePath, SerializationStrategy<E, ? extends Batch> serializationStrategy) {
@@ -29,7 +31,7 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
         this.serializationStrategy = serializationStrategy;
     }
 
-    public QueueFile getQueueFile() {
+    public IQueueFile getQueueFile() {
         return queueFile;
     }
 
@@ -80,8 +82,9 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
         if (!isInitialized()) {
             try {
                 File file = new File(filePath);
-                this.queueFile = new QueueFile(file);
+                this.queueFile = new TapeQueueFile(file);
             } catch (IOException e) {
+                this.queueFile = new InMemoryQueueFile();
                 if (log.isErrorEnabled()) {
                     log.error(e.getLocalizedMessage());
                 }
