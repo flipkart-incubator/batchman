@@ -1,4 +1,3 @@
-
 apply plugin: 'android-library'
 apply plugin: 'artifactory'
 apply plugin: 'com.github.dcendents.android-maven'
@@ -55,7 +54,8 @@ android {
 
         group = ARTIFACTORY_GROUP
         version = VERSION_NAME
-        status = STATUS }
+        status = STATUS
+    }
 }
 
 dependencies {
@@ -123,7 +123,8 @@ artifactory {
             publishConfigs('archives', 'published')
             properties = ['build.status': "$it.project.status".toString()]
             publishPom = true //Publish generated POM files to Artifactory (true by default)
-            publishIvy = false //Publish generated Ivy descriptor files to Artifactory (true by default)
+            publishIvy = false
+            //Publish generated Ivy descriptor files to Artifactory (true by default)
         }
     }
     resolve {

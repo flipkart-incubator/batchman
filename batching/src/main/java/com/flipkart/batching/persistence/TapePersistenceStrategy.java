@@ -41,9 +41,18 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
         Collection<E> oldData = getData();
         for (E data : dataCollection) {
             try {
-                if (!oldData.contains(data)) {
+                if (null == data) {
+                    if (log.isErrorEnabled()) {
+                        log.error("Null not expected in the data collection");
+                    }
+                } else if (!oldData.contains(data)) {
                     isAdded = true;
-                    queueFile.add(serializationStrategy.serializeData(data));
+                    byte[] serializedData = serializationStrategy.serializeData(data);
+                    if (null != serializedData) {
+                        queueFile.add(serializedData);
+                    } else if (log.isErrorEnabled()) {
+                        log.error("Data being serialized to null. This is something which is not expected");
+                    }
                 }
             } catch (IOException | SerializeException e) {
                 if (log.isErrorEnabled()) {
@@ -60,14 +69,13 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
         super.removeData(dataCollection);
         for (E ignored : dataCollection) {
             try {
-                if (dataCollection.contains(serializationStrategy.deserializeData(queueFile.peek()))) {
-                    try {
-                        queueFile.remove();
-                    } catch (IOException e) {
-                        if (log.isErrorEnabled()) {
-                            log.error(e.getLocalizedMessage());
-                        }
+                byte[] peekedData = queueFile.peek();
+                if (null == peekedData) {
+                    if (log.isErrorEnabled()) {
+                        log.error("Data being peeked is null in removeData");
                     }
+                } else if (dataCollection.contains(serializationStrategy.deserializeData(peekedData))) {
+                    queueFile.remove();
                 }
             } catch (DeserializeException | IOException e) {
                 if (log.isErrorEnabled()) {
@@ -104,14 +112,17 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
      * @return collection of data
      */
     private Collection<E> getAllDataFromTapeQueue() {
-        ArrayList<E> dataList = new ArrayList<>();
         int size = queueFile.size();
+        ArrayList<E> dataList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             try {
-                E data = serializationStrategy.deserializeData(queueFile.peek());
-                dataList.add(data);
-                queueFile.remove();
-                queueFile.add(serializationStrategy.serializeData(data));
+                byte[] peekedData = queueFile.peek();
+                if (null != peekedData) {
+                    E data = serializationStrategy.deserializeData(peekedData);
+                    dataList.add(data);
+                    queueFile.remove();
+                    queueFile.add(peekedData);
+                }
             } catch (DeserializeException | IOException | SerializeException e) {
                 if (log.isErrorEnabled()) {
                     log.error(e.getLocalizedMessage());
