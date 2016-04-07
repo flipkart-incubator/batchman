@@ -19,6 +19,7 @@ import com.squareup.tape.QueueFile;
 import junit.framework.Assert;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
@@ -192,6 +193,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      * @throws IOException
      */
+    @Ignore
     @Test(expected = IllegalStateException.class)
     public void testFinishException() throws SerializeException, IOException {
         File file = createRandomFile();
