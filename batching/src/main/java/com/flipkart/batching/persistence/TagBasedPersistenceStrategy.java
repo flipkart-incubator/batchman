@@ -65,7 +65,7 @@ public class TagBasedPersistenceStrategy<E extends Data> implements PersistenceS
         Iterator<E> iterator = allData.iterator();
         while (iterator.hasNext()) {
             TagData data = (TagData) iterator.next();
-            if (!tag.equals(data.getTag())) {
+            if (null == data || !tag.equals(data.getTag())) {
                 iterator.remove();
             }
         }

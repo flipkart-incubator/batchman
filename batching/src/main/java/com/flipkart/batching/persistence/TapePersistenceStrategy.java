@@ -119,9 +119,11 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
                 byte[] peekedData = queueFile.peek();
                 if (null != peekedData) {
                     E data = serializationStrategy.deserializeData(peekedData);
-                    dataList.add(data);
                     queueFile.remove();
-                    queueFile.add(peekedData);
+                    if (null != data) {
+                        dataList.add(data);
+                        queueFile.add(peekedData);
+                    }
                 }
             } catch (DeserializeException | IOException | SerializeException e) {
                 if (log.isErrorEnabled()) {
