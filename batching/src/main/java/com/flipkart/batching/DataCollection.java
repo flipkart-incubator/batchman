@@ -27,6 +27,9 @@ public class DataCollection<T extends Data> {
         this.dataCollection = dataCollection;
     }
 
+    private static final Type TYPE_COLLECTION_DATA = new TypeToken<Collection<Data>>() {
+    }.getType();
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof DataCollection) {
@@ -41,9 +44,7 @@ public class DataCollection<T extends Data> {
             JsonObject result = new JsonObject();
             JsonElement dataCollectionArray = null;
             if (null != src.dataCollection) {
-                Type type = new TypeToken<Collection<Data>>() {
-                }.getType();
-                dataCollectionArray = context.serialize(src.dataCollection, type);
+                dataCollectionArray = context.serialize(src.dataCollection, TYPE_COLLECTION_DATA);
             }
             result.add("dataCollection", dataCollectionArray);
             return result;
@@ -57,9 +58,7 @@ public class DataCollection<T extends Data> {
             if (null != json && json.isJsonObject()) {
                 JsonElement dataCollectionJson = json.getAsJsonObject().get("dataCollection");
                 if (null != dataCollectionJson) {
-                    Type type = new TypeToken<Collection<Data>>() {
-                    }.getType();
-                    Collection dataCollection = context.deserialize(dataCollectionJson, type);
+                    Collection dataCollection = context.deserialize(dataCollectionJson, TYPE_COLLECTION_DATA);
                     return new DataCollection(dataCollection);
                 }
             }

@@ -12,6 +12,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
@@ -43,21 +44,23 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     private static final String IS_JSON_OBJECT = "_com.flipkart.batching.isJsonObject";
     private static final String JSON_ARRAY_OBJECT = "_com.flipkart.batching.jsonArray";
 
-    Set<Class<E>> dataTypes = new HashSet<>();
-    Set<Class<T>> batchInfoTypes = new HashSet<>();
+    private static final Type TYPE_COLLECTION_DATA = new TypeToken<Collection<Data>>() {
+    }.getType();
+    private Set<Class<E>> dataTypes = new HashSet<>();
+    private Set<Class<T>> batchInfoTypes = new HashSet<>();
     private Gson gson;
 
     private static Object getObjectFromJsonElement(JsonElement value, JsonDeserializationContext context) {
         Object result = null;
         if (value.isJsonObject()) {
             if (value.getAsJsonObject().has(IS_JSON_OBJECT)) {
-                JSONObject jsonObject = context.deserialize(value, JSONObject.class);
+                JSONObject jsonObject = deserializeJSONObject(value, context);
                 if (null != jsonObject) {
                     jsonObject.remove(IS_JSON_OBJECT);
                 }
                 return jsonObject;
             } else if (value.getAsJsonObject().has(JSON_ARRAY_OBJECT)) {
-                return context.deserialize(value, JSONArray.class);
+                return deserializeJSONArray(value, context);
             } else {
                 result = getMapFromJson(value.getAsJsonObject(), context);
             }
@@ -95,8 +98,6 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         return result;
     }
 
-
-
     @Override
     public void registerDataType(Class<E> subClass) {
         dataTypes.add(subClass);
@@ -131,7 +132,6 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         gsonBuilder.registerTypeAdapter(JSONObject.class, new JSONObjectSerializer());
         gsonBuilder.registerTypeAdapter(JSONArray.class, new JSONArrayDeSerializer());
         gsonBuilder.registerTypeAdapter(JSONArray.class, new JSONArraySerializer());
-        //gsonBuilder.registerTypeAdapterFactory(collectionAdapter);
         gson = gsonBuilder.create();
     }
 
@@ -154,10 +154,8 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     @Override
     public byte[] serializeCollection(Collection<E> data) throws SerializeException {
         checkIfBuildCalled();
-        Type type = new TypeToken<Collection<Data>>() {
-        }.getType();
         try {
-            return gson.toJson(data, type).getBytes();
+            return gson.toJson(data, TYPE_COLLECTION_DATA).getBytes();
         } catch (JsonParseException e) {
             throw new SerializeException(e);
         }
@@ -186,11 +184,8 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     @Override
     public Collection<E> deserializeCollection(byte[] data) throws DeserializeException {
         checkIfBuildCalled();
-
-        Type type = new TypeToken<Collection<Data>>() {
-        }.getType();
         try {
-            return gson.fromJson(new String(data), type);
+            return gson.fromJson(new String(data), TYPE_COLLECTION_DATA);
         } catch (JsonParseException e) {
             throw new DeserializeException(e);
         }
@@ -210,9 +205,9 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         JsonElement element;
         if (null != value) {
             if (value instanceof JSONObject) {
-                element = context.serialize(value, JSONObject.class);
+                element = serializeJSONObject((JSONObject) value, context);
             } else if (value instanceof JSONArray) {
-                element = context.serialize(value, JSONArray.class);
+                element = serializeJSONArray((JSONArray) value, context);
             } else if (value instanceof String) {
                 element = context.serialize(value, String.class);
             } else if (value instanceof Number) {
@@ -223,108 +218,115 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
                 element = context.serialize(value);
             }
         } else {
-            element = context.serialize(value);
+            element = JsonNull.INSTANCE;
         }
         return element;
+    }
+
+    public static JsonElement serializeJSONObject(JSONObject src, JsonSerializationContext context) {
+        JsonObject result = null;
+        if (null != src) {
+            try {
+                result = new JsonObject();
+                Iterator<String> iterator = src.keys();
+                while (iterator.hasNext()) {
+                    String key = iterator.next();
+                    Object value = src.get(key);
+                    JsonElement element = forJSONGenericObject(value, context);
+                    result.add(key, element);
+                    result.addProperty(IS_JSON_OBJECT, true);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public static JsonElement serializeJSONArray(JSONArray src, JsonSerializationContext context) {
+        JsonObject result = null;
+        try {
+            if (null != src) {
+                result = new JsonObject();
+                JsonArray jsonArray = new JsonArray();
+                for (int idx = 0; idx < src.length(); idx++) {
+                    Object value = src.get(idx);
+                    JsonElement element = forJSONGenericObject(value, context);
+                    jsonArray.add(element);
+                }
+                result.add(JSON_ARRAY_OBJECT, jsonArray);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public static class JSONObjectSerializer implements JsonSerializer<JSONObject> {
         @Override
         public JsonElement serialize(JSONObject src, Type typeOfSrc, JsonSerializationContext context) {
-            JsonObject result = null;
-            if (null != src) {
-                try {
-                    result = new JsonObject();
-                    Iterator<String> iterator = src.keys();
-                    while (iterator.hasNext()) {
-                        String key = iterator.next();
-                        Object value = src.get(key);
-                        JsonElement element = forJSONGenericObject(value, context);
-                        result.add(key, element);
-                        result.addProperty(IS_JSON_OBJECT, true);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-            return result;
-
-        }
-    }
-
-
-
-    public static class JSONObjectDeSerializer implements JsonDeserializer<JSONObject> {
-
-
-        @Override
-        public JSONObject deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            JSONObject result = null;
-            if (null != json && json.isJsonObject()) {
-                try {
-                    result = new JSONObject();
-                    JsonObject jsonObject = json.getAsJsonObject();
-                    for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-                        JsonElement value = entry.getValue();
-                        if (null != value) {
-                            result.put(entry.getKey(), getObjectFromJsonElement(entry.getValue(), context));
-                        } else {
-                            result.put(entry.getKey(), null);
-                        }
-                    }
-                    result.remove(IS_JSON_OBJECT);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-            return result;
+            return serializeJSONObject(src, context);
         }
     }
 
     public static class JSONArraySerializer implements JsonSerializer<JSONArray> {
-
         @Override
         public JsonElement serialize(JSONArray src, Type typeOfSrc, JsonSerializationContext context) {
-            JsonObject result = null;
+            return serializeJSONArray(src, context);
+        }
+    }
+
+    public static JSONObject deserializeJSONObject(JsonElement json, JsonDeserializationContext context) throws JsonParseException {
+        JSONObject result = null;
+        if (null != json && json.isJsonObject()) {
             try {
-                if (null != src) {
-                    result = new JsonObject();
-                    JsonArray jsonArray = new JsonArray();
-                    for (int idx = 0; idx < src.length(); idx++) {
-                        Object value = src.get(idx);
-                        JsonElement element = forJSONGenericObject(value, context);
-                        jsonArray.add(element);
+                result = new JSONObject();
+                JsonObject jsonObject = json.getAsJsonObject();
+                for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+                    JsonElement value = entry.getValue();
+                    if (null != value) {
+                        result.put(entry.getKey(), getObjectFromJsonElement(entry.getValue(), context));
+                    } else {
+                        result.put(entry.getKey(), null);
                     }
-                    result.add(JSON_ARRAY_OBJECT, jsonArray);
                 }
+                result.remove(IS_JSON_OBJECT);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        }
+        return result;
+    }
 
-            return result;
+    public static JSONArray deserializeJSONArray(JsonElement json, JsonDeserializationContext context) throws JsonParseException {
+        JSONArray result = null;
+        if (null != json) {
+            result = new JSONArray();
+            if (json.isJsonObject() && json.getAsJsonObject().has(JSON_ARRAY_OBJECT)) {
+                JsonArray jsonArray = json.getAsJsonObject().getAsJsonArray(JSON_ARRAY_OBJECT);
+                for (JsonElement element : jsonArray) {
+                    if (null != element) {
+                        result.put(getObjectFromJsonElement(element, context));
+                    } else {
+                        result.put(null);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public static class JSONObjectDeSerializer implements JsonDeserializer<JSONObject> {
+        @Override
+        public JSONObject deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            return deserializeJSONObject(json, context);
         }
     }
 
     public static class JSONArrayDeSerializer implements JsonDeserializer<JSONArray> {
-
         @Override
         public JSONArray deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            JSONArray result = null;
-            if (null != json) {
-                result = new JSONArray();
-                if (json.isJsonObject() && json.getAsJsonObject().has(JSON_ARRAY_OBJECT)) {
-                    JsonArray jsonArray = json.getAsJsonObject().getAsJsonArray(JSON_ARRAY_OBJECT);
-                    for (JsonElement element : jsonArray) {
-                        if (null != element) {
-                            result.put(getObjectFromJsonElement(element, context));
-                        } else {
-                            result.put(null);
-                        }
-                    }
-                }
-            }
-            return result;
+            return deserializeJSONArray(json, context);
         }
     }
 }
