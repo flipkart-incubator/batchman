@@ -8,7 +8,7 @@ import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.exception.DeserializeException;
 import com.flipkart.batching.persistence.SerializationStrategy;
-import com.flipkart.batching.toolbox.QueueFile;
+import com.flipkart.batching.tape.QueueFile;
 
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;

@@ -36,8 +36,8 @@ public class InMemoryPersistenceStrategy<E extends Data> implements PersistenceS
     }
 
     @Override
-    public void removeData(Collection<E> dataCollection) {
-        dataList.removeAll(dataCollection);
+    public boolean removeData(Collection<E> dataCollection) {
+        return dataList.removeAll(dataCollection);
     }
 
     @Override

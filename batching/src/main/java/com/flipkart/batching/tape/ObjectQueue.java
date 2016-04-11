@@ -1,5 +1,5 @@
 // Copyright 2011 Square, Inc.
-package com.flipkart.batching.toolbox;
+package com.flipkart.batching.tape;
 
 /**
  * A queue of objects.

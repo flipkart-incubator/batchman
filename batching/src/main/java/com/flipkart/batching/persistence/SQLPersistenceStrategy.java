@@ -63,9 +63,10 @@ public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceS
     }
 
     @Override
-    public void removeData(final Collection<E> dataCollection) {
+    public boolean removeData(final Collection<E> dataCollection) {
         super.removeData(dataCollection);
         databaseHelper.deleteAll();
+        return true;
     }
 
     @Override

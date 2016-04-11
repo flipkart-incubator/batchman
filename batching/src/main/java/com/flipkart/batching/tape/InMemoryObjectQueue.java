@@ -1,7 +1,9 @@
 // Copyright 2012 Square, Inc.
-package com.flipkart.batching.toolbox;
+package com.flipkart.batching.tape;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -10,7 +12,7 @@ import java.util.Queue;
  *
  * @param <T> The type of elements in the queue.
  */
-public class InMemoryObjectQueue<T> implements ObjectQueue<T> {
+public class InMemoryObjectQueue<T> implements CustomObjectQueue<T> {
     private final Queue<T> tasks;
     private Listener<T> listener;
 
@@ -49,5 +51,10 @@ public class InMemoryObjectQueue<T> implements ObjectQueue<T> {
             }
         }
         this.listener = listener;
+    }
+
+    @Override
+    public List<T> peek(final int max) {
+        return new ArrayList<>(tasks);
     }
 }
