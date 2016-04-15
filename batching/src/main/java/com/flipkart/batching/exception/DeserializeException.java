@@ -1,12 +1,14 @@
 package com.flipkart.batching.exception;
 
+import java.io.IOException;
+
 /**
  * DeserializationException class that extends {@link Exception}.
  * <p/>
  * To get the real exception use {@link #getRealException()}.
  */
 
-public class DeserializeException extends Exception {
+public class DeserializeException extends IOException {
     private final Exception realException;
 
     public DeserializeException(Exception realException) {
