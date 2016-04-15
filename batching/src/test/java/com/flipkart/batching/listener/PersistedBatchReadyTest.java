@@ -14,7 +14,7 @@ import com.flipkart.batching.exception.SerializeException;
 import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.squareup.tape.QueueFile;
+import com.flipkart.batching.tape.QueueFile;
 
 import junit.framework.Assert;
 

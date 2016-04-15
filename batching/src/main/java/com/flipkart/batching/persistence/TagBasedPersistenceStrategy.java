@@ -45,9 +45,10 @@ public class TagBasedPersistenceStrategy<E extends Data> implements PersistenceS
     }
 
     @Override
-    public void removeData(Collection<E> dataCollection) {
+    public boolean removeData(Collection<E> dataCollection) {
         filterByTag(dataCollection);
         persistenceStrategy.removeData(dataCollection);
+        return true;
     }
 
     @Override

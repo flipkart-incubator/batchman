@@ -13,7 +13,7 @@ import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.persistence.SerializationStrategy;
-import com.squareup.tape.QueueFile;
+import com.flipkart.batching.tape.QueueFile;
 
 import org.slf4j.LoggerFactory;
 

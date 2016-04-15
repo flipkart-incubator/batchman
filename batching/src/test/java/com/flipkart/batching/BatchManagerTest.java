@@ -18,7 +18,7 @@ import com.flipkart.batching.strategy.BaseBatchingStrategy;
 import com.flipkart.batching.strategy.ComboBatchingStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.TimeBatchingStrategy;
-import com.squareup.tape.QueueFile;
+import com.flipkart.batching.tape.QueueFile;
 
 import junit.framework.Assert;
 
@@ -319,11 +319,6 @@ public class BatchManagerTest extends BaseTestClass {
             }
         };
 
-        try {
-            persistenceStrategy.getQueueFile().close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         persistenceStrategy = new TapePersistenceStrategy<>(filePath1, serializationStrategy);
         sizeBatchingStrategy = new SizeBatchingStrategy(2, persistenceStrategy);
         timeBatchingStrategy = new TimeBatchingStrategy(5000, persistenceStrategy);

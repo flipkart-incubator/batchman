@@ -8,7 +8,7 @@ import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.exception.DeserializeException;
 import com.flipkart.batching.persistence.SerializationStrategy;
-import com.squareup.tape.QueueFile;
+import com.flipkart.batching.tape.QueueFile;
 
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
@@ -162,7 +162,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                     peekedBatch = serializationStrategy.deserializeBatch(eldest);
                     callPersistSuccess(peekedBatch);
                 }
-            } catch (IOException | DeserializeException e) {
+            } catch (IOException e) {
                 if (log.isErrorEnabled()) {
                     log.error(e.getLocalizedMessage());
                 }

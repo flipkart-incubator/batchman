@@ -1,4 +1,4 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 apply plugin: 'artifactory'
 apply plugin: 'com.github.dcendents.android-maven'
 
@@ -64,7 +64,6 @@ dependencies {
     testCompile 'org.mockito:mockito-core:1.10.19'
     testCompile 'org.robolectric:robolectric:3.0'
     compile 'com.google.code.gson:gson:2.4'
-    compile 'com.squareup:tape:1.2.3'
     compile 'org.jetbrains:annotations-java5:15.0'
     compile 'org.slf4j:slf4j-api:1.7.6'
 }
@@ -75,7 +74,7 @@ buildscript {
         maven { url 'http://repo1.maven.org/maven2' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.0.0-beta6'
+        classpath 'com.android.tools.build:gradle:2.0.0'
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.3'
     }

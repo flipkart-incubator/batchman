@@ -32,7 +32,7 @@ public interface PersistenceStrategy<E extends Data> {
      *
      * @param dataCollection collection of {@link Data} objects
      */
-    void removeData(Collection<E> dataCollection);
+    boolean removeData(Collection<E> dataCollection);
 
     void onInitialized();
 }
