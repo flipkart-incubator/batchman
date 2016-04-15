@@ -2,11 +2,9 @@ package com.flipkart.batching.persistence;
 
 import com.flipkart.batching.Batch;
 import com.flipkart.batching.Data;
-import com.flipkart.batching.exception.DeserializeException;
-import com.flipkart.batching.exception.SerializeException;
-import com.flipkart.batching.tape.CustomObjectQueue;
 import com.flipkart.batching.tape.FileObjectQueue;
 import com.flipkart.batching.tape.InMemoryObjectQueue;
+import com.flipkart.batching.tape.ObjectQueue;
 
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +22,7 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(TapePersistenceStrategy.class);
     private FileObjectQueue.Converter<E> converter;
     private String filePath;
-    private CustomObjectQueue<E> queueFile;
+    private ObjectQueue<E> queueFile;
 
     /**
      * Initialise Tape persistence strategy using this constructor. This takes in File Path and
@@ -40,22 +38,12 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
         this.converter = new FileObjectQueue.Converter<E>() {
             @Override
             public E from(byte[] bytes) throws IOException {
-                try {
-                    return serializationStrategy.deserializeData(bytes);
-                } catch (DeserializeException e) {
-                    e.printStackTrace();
-                    return null;
-                }
+                return serializationStrategy.deserializeData(bytes);
             }
 
             @Override
-            public void toStream(E o, OutputStream bytes) throws IOException {
-                try {
-                    byte[] data = serializationStrategy.serializeData(o);
-                    bytes.write(data);
-                } catch (SerializeException e) {
-                    e.printStackTrace();
-                }
+            public void toStream(E data, OutputStream bytes) throws IOException {
+                serializationStrategy.serializeData(data, bytes);
             }
         };
     }
@@ -65,8 +53,7 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
      *
      * @return queue file
      */
-
-    public CustomObjectQueue<E> getQueueFile() {
+    public ObjectQueue<E> getQueueFile() {
         return queueFile;
     }
 

@@ -162,7 +162,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                     peekedBatch = serializationStrategy.deserializeBatch(eldest);
                     callPersistSuccess(peekedBatch);
                 }
-            } catch (IOException | DeserializeException e) {
+            } catch (IOException e) {
                 if (log.isErrorEnabled()) {
                     log.error(e.getLocalizedMessage());
                 }

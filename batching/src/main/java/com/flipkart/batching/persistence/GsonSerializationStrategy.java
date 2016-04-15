@@ -24,6 +24,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -146,6 +148,16 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         checkIfBuildCalled();
         try {
             return gson.toJson(data, Data.class).getBytes();
+        } catch (JsonParseException e) {
+            throw new SerializeException(e);
+        }
+    }
+
+    @Override
+    public void serializeData(E data, OutputStream stream) throws SerializeException {
+        checkIfBuildCalled();
+        try {
+            gson.toJson(data, Data.class, new OutputStreamWriter(stream));
         } catch (JsonParseException e) {
             throw new SerializeException(e);
         }
