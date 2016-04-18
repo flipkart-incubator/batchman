@@ -10,8 +10,8 @@ import com.flipkart.batching.data.TagData;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.TagBatchReadyListener;
 import com.flipkart.batching.persistence.SerializationStrategy;
-import com.flipkart.batching.strategy.ComboBatchingStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
+import com.flipkart.batching.strategy.SizeTimeBatchingStrategy;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
 import com.flipkart.batching.strategy.TimeBatchingStrategy;
 
@@ -39,7 +39,7 @@ public class TagBatchManager<E extends Data, T extends Batch<E>> implements Batc
 
         for (int i = 0; i < tagParametersList.size(); i++) {
             tagBatchReadyListener.addListenerForTag(tagParametersList.get(i).tag, tagParametersList.get(i).tagBatchReadyListener);
-            tagBatchingStrategy.addTagStrategy(tagParametersList.get(i).tag, tagParametersList.get(i).tagComboBatchingStrategy);
+            tagBatchingStrategy.addTagStrategy(tagParametersList.get(i).tag, tagParametersList.get(i).tagSizeTimeBatchingStrategy);
         }
 
         this.serializationStrategy = builder.getSerializationStrategy();
@@ -70,7 +70,7 @@ public class TagBatchManager<E extends Data, T extends Batch<E>> implements Batc
         serializationStrategy.registerBatch(SizeBatchingStrategy.SizeBatch.class);
         serializationStrategy.registerBatch(TimeBatchingStrategy.TimeBatch.class);
         serializationStrategy.registerBatch(TagBatchingStrategy.TagBatch.class);
-        serializationStrategy.registerBatch(ComboBatchingStrategy.ComboBatch.class);
+        serializationStrategy.registerBatch(SizeTimeBatchingStrategy.SizeTimeBatch.class);
     }
 
     private void initialize(TagBatchManager<E, T> tagBatchManager, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler) {
@@ -187,12 +187,12 @@ public class TagBatchManager<E extends Data, T extends Batch<E>> implements Batc
 
     public static class TagInfo {
         public Tag tag;
-        public BatchingStrategy tagComboBatchingStrategy;
+        public BatchingStrategy tagSizeTimeBatchingStrategy;
         public OnBatchReadyListener tagBatchReadyListener;
 
         public TagInfo(Tag tag, BatchingStrategy batchingStrategy, NetworkPersistedBatchReadyListener onBatchReadyListener) {
             this.tag = tag;
-            this.tagComboBatchingStrategy = batchingStrategy;
+            this.tagSizeTimeBatchingStrategy = batchingStrategy;
             this.tagBatchReadyListener = onBatchReadyListener;
         }
     }
