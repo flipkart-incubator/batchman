@@ -18,7 +18,6 @@ import android.view.View;
 import android.webkit.ValueCallback;
 
 import com.flipkart.batching.Batch;
-import com.flipkart.batching.ComboStrategyFactory;
 import com.flipkart.batching.TagBatchManager;
 import com.flipkart.batching.data.Tag;
 import com.flipkart.batching.data.TagData;
@@ -26,7 +25,10 @@ import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.PersistedBatchCallback;
 import com.flipkart.batching.listener.TrimmedBatchCallback;
 import com.flipkart.batching.persistence.GsonSerializationStrategy;
+import com.flipkart.batching.persistence.InMemoryPersistenceStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
+import com.flipkart.batching.persistence.TapePersistenceStrategy;
+import com.flipkart.batching.strategy.SizeTimeBatchingStrategy;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
 
 import java.util.ArrayList;
@@ -162,9 +164,9 @@ public class MainActivity extends AppCompatActivity
         batchManager = new TagBatchManager.Builder<>()
                 .setSerializationStrategy(serializationStrategy)
                 .setHandler(backgroundHandler)
-                .addTag(perfTag, ComboStrategyFactory.createDefault(getApplicationContext(), perfTag, serializationStrategy), perfListener)
-                .addTag(debugTag, ComboStrategyFactory.createDefault(getApplicationContext(), debugTag, serializationStrategy), debugListener)
-                .addTag(dgTag, ComboStrategyFactory.createDefault(getApplicationContext(), dgTag, serializationStrategy), dgListener)
+                .addTag(perfTag, new SizeTimeBatchingStrategy(new TapePersistenceStrategy(getCacheDir() + "/perf1", serializationStrategy), 3, 10000), perfListener)
+                .addTag(debugTag, new SizeTimeBatchingStrategy(new TapePersistenceStrategy(getCacheDir() + "/debug1", serializationStrategy), 3, 10000), debugListener)
+                .addTag(dgTag, new SizeTimeBatchingStrategy(new TapePersistenceStrategy(getCacheDir() + "/dg1", serializationStrategy), 3, 10000), dgListener)
                 .build(getApplicationContext());
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
