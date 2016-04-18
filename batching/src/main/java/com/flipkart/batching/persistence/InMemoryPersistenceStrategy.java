@@ -11,23 +11,31 @@ import java.util.Collection;
  */
 
 public class InMemoryPersistenceStrategy<E extends Data> implements PersistenceStrategy<E> {
-    private ArrayList<E> dataList = new ArrayList<>();
+    protected ArrayList<E> dataList = new ArrayList<>();
     private boolean initialized;
 
     public boolean isInitialized() {
         return initialized;
     }
 
+    // Todo, remove check before adding. Done.
+
     @Override
     public boolean add(Collection<E> dataCollection) {
         boolean isAdded = false;
         for (E data : dataCollection) {
-            if (!dataList.contains(data)) {
-                dataList.add(data);
-                isAdded = true;
-            }
+            dataList.add(data);
+            isAdded = true;
         }
         return isAdded;
+    }
+
+    public void add(E data) {
+        dataList.add(data);
+    }
+
+    public boolean hasData(E data) {
+        return dataList.contains(data);
     }
 
     @Override
