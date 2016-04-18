@@ -4,8 +4,8 @@ import com.flipkart.batching.Data;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Created by kushal.sharma on 24/02/16.
- * Tag Data Class.
+ * TagData Class that extends {@link Data}.
+ * It takes {@link Tag} as a parameter in constructor.
  */
 
 public class TagData extends Data {

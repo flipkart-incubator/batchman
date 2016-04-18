@@ -1,14 +1,12 @@
 package com.flipkart.batching.data;
 
-import com.flipkart.batching.Data;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
 /**
- * Tag is a simple class to store information about the {@link Data} object.
- * A tag implements {@link Serializable} and consists of Id, Priority and Url.
- * <p/>
+ * Tag represents a group of {@link com.flipkart.batching.Data} objects to batch together.
+ * It takes a {@link String} type ID as parameter in constructor.
  */
 
 public class Tag implements Serializable {

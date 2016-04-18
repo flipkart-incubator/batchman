@@ -3,8 +3,7 @@ package com.flipkart.batching.data;
 import com.flipkart.batching.Data;
 
 /**
- * Created by kushal.sharma on 16/02/16.
- * Event Data Class to hold event data.
+ * EventData class that extends {@link Data}.
  */
 
 public class EventData extends Data {
