@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Created by kushal.sharma on 23/02/16.
@@ -38,18 +38,18 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
     @Override
     public boolean add(Collection<E> dataCollection) {
         boolean isAdded = false;
-        Collection<E> oldData = getData();
         for (E data : dataCollection) {
             try {
                 if (null == data) {
                     if (log.isErrorEnabled()) {
                         log.error("Null not expected in the data collection");
                     }
-                } else if (!oldData.contains(data)) {
+                } else {
                     isAdded = true;
                     byte[] serializedData = serializationStrategy.serializeData(data);
                     if (null != serializedData) {
                         queueFile.add(serializedData);
+                        add(data);
                     } else if (log.isErrorEnabled()) {
                         log.error("Data being serialized to null. This is something which is not expected");
                     }
@@ -60,26 +60,21 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
                 }
             }
         }
-        super.add(dataCollection);
         return isAdded;
     }
 
     @Override
     public void removeData(Collection<E> dataCollection) {
-        super.removeData(dataCollection);
-        for (E ignored : dataCollection) {
-            try {
-                byte[] peekedData = queueFile.peek();
-                if (null == peekedData) {
-                    if (log.isErrorEnabled()) {
-                        log.error("Data being peeked is null in removeData");
-                    }
-                } else if (dataCollection.contains(serializationStrategy.deserializeData(peekedData))) {
+        Iterator<?> it = dataList.iterator();
+        while (it.hasNext()) {
+            if (dataCollection.contains(it.next())) {
+                try {
                     queueFile.remove();
-                }
-            } catch (DeserializeException | IOException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(e.getLocalizedMessage());
+                    it.remove();
+                } catch (IOException e) {
+                    if (log.isErrorEnabled()) {
+                        log.error(e.getLocalizedMessage());
+                    }
                 }
             }
         }
@@ -102,18 +97,13 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
         super.onInitialized();
     }
 
-    private void syncData() {
-        super.add(getAllDataFromTapeQueue());
-    }
-
     /**
      * Very expensive operation
-     *
-     * @return collection of data
      */
-    private Collection<E> getAllDataFromTapeQueue() {
+
+    // Todo fix this
+    private void syncData() {
         int size = queueFile.size();
-        ArrayList<E> dataList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             try {
                 byte[] peekedData = queueFile.peek();
@@ -121,8 +111,8 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
                     E data = serializationStrategy.deserializeData(peekedData);
                     queueFile.remove();
                     if (null != data) {
-                        dataList.add(data);
                         queueFile.add(peekedData);
+                        add(data);
                     }
                 }
             } catch (DeserializeException | IOException | SerializeException e) {
@@ -131,6 +121,5 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
                 }
             }
         }
-        return dataList;
     }
 }
