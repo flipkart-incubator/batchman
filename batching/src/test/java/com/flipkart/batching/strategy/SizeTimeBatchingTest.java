@@ -60,8 +60,8 @@ public class SizeTimeBatchingTest {
         sizeTimeBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
         ArrayList<Data> dataArrayList = Utils.fakeCollection(5);
         sizeTimeBatchingStrategy.onDataPushed(dataArrayList);
-        //verify that add method is called two times, one for size and one for time batching strategy
-        verify(persistenceStrategy, times(2)).add(dataArrayList);
+        //verify that add method is called one time only.
+        verify(persistenceStrategy, times(1)).add(dataArrayList);
     }
 
     /**
@@ -110,8 +110,8 @@ public class SizeTimeBatchingTest {
         sizeTimeBatchingStrategy.onDataPushed(dataList);
         when(persistenceStrategy.getData()).thenReturn(dataList);
         sizeTimeBatchingStrategy.flush(true);
-        //verify removeData method gets called 2 time, one from Time and one from SizeBatchingStrategy
-        verify(persistenceStrategy, times(2)).removeData(eq(dataList));
+        //verify removeData method gets called 1 time only.
+        verify(persistenceStrategy, times(1)).removeData(eq(dataList));
     }
 
     /**

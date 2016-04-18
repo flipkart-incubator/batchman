@@ -15,9 +15,8 @@ import com.flipkart.batching.persistence.PersistenceStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.persistence.TapePersistenceStrategy;
 import com.flipkart.batching.strategy.BaseBatchingStrategy;
-import com.flipkart.batching.strategy.ComboBatchingStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.flipkart.batching.strategy.TimeBatchingStrategy;
+import com.flipkart.batching.strategy.SizeTimeBatchingStrategy;
 import com.squareup.tape.QueueFile;
 
 import junit.framework.Assert;
@@ -269,9 +268,7 @@ public class BatchManagerTest extends BaseTestClass {
         SerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         TapePersistenceStrategy<Data> persistenceStrategy = new TapePersistenceStrategy<>(filePath1, serializationStrategy);
         Context context = RuntimeEnvironment.application;
-        BatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(2, persistenceStrategy);
-        TimeBatchingStrategy timeBatchingStrategy = new TimeBatchingStrategy(5000, persistenceStrategy);
-        ComboBatchingStrategy comboBatchingStrategy = new ComboBatchingStrategy(timeBatchingStrategy, sizeBatchingStrategy);
+        SizeTimeBatchingStrategy sizeTimeBatchingStrategy = new SizeTimeBatchingStrategy(persistenceStrategy, 2, 5000);
 
         NetworkBatchListener batchListener = new NetworkBatchListener() {
             @Override
@@ -282,7 +279,7 @@ public class BatchManagerTest extends BaseTestClass {
         NetworkPersistedBatchReadyListener batchReadyListener = new NetworkPersistedBatchReadyListener(context, filePath, serializationStrategy, handler, batchListener, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null);
         BatchController batchController = new BatchManager.Builder()
                 .setSerializationStrategy(serializationStrategy)
-                .setBatchingStrategy(comboBatchingStrategy)
+                .setBatchingStrategy(sizeTimeBatchingStrategy)
                 .setHandler(handler)
                 .setOnBatchReadyListener(batchReadyListener)
                 .build(context);
@@ -325,16 +322,14 @@ public class BatchManagerTest extends BaseTestClass {
             e.printStackTrace();
         }
         persistenceStrategy = new TapePersistenceStrategy<>(filePath1, serializationStrategy);
-        sizeBatchingStrategy = new SizeBatchingStrategy(2, persistenceStrategy);
-        timeBatchingStrategy = new TimeBatchingStrategy(5000, persistenceStrategy);
-        comboBatchingStrategy = new ComboBatchingStrategy(timeBatchingStrategy, sizeBatchingStrategy);
+        sizeTimeBatchingStrategy = new SizeTimeBatchingStrategy(persistenceStrategy, 2, 5000);
 
         NetworkBatchListener batchListener2Spy = spy(batchListener2);
         batchReadyListener = new NetworkPersistedBatchReadyListener(context, filePath, serializationStrategy, handler, batchListener2Spy, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null);
 
         batchController = new BatchManager.Builder()
                 .setSerializationStrategy(serializationStrategy)
-                .setBatchingStrategy(comboBatchingStrategy)
+                .setBatchingStrategy(sizeTimeBatchingStrategy)
                 .setHandler(handler)
                 .setOnBatchReadyListener(batchReadyListener)
                 .build(context);

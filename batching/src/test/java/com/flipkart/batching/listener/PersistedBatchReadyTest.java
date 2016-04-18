@@ -138,7 +138,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         persistedBatchReadyListener.finish(sizeBatchInfo);
 
         //verify that finish method gets called
-        verify(persistedBatchCallback,times(1)).onFinish();
+        verify(persistedBatchCallback, times(1)).onFinish();
     }
 
     /**
@@ -174,15 +174,15 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         shadowLooper.runToEndOfTasks();
 
         //verify that it gets called with firstBatch
-        verify(persistedBatchCallback,times(1)).onPersistSuccess(firstBatch);
+        verify(persistedBatchCallback, times(1)).onPersistSuccess(firstBatch);
         persistedBatchReadyListener.finish(firstBatch);
         shadowLooper.runToEndOfTasks();
         //verify that it gets called with secondBatch
-        verify(persistedBatchCallback,times(1)).onPersistSuccess(secondBatch);
+        verify(persistedBatchCallback, times(1)).onPersistSuccess(secondBatch);
         persistedBatchReadyListener.finish(secondBatch);
         shadowLooper.runToEndOfTasks();
         //verify that it gets called with thirdBatch
-        verify(persistedBatchCallback,times(1)).onPersistSuccess(thirdBatch);
+        verify(persistedBatchCallback, times(1)).onPersistSuccess(thirdBatch);
         //verify that there is no more interactions
         verifyNoMoreInteractions(persistedBatchCallback);
     }
@@ -220,9 +220,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo1 = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeAdsCollection(4), 5);
         try {
             persistedBatchReadyListener.finish(sizeBatchInfo1);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         shadowLooper.runToEndOfTasks();
