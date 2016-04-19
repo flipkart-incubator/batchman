@@ -13,7 +13,6 @@ import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.persistence.SerializationStrategy;
-import com.flipkart.batching.tape.QueueFile;
 
 import org.slf4j.LoggerFactory;
 
@@ -69,9 +68,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         this.setListener(persistedBatchCallback);
     }
 
-    public void setNetworkBatchListener(NetworkBatchListener<E, T> networkBatchListener) {
-        this.networkBatchListener = networkBatchListener;
-    }
 
     public int getDefaultTimeoutMs() {
         return defaultTimeoutMs;
@@ -122,10 +118,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         }
     }
 
-    @Override
-    protected void onInitialized(QueueFile queueFile) {
-        super.onInitialized(queueFile);
-    }
 
     private boolean isConnectedToNetwork() {
         return networkBatchListener.isNetworkConnected(context);
@@ -165,7 +157,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
                                     }, backOff);
                                 } else {
                                     if (log.isDebugEnabled()) {
-                                        log.debug("Maximum network retry reached for {}", getQueueFile());
+                                        log.debug("Maximum network retry reached for {}", filePath);
                                     }
                                     needsResumeOnReady = true;
                                 }
