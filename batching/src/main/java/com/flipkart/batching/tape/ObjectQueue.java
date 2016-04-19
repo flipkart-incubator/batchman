@@ -1,6 +1,7 @@
 // Copyright 2011 Square, Inc.
 package com.flipkart.batching.tape;
 
+import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -18,24 +19,34 @@ public interface ObjectQueue<T> {
     /**
      * Enqueues an entry that can be processed at any time.
      */
-    void add(T entry);
+    void add(T entry) throws IOException;
 
     /**
      * Returns the head of the queue, or {@code null} if the queue is empty. Does not modify the
      * queue.
      */
-    T peek();
+    T peek() throws IOException;
 
     /**
      * Returns the head of the queue, or {@code null} if the queue is empty. Does not modify the
      * queue.
      */
-    Collection<T> peek(int max);
+    Collection<T> peek(int max) throws IOException;
 
     /**
      * Removes the head of the queue.
      */
-    void remove();
+    void remove() throws IOException;
+
+    /**
+     * Removes n items from the head of the queue.
+     */
+    void remove(int size) throws IOException;
+
+    /**
+     * Closes the underlying queue file
+     */
+    void close() throws IOException;
 
     /**
      * Sets a listener on this queue. Invokes {@link Listener#onAdd} once for each entry that's
@@ -49,7 +60,7 @@ public interface ObjectQueue<T> {
      *
      * @param <T> The type of elements in the queue.
      */
-    public interface Listener<T> {
+    interface Listener<T> {
 
         /**
          * Called after an entry is added.

@@ -44,6 +44,21 @@ public class InMemoryObjectQueue<T> implements ObjectQueue<T> {
     }
 
     @Override
+    public void remove(int n) {
+        for (int i = 0; i < n; i++) {
+            tasks.remove();
+            if (listener != null) {
+                listener.onRemove(this);
+            }
+        }
+    }
+
+    @Override
+    public void close() {
+        tasks.clear();
+    }
+
+    @Override
     public void setListener(Listener<T> listener) {
         if (listener != null) {
             for (T task : tasks) {

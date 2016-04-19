@@ -51,26 +51,18 @@ public class FileObjectQueue<T> implements ObjectQueue<T> {
     }
 
     @Override
-    public final void add(T entry) {
-        try {
-            bytes.reset();
-            converter.toStream(entry, bytes);
-            queueFile.add(bytes.getArray(), 0, bytes.size());
-            if (listener != null) listener.onAdd(this, entry);
-        } catch (IOException e) {
-            throw new FileException("Failed to add entry.", e, file);
-        }
+    public final void add(T entry) throws IOException {
+        bytes.reset();
+        converter.toStream(entry, bytes);
+        queueFile.add(bytes.getArray(), 0, bytes.size());
+        if (listener != null) listener.onAdd(this, entry);
     }
 
     @Override
-    public T peek() {
-        try {
-            byte[] bytes = queueFile.peek();
-            if (bytes == null) return null;
-            return converter.from(bytes);
-        } catch (IOException e) {
-            throw new FileException("Failed to peek.", e, file);
-        }
+    public T peek() throws IOException {
+        byte[] bytes = queueFile.peek();
+        if (bytes == null) return null;
+        return converter.from(bytes);
     }
 
     /**
@@ -79,60 +71,47 @@ public class FileObjectQueue<T> implements ObjectQueue<T> {
      * are read.
      */
     @Override
-    public List<T> peek(final int max) {
-        try {
-            final List<T> entries = new ArrayList<T>(max);
-            queueFile.forEach(new QueueFile.ElementVisitor() {
-                int count;
+    public List<T> peek(final int max) throws IOException {
+        final List<T> entries = new ArrayList<>(max);
+        queueFile.forEach(new QueueFile.ElementVisitor() {
+            int count;
 
-                @Override
-                public boolean read(InputStream in, int length) throws IOException {
-                    byte[] data = new byte[length];
-                    in.read(data, 0, length);
+            @Override
+            public boolean read(InputStream in, int length) throws IOException {
+                byte[] data = new byte[length];
+                in.read(data, 0, length);
 
-                    entries.add(converter.from(data));
-                    return ++count < max;
-                }
-            });
-            return unmodifiableList(entries);
-        } catch (IOException e) {
-            throw new FileException("Failed to peek.", e, file);
-        }
+                entries.add(converter.from(data));
+                return ++count < max;
+            }
+        });
+        return unmodifiableList(entries);
     }
 
-    public List<T> asList() {
+    public List<T> asList() throws IOException {
         return peek(size());
     }
 
     @Override
-    public final void remove() {
-        try {
-            queueFile.remove();
-            if (listener != null) listener.onRemove(this);
-        } catch (IOException e) {
-            throw new FileException("Failed to remove.", e, file);
-        }
+    public final void remove() throws IOException {
+        queueFile.remove();
+        if (listener != null) listener.onRemove(this);
     }
 
-    public final void remove(int n) throws IOException {
-        try {
-            queueFile.remove(n);
-            if (listener != null) {
-                for (int i = 0; i < n; i++) {
-                    listener.onRemove(this);
-                }
+
+    @Override
+    public void remove(int n) throws IOException {
+        queueFile.remove(n);
+        if (listener != null) {
+            for (int i = 0; i < n; i++) {
+                listener.onRemove(this);
             }
-        } catch (IOException e) {
-            throw new FileException("Failed to remove.", e, file);
         }
     }
 
-    public final void close() {
-        try {
-            queueFile.close();
-        } catch (IOException e) {
-            throw new FileException("Failed to close.", e, file);
-        }
+    @Override
+    public final void close() throws IOException {
+        queueFile.close();
     }
 
     @Override
