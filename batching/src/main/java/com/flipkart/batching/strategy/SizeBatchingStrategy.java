@@ -38,12 +38,12 @@ public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
     @Override
     public void onDataPushed(Collection<E> dataCollection) {
         super.onDataPushed(dataCollection);
-        currentBatchSize = getPersistenceStrategy().getData().size();
+        currentBatchSize = getPersistenceStrategy().getDataSize();
     }
 
     @Override
     public void flush(boolean forced) {
-        currentBatchSize = getPersistenceStrategy().getData().size();
+        currentBatchSize = getPersistenceStrategy().getDataSize();
         if ((forced || isBatchReady()) && currentBatchSize > 0) {
             Collection<E> data = getPersistenceStrategy().getData();
             getPersistenceStrategy().removeData(data);
