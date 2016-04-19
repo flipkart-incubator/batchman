@@ -14,7 +14,7 @@ import com.flipkart.batching.exception.SerializeException;
 import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.squareup.tape.QueueFile;
+import com.flipkart.batching.tape.QueueFile;
 
 import junit.framework.Assert;
 
@@ -47,9 +47,6 @@ import static org.mockito.Mockito.when;
 @Config(constants = BuildConfig.class)
 public class PersistedBatchReadyTest extends BaseTestClass {
 
-    /**
-     * Test to verify that {@link PersistedBatchReadyListener#onInitialized(QueueFile)} is called
-     */
     @Test
     public void testIfInitializedCalled() {
         File file = createRandomFile();
@@ -189,6 +186,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
 
     /**
      * Test to verify that finish throws an {@link IllegalStateException} when it gets called with a different batch.
+     * Ignoring this test because we are catching this exception and logging it now.
      *
      * @throws SerializeException
      * @throws IOException

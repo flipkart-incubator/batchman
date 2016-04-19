@@ -10,8 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by kushal.sharma on 13/02/16.
- * Todo Document Tag Batch Ready Listener
+ * TagBatchReadyListener that implements {@link OnBatchReadyListener}.
  */
 
 public class TagBatchReadyListener<E extends TagData> implements OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E>> {

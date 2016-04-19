@@ -24,6 +24,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +47,6 @@ import java.util.Set;
  */
 
 public class GsonSerializationStrategy<E extends Data, T extends Batch> implements SerializationStrategy<E, T> {
-
     private static final String IS_JSON_OBJECT = "_com.flipkart.batching.isJsonObject";
     private static final String JSON_ARRAY_OBJECT = "_com.flipkart.batching.jsonArray";
 
@@ -95,7 +102,27 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         return result;
     }
 
-
+    public static JsonElement forJSONGenericObject(Object value, JsonSerializationContext context) {
+        JsonElement element;
+        if (null != value) {
+            if (value instanceof JSONObject) {
+                element = context.serialize(value, JSONObject.class);
+            } else if (value instanceof JSONArray) {
+                element = context.serialize(value, JSONArray.class);
+            } else if (value instanceof String) {
+                element = context.serialize(value, String.class);
+            } else if (value instanceof Number) {
+                element = context.serialize(value, Number.class);
+            } else if (value instanceof Boolean) {
+                element = context.serialize(value, Boolean.class);
+            } else {
+                element = context.serialize(value);
+            }
+        } else {
+            element = context.serialize(value);
+        }
+        return element;
+    }
 
     @Override
     public void registerDataType(Class<E> subClass) {
@@ -152,6 +179,18 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     }
 
     @Override
+    public void serializeData(E data, OutputStream stream) throws SerializeException {
+        checkIfBuildCalled();
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(stream);
+            gson.toJson(data, Data.class, outputStreamWriter);
+            outputStreamWriter.flush();
+        } catch (JsonParseException | IOException e) {
+            throw new SerializeException(e);
+        }
+    }
+
+    @Override
     public byte[] serializeCollection(Collection<E> data) throws SerializeException {
         checkIfBuildCalled();
         Type type = new TypeToken<Collection<Data>>() {
@@ -186,7 +225,6 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     @Override
     public Collection<E> deserializeCollection(byte[] data) throws DeserializeException {
         checkIfBuildCalled();
-
         Type type = new TypeToken<Collection<Data>>() {
         }.getType();
         try {
@@ -204,28 +242,6 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         } catch (JsonParseException e) {
             throw new DeserializeException(e);
         }
-    }
-
-    public static JsonElement forJSONGenericObject(Object value, JsonSerializationContext context) {
-        JsonElement element;
-        if (null != value) {
-            if (value instanceof JSONObject) {
-                element = context.serialize(value, JSONObject.class);
-            } else if (value instanceof JSONArray) {
-                element = context.serialize(value, JSONArray.class);
-            } else if (value instanceof String) {
-                element = context.serialize(value, String.class);
-            } else if (value instanceof Number) {
-                element = context.serialize(value, Number.class);
-            } else if (value instanceof Boolean) {
-                element = context.serialize(value, Boolean.class);
-            } else {
-                element = context.serialize(value);
-            }
-        } else {
-            element = context.serialize(value);
-        }
-        return element;
     }
 
     public static class JSONObjectSerializer implements JsonSerializer<JSONObject> {
@@ -253,10 +269,7 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     }
 
 
-
     public static class JSONObjectDeSerializer implements JsonDeserializer<JSONObject> {
-
-
         @Override
         public JSONObject deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             JSONObject result = null;
@@ -283,7 +296,6 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     }
 
     public static class JSONArraySerializer implements JsonSerializer<JSONArray> {
-
         @Override
         public JsonElement serialize(JSONArray src, Type typeOfSrc, JsonSerializationContext context) {
             JsonObject result = null;
@@ -307,7 +319,6 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     }
 
     public static class JSONArrayDeSerializer implements JsonDeserializer<JSONArray> {
-
         @Override
         public JSONArray deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             JSONArray result = null;

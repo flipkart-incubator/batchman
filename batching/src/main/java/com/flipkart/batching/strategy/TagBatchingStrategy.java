@@ -99,7 +99,6 @@ public class TagBatchingStrategy<E extends TagData> implements BatchingStrategy<
 
 
     public static class TagBatch<T extends TagData> extends Batch<T> {
-
         @SerializedName("tag")
         private Tag tag;
 

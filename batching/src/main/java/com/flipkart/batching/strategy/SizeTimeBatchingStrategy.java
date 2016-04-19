@@ -38,18 +38,10 @@ public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrate
         }
     }
 
-    public void setMaxBatchSize(int maxBatchSize) {
-        this.maxBatchSize = maxBatchSize;
-    }
-
-    public void setTimeOut(long timeOut) {
-        this.timeOut = timeOut;
-    }
-
     @Override
     public void onDataPushed(Collection<E> dataCollection) {
         super.onDataPushed(dataCollection);
-        currentBatchSize = getPersistenceStrategy().getData().size();
+        currentBatchSize = getPersistenceStrategy().getDataSize();
     }
 
     /**
@@ -58,7 +50,7 @@ public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrate
      * @return boolean type batch ready state
      */
 
-    private boolean isBatchReady() {
+    private boolean isBatchSizeReady() {
         return currentBatchSize >= maxBatchSize;
     }
 
@@ -67,7 +59,7 @@ public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrate
         Collection<E> data = getPersistenceStrategy().getData();
         currentBatchSize = data.size();
 
-        if ((forced || isBatchReady()) && currentBatchSize > 0) {
+        if ((forced || isBatchSizeReady()) && currentBatchSize > 0) {
             getPersistenceStrategy().removeData(data);
             getOnReadyListener().onReady(this, new SizeTimeBatch<E>(data, maxBatchSize, timeOut));
         } else if (forced) {
@@ -93,6 +85,7 @@ public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrate
     /**
      * This method starts the timer.
      */
+
     private void startTimer() {
         handler.postDelayed(runnable, timeOut);
     }
@@ -100,12 +93,12 @@ public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrate
     /**
      * This method stops the timer.
      */
+
     private void stopTimer() {
         handler.removeCallbacks(runnable);
     }
 
     public static class SizeTimeBatch<T extends Data> extends Batch<T> {
-
         @SerializedName("maxBatchSize")
         private int maxBatchSize;
         @SerializedName("timeOut")
@@ -128,8 +121,9 @@ public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrate
         @Override
         public boolean equals(Object o) {
             if (o instanceof SizeTimeBatch) {
-                return (((SizeTimeBatch) o).getMaxBatchSize() == maxBatchSize && super.equals(o)
-                        && ((SizeTimeBatch) o).getTimeOut() == timeOut && super.equals(o));
+                return (((SizeTimeBatch) o).getMaxBatchSize() == maxBatchSize
+                        && ((SizeTimeBatch) o).getTimeOut() == timeOut
+                        && super.equals(o));
 
             }
             return super.equals(o);

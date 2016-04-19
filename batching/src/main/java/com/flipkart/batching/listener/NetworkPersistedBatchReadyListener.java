@@ -13,12 +13,11 @@ import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.persistence.SerializationStrategy;
-import com.squareup.tape.QueueFile;
+import com.flipkart.batching.tape.QueueFile;
 
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by kushal.sharma on 29/02/16 at 11:58 AM.
  * Network Persisted Batch Ready Listener
  */
 
@@ -106,7 +105,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         if (!receiverRegistered) {
             //Register the broadcast receiver
             IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-            context.registerReceiver(networkBroadcastReceiver, filter); //todo, does calling this multple times cause duplicate broadcasts
+            context.registerReceiver(networkBroadcastReceiver, filter);
             receiverRegistered = true;
             if (log.isDebugEnabled()) {
                 log.debug("Registered network broadcast receiver {}", this);
@@ -197,6 +196,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
      *
      * @return new timeOut
      */
+
     private int exponentialBackOff() {
         int timeOut = mCurrentTimeoutMs;
         mCurrentTimeoutMs += (mCurrentTimeoutMs * defaultBackoffMultiplier);
@@ -240,14 +240,16 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
          * <p/>
          * Note: If there is a network redirect, do not call the networkBatchListener, and wait for the final redirected response and pass that one.
          *
-         * @param batch
-         * @param callback
+         * @param batch    batch of data
+         * @param callback callback
          */
+
         public abstract void performNetworkRequest(final T batch, final ValueCallback<NetworkRequestResponse> callback);
 
         /**
          * @return true if network is connected
          */
+
         public boolean isNetworkConnected(Context context) {
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
@@ -266,7 +268,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     }
 
     public class NetworkBroadcastReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context context, Intent intent) {
             if (log.isDebugEnabled()) {

@@ -45,6 +45,11 @@ public class TagBasedPersistenceStrategy<E extends Data> implements PersistenceS
     }
 
     @Override
+    public int getDataSize() {
+        return persistenceStrategy.getDataSize();
+    }
+
+    @Override
     public void removeData(Collection<E> dataCollection) {
         filterByTag(dataCollection);
         persistenceStrategy.removeData(dataCollection);

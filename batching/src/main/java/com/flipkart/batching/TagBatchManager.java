@@ -21,7 +21,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by kushal.sharma on 24/03/16.
+ * TagBatchManager class that extends {@link BatchController}.
+ *
+ * @see BatchManager
  */
 
 public class TagBatchManager<E extends Data, T extends Batch<E>> implements BatchController<E, T> {

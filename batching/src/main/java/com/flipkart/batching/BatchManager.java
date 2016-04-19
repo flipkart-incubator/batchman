@@ -113,7 +113,6 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
             i++;
             data.setEventId(System.currentTimeMillis() + System.nanoTime() + i);
         }
-
     }
 
     @Override
@@ -146,6 +145,7 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
      * @param onBatchReadyListener instance of {@link OnBatchReadyListener}
      * @param handler              instance of {@link Handler}
      */
+
     private void initialize(BatchController<E, T> batchController, Context context,
                             OnBatchReadyListener<E, T> onBatchReadyListener, Handler handler) {
         batchingStrategy.onInitialized(context, onBatchReadyListener, handler);

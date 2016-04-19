@@ -17,6 +17,7 @@ public interface PersistenceStrategy<E extends Data> {
      *
      * @param dataCollection collection of {@link Data} objects
      */
+
     boolean add(Collection<E> dataCollection);
 
     /**
@@ -24,7 +25,16 @@ public interface PersistenceStrategy<E extends Data> {
      *
      * @return collection of {@link Data} objects
      */
+
     Collection<E> getData();
+
+    /**
+     * This method returns {@link int} size of persisted {@link Data} objects.
+     *
+     * @return size of {@link int} objects
+     */
+
+    int getDataSize();
 
     /**
      * This method removes the provided {@link Collection} of {@link Data} objects from
@@ -32,6 +42,7 @@ public interface PersistenceStrategy<E extends Data> {
      *
      * @param dataCollection collection of {@link Data} objects
      */
+
     void removeData(Collection<E> dataCollection);
 
     void onInitialized();

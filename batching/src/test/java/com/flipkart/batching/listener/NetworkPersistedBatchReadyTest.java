@@ -18,7 +18,7 @@ import com.flipkart.batching.exception.SerializeException;
 import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.squareup.tape.QueueFile;
+import com.flipkart.batching.tape.QueueFile;
 
 import junit.framework.Assert;
 
@@ -246,7 +246,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         // now we should get perform request callback with the new batch. Gets called
         verify(networkBatchListener, times(2)).performNetworkRequest(batchCapture.capture(), any(ValueCallback.class));
         //assert that value received in params is equal to the sent batch.
-        Assert.assertEquals(batchCapture.getValue(),secondBatch);
+        Assert.assertEquals(batchCapture.getValue(), secondBatch);
 
         verify(networkBatchListener, atLeastOnce()).isNetworkConnected(context);
         verify(networkBatchListener, atLeastOnce()).setMockedNetworkConnected(anyBoolean());
@@ -289,7 +289,6 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         SizeBatchingStrategy.SizeBatch<Data> thirdBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 3);
         networkPersistedBatchReadyListener.onReady(strategy, thirdBatch);
         shadowLooper.runToEndOfTasks(); //all retries finished
-
 
 
     }
@@ -435,6 +434,11 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
 //        deleteRandomFiles();
 //    }
 
+    @After
+    public void tearDown() throws Exception {
+        deleteRandomFiles();
+    }
+
     /**
      * Custom MockNetworkPersistedBatchReadyListener
      */
@@ -470,10 +474,5 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         public boolean isNetworkConnected(Context context) {
             return mockedNetworkConnected;
         }
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        deleteRandomFiles();
     }
 }

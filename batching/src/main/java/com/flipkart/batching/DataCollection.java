@@ -14,12 +14,10 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 
 /**
- * Created by kushal.sharma on 01/03/16.
- * Data Collection
+ * DataCollection class
  */
 
 public class DataCollection<T extends Data> {
-
     @SerializedName("dataCollection")
     Collection<T> dataCollection;
 
@@ -51,7 +49,6 @@ public class DataCollection<T extends Data> {
     }
 
     public static class DeSerializer implements JsonDeserializer<DataCollection> {
-
         @Override
         public DataCollection deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             if (null != json && json.isJsonObject()) {

@@ -3,7 +3,6 @@ package com.flipkart.batching.listener;
 import com.flipkart.batching.Batch;
 
 /**
- * Created by anirudh.r on 26/02/16.
  * Persisted Batch Callback
  */
 

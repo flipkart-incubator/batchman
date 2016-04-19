@@ -15,7 +15,7 @@ import java.util.Collection;
 /**
  * TimeBatchingStrategy extends abstract class {@link BaseBatchingStrategy} which is an
  * implementation of {@link BatchingStrategy}. This class takes timeOut and persistenceStrategy
- * as parameters in constructor. This strategy persist data according to the provided
+ * as parameters in constructor. It persist data according to the provided
  * {@link PersistenceStrategy}, starts/reset the timer whenever {@link Data} objects are pushed
  * and calls {@link #onReadyListener} when timeOut happens.
  */
@@ -30,6 +30,15 @@ public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
         }
     };
 
+    /**
+     * This constructor takes timeOut and {@link PersistenceStrategy} as parameters in
+     * constructor. Also, throws a IllegalArgumentException if {@link #timeOut} is less than
+     * or equal to 0.
+     *
+     * @param timeOut             time out
+     * @param persistenceStrategy persistence strategy
+     */
+
     public TimeBatchingStrategy(long timeOut, PersistenceStrategy<E> persistenceStrategy) {
         super(persistenceStrategy);
         if (timeOut <= 0) {
@@ -39,9 +48,11 @@ public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
         }
     }
 
-    public void setTimeOut(long timeOut) {
-        this.timeOut = timeOut;
-    }
+    /**
+     * Calls {@link #onReadyListener} with batched data.
+     *
+     * @param forced set true if forced
+     */
 
     @Override
     public void flush(boolean forced) {
@@ -69,6 +80,7 @@ public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
     /**
      * This method starts the timer.
      */
+
     private void startTimer() {
         handler.postDelayed(runnable, timeOut);
     }
@@ -76,12 +88,12 @@ public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
     /**
      * This method stops the timer.
      */
+
     private void stopTimer() {
         handler.removeCallbacks(runnable);
     }
 
     public static class TimeBatch<D extends Data> extends Batch<D> {
-
         @SerializedName("timeOut")
         private long timeOut;
 

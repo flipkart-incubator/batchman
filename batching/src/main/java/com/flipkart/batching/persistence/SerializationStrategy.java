@@ -5,6 +5,7 @@ import com.flipkart.batching.Data;
 import com.flipkart.batching.exception.DeserializeException;
 import com.flipkart.batching.exception.SerializeException;
 
+import java.io.OutputStream;
 import java.util.Collection;
 
 /**
@@ -39,6 +40,8 @@ public interface SerializationStrategy<E extends Data, T extends Batch> {
      */
 
     byte[] serializeData(E data) throws SerializeException;
+
+    void serializeData(E data, OutputStream stream) throws SerializeException;
 
     byte[] serializeCollection(Collection<E> data) throws SerializeException;
 
