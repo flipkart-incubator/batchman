@@ -7,13 +7,18 @@ import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.SerializationStrategy;
-import com.flipkart.batching.tape.QueueFile;
+import com.flipkart.batching.tape.FileObjectQueue;
+import com.flipkart.batching.tape.InMemoryObjectQueue;
+import com.flipkart.batching.tape.ObjectQueue;
 
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.LinkedList;
+import java.util.Queue;
 
 
 /**
@@ -23,18 +28,30 @@ import java.io.IOException;
 public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(PersistedBatchReadyListener.class);
     protected final Handler handler;
-    private final String filePath;
-    private final SerializationStrategy<E, T> serializationStrategy;
+    protected final String filePath;
+    private final Queue<T> cachedQueue;
     private PersistedBatchCallback<T> listener;
-    private QueueFile queueFile;
+    private ObjectQueue<T> queueFile;
+    private FileObjectQueue.Converter<T> converter;
     private boolean isWaitingToFinish;
     private T peekedBatch;
 
-    public PersistedBatchReadyListener(String filePath, SerializationStrategy<E, T> serializationStrategy, Handler handler, @Nullable PersistedBatchCallback<T> listener) {
+    public PersistedBatchReadyListener(String filePath, final SerializationStrategy<E, T> serializationStrategy, Handler handler, @Nullable PersistedBatchCallback<T> listener) {
         this.filePath = filePath;
-        this.serializationStrategy = serializationStrategy;
         this.handler = handler;
         this.listener = listener;
+        this.converter = new FileObjectQueue.Converter<T>() {
+            @Override
+            public T from(byte[] bytes) throws IOException {
+                return serializationStrategy.deserializeBatch(bytes);
+            }
+
+            @Override
+            public void toStream(T batch, OutputStream bytes) throws IOException {
+                bytes.write(serializationStrategy.serializeBatch(batch));
+            }
+        };
+        this.cachedQueue = (Queue<T>) new LinkedList();
     }
 
     public PersistedBatchCallback getListener() {
@@ -45,11 +62,11 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
         this.listener = listener;
     }
 
-    public QueueFile getQueueFile() {
+    public ObjectQueue<T> getQueueFile() {
         return queueFile;
     }
 
-    public void setQueueFile(QueueFile queueFile) {
+    public void setQueueFile(ObjectQueue<T> queueFile) {
         this.queueFile = queueFile;
     }
 
@@ -64,7 +81,8 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
             public void run() {
                 initializeIfRequired();
                 try {
-                    queueFile.add(serializationStrategy.serializeBatch(batch));
+                    queueFile.add(batch);
+                    cachedQueue.add(batch);
                     checkPendingAndContinue();
                 } catch (Exception e) {
                     if (log.isErrorEnabled()) {
@@ -74,6 +92,31 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                 }
             }
         });
+    }
+
+    protected int getSize() {
+        return queueFile.size();
+    }
+
+    protected boolean remove(int num) {
+        boolean result = false;
+        try {
+            int cachedSize = cachedQueue.size();
+            int itemsNotCached = queueFile.size() - cachedSize;
+            queueFile.remove(num);
+            if (num > itemsNotCached) {
+                int numItemsToBeRemoved = num - itemsNotCached;
+                for (int i = 0; i < numItemsToBeRemoved; i++) {
+                    cachedQueue.remove();
+                }
+            }
+            result = true;
+        } catch (IOException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getLocalizedMessage());
+            }
+        }
+        return result;
     }
 
     private void callPersistFailure(T batch, Exception e) {
@@ -94,10 +137,11 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
     private void initializeIfRequired() {
         if (!isInitialized()) {
             try {
-                File file = new File(this.filePath);
-                this.queueFile = new QueueFile(file);
-                onInitialized(queueFile);
+                File file = new File(filePath);
+                this.queueFile = new FileObjectQueue<>(file, converter);
+                onInitialized();
             } catch (IOException e) {
+                this.queueFile = new InMemoryObjectQueue<>();
                 if (log.isErrorEnabled()) {
                     log.error(e.getLocalizedMessage());
                 }
@@ -115,18 +159,22 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
         }
     }
 
-    protected void onInitialized(QueueFile queueFile) {
+    protected void onInitialized() {
     }
 
     public void finish(final T batch) {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if (!queueFile.isEmpty()) {
+                if (queueFile.size() > 0) {
                     try {
                         if (peekedBatch != null) {
                             if (batch != null && batch.equals(peekedBatch)) {
+                                boolean isCached = cachedQueue.size() == queueFile.size();
                                 queueFile.remove();
+                                if (isCached) {
+                                    cachedQueue.remove();
+                                }
                             } else {
                                 // We are currently seeing this very very rarely. We want to get more info here before we throw this exception
                                 if (log.isErrorEnabled()) {
@@ -139,7 +187,6 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                         if (log.isErrorEnabled()) {
                             log.error(e.getLocalizedMessage());
                         }
-                        throw new IllegalStateException("Finish (removing from queue) cannot be done due to IO exception " + e.getLocalizedMessage());
                     }
                     peekedBatch = null;
                     isWaitingToFinish = false;
@@ -153,17 +200,17 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
 
     private void checkPendingAndContinue() {
         initializeIfRequired();
-        if (!queueFile.isEmpty()) {
+        if (queueFile.size() > 0) {
             try {
-                byte[] eldest = queueFile.peek();
-                if (eldest != null) {
-                    peekedBatch = serializationStrategy.deserializeBatch(eldest);
+                peekedBatch = (queueFile.size() == cachedQueue.size())
+                        ? cachedQueue.peek()
+                        : queueFile.peek();
+
+                if (peekedBatch != null) {
                     callPersistSuccess(peekedBatch);
                 }
             } catch (IOException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(e.getLocalizedMessage());
-                }
+                e.printStackTrace();
             }
         } else {
             callQueueEnd();
