@@ -55,6 +55,7 @@ public class BaseBatchingStrategyTest {
         baseBatchingStrategy.onDataPushed(arrayList);
         baseBatchingStrategy.flush(false);
         when(persistenceStrategy.getData()).thenReturn(arrayList);
+        when(persistenceStrategy.getDataSize()).thenReturn(arrayList.size());
         //verify that it gets called once
         verify(persistenceStrategy, times(1)).add(arrayList);
     }
@@ -85,7 +86,7 @@ public class BaseBatchingStrategyTest {
      * Test that {@link BaseBatchingStrategy#getPersistenceStrategy()} is not null
      */
     @Test
-    public void testPersistenceNotNull(){
+    public void testPersistenceNotNull() {
         PersistenceStrategy<Data> persistenceStrategy = mock(PersistenceStrategy.class);
         BatchController batchController = mock(BatchController.class);
         Context context = RuntimeEnvironment.application;
@@ -107,7 +108,7 @@ public class BaseBatchingStrategyTest {
      * Throw {@link IllegalArgumentException} when {@link BaseBatchingStrategy#getPersistenceStrategy()} is null
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testPersistenceNull(){
+    public void testPersistenceNull() {
         Context context = RuntimeEnvironment.application;
         OnBatchReadyListener onBatchReadyListener = mock(OnBatchReadyListener.class);
         Handler handler = new Handler();

@@ -87,6 +87,7 @@ public class TimeBatchingTest {
         ArrayList<Data> dataList = Utils.fakeCollection(1);
         timeBatchingStrategy.onDataPushed(dataList);
         when(persistenceStrategy.getData()).thenReturn(dataList);
+        when(persistenceStrategy.getDataSize()).thenReturn(dataList.size());
         timeBatchingStrategy.flush(true);
         //verify it gets called once
         verify(persistenceStrategy, times(1)).removeData(eq(dataList));
@@ -112,6 +113,7 @@ public class TimeBatchingTest {
         ArrayList<Data> data = Utils.fakeCollection(2);
         timeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         timeBatchingStrategy.flush(true);
         //verify that it gets called once
         verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
@@ -121,6 +123,7 @@ public class TimeBatchingTest {
         reset(onBatchReadyListener);
         timeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         timeBatchingStrategy.flush(true);
         //verify that it gets called once
         verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
@@ -145,6 +148,7 @@ public class TimeBatchingTest {
         ArrayList<Data> data = Utils.fakeCollection(3);
         timeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         timeBatchingStrategy.flush(false);
         shadowLooper.idle(TIME_OUT);
         //verify that it gets called once
@@ -156,6 +160,7 @@ public class TimeBatchingTest {
         data.addAll(singleData);
         timeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         timeBatchingStrategy.flush(false);
         shadowLooper.idle(TIME_OUT);
         //verify that it gets called once
@@ -181,6 +186,7 @@ public class TimeBatchingTest {
         ArrayList<Data> data = new ArrayList<>();
         timeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         timeBatchingStrategy.flush(false);
         //verify that onReady is NOT called since the data list is empty.
         verify(onBatchReadyListener, times(0)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));

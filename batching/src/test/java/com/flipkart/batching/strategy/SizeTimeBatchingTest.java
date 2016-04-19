@@ -86,6 +86,7 @@ public class SizeTimeBatchingTest {
         ArrayList<Data> dataList = Utils.fakeCollection(1);
         sizeTimeBatchingStrategy.onDataPushed(dataList);
         when(persistenceStrategy.getData()).thenReturn(dataList);
+        when(persistenceStrategy.getDataSize()).thenReturn(dataList.size());
         sizeTimeBatchingStrategy.flush(false);
         //removeData method should not be called
         verify(persistenceStrategy, times(0)).removeData(eq(dataList));
@@ -97,6 +98,7 @@ public class SizeTimeBatchingTest {
         dataList = Utils.fakeCollection(1);
         sizeTimeBatchingStrategy.onDataPushed(dataList);
         when(persistenceStrategy.getData()).thenReturn(dataList);
+        when(persistenceStrategy.getDataSize()).thenReturn(dataList.size());
         sizeTimeBatchingStrategy.flush(false);
         shadowLooper.idle(TIME_OUT);
         //verify removeData method gets called 1 time from TimeBatchingStrategy
@@ -109,6 +111,7 @@ public class SizeTimeBatchingTest {
         dataList = Utils.fakeCollection(1);
         sizeTimeBatchingStrategy.onDataPushed(dataList);
         when(persistenceStrategy.getData()).thenReturn(dataList);
+        when(persistenceStrategy.getDataSize()).thenReturn(dataList.size());
         sizeTimeBatchingStrategy.flush(true);
         //verify removeData method gets called 1 time only.
         verify(persistenceStrategy, times(1)).removeData(eq(dataList));
@@ -137,6 +140,7 @@ public class SizeTimeBatchingTest {
         ArrayList<Data> data = Utils.fakeCollection(2);
         sizeTimeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeTimeBatchingStrategy.flush(false);
         shadowLooper.idle(TIME_OUT);
         //verify onReady is called from TimeBatching as size of data is 2.
@@ -147,6 +151,7 @@ public class SizeTimeBatchingTest {
         data = Utils.fakeCollection(5);
         sizeTimeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeTimeBatchingStrategy.flush(false);
         //verify onReady is called as size of data is equal to BATCH_SIZE
         verify(onBatchReadyListener, times(1)).onReady(eq(sizeTimeBatchingStrategy), any(Batch.class));
@@ -175,6 +180,7 @@ public class SizeTimeBatchingTest {
         ArrayList<Data> data = Utils.fakeCollection(2);
         sizeTimeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeTimeBatchingStrategy.flush(true);
         //verify onReady is called from TimeBatching and SizeBatching as flush force is true
         verify(onBatchReadyListener, atLeastOnce()).onReady(any(BatchingStrategy.class), any(Batch.class));
@@ -183,6 +189,7 @@ public class SizeTimeBatchingTest {
         data = Utils.fakeCollection(6);
         sizeTimeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeTimeBatchingStrategy.flush(true);
         //verify onReady is called from TimeBatching and SizeBatching as flush force is true
         verify(onBatchReadyListener, atLeastOnce()).onReady(any(BatchingStrategy.class), any(Batch.class));

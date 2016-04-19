@@ -104,7 +104,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void testFinishCalled() throws IOException, SerializeException {
+    public void testFinishCalled() throws IOException {
         File file = createRandomFile();
         QueueFile queueFile = mock(QueueFile.class);
         HandlerThread handlerThread = new HandlerThread(createRandomString());
@@ -145,7 +145,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void testPersistSuccessNotCalledMoreThanOnce() throws IOException, SerializeException {
+    public void testPersistSuccessNotCalledMoreThanOnce() throws IOException {
         File file = createRandomFile();
         HandlerThread handlerThread = new HandlerThread(createRandomString());
         handlerThread.start();
@@ -193,7 +193,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
      */
     @Ignore
     @Test(expected = IllegalStateException.class)
-    public void testFinishException() throws SerializeException, IOException {
+    public void testFinishException() throws IOException {
         File file = createRandomFile();
         QueueFile queueFile = mock(QueueFile.class);
         HandlerThread handlerThread = new HandlerThread(createRandomString());
@@ -231,7 +231,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
      * @throws IOException
      */
     @Test
-    public void testIfPersistFailureCalled() throws SerializeException, IOException {
+    public void testIfPersistFailureCalled() throws IOException {
         File file = createRandomFile();
         QueueFile queueFile = mock(QueueFile.class);
         HandlerThread handlerThread = new HandlerThread(createRandomString());

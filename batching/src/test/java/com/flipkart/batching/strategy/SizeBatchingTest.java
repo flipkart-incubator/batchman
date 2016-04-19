@@ -70,6 +70,7 @@ public class SizeBatchingTest {
         ArrayList<Data> fakeCollection = Utils.fakeCollection(1);
         sizeBatchingStrategy.onDataPushed(fakeCollection);
         when(persistenceStrategy.getData()).thenReturn(fakeCollection);
+        when(persistenceStrategy.getDataSize()).thenReturn(fakeCollection.size());
         sizeBatchingStrategy.flush(true);
         //verify that it gets called once
         verify(persistenceStrategy, times(1)).removeData(eq(fakeCollection));
@@ -94,6 +95,7 @@ public class SizeBatchingTest {
         ArrayList<Data> data = Utils.fakeCollection(1);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeBatchingStrategy.flush(false);
         verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
 
@@ -103,6 +105,7 @@ public class SizeBatchingTest {
         data = Utils.fakeCollection(2);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeBatchingStrategy.flush(false);
         verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
 
@@ -112,6 +115,7 @@ public class SizeBatchingTest {
         data = Utils.fakeCollection(3);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeBatchingStrategy.flush(false);
         verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
 
@@ -121,6 +125,7 @@ public class SizeBatchingTest {
         data = Utils.fakeCollection(4);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeBatchingStrategy.flush(false);
         verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
 
@@ -130,6 +135,7 @@ public class SizeBatchingTest {
         data = Utils.fakeCollection(5);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeBatchingStrategy.flush(false);
         verify(onBatchReadyListener, times(1)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
         verify(persistenceStrategy, times(1)).removeData(data);
@@ -153,6 +159,7 @@ public class SizeBatchingTest {
         ArrayList<Data> data = Utils.fakeCollection(1);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeBatchingStrategy.flush(true);
         verify(onBatchReadyListener, times(1)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
 
@@ -162,6 +169,7 @@ public class SizeBatchingTest {
         data = Utils.fakeCollection(2);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeBatchingStrategy.flush(true);
         verify(onBatchReadyListener, times(1)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
     }
@@ -184,6 +192,7 @@ public class SizeBatchingTest {
         ArrayList<Data> data = Utils.fakeCollection(BATCH_SIZE - 1);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeBatchingStrategy.flush(false);
         //verify that onReady DID NOT get called since we have pushed less than batch size events.
         verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
@@ -193,6 +202,7 @@ public class SizeBatchingTest {
         reset(onBatchReadyListener);
         sizeBatchingStrategy.onDataPushed(singleData);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeBatchingStrategy.flush(false);
         //verify that onReady DID get called since we have pushed enough events equal to batch size
         verify(onBatchReadyListener, times(1)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
@@ -203,6 +213,7 @@ public class SizeBatchingTest {
         reset(onBatchReadyListener);
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeBatchingStrategy.flush(false);
         //verify that onReady DID NOT get called since we have only one event remaining
         verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));
@@ -225,6 +236,7 @@ public class SizeBatchingTest {
         ArrayList<Data> data = new ArrayList<>();
         sizeBatchingStrategy.onDataPushed(data);
         when(persistenceStrategy.getData()).thenReturn(data);
+        when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         sizeBatchingStrategy.flush(false);
         //verify that onReady is NOT called since the data list is empty.
         verify(onBatchReadyListener, times(0)).onReady(eq(sizeBatchingStrategy), any(Batch.class));

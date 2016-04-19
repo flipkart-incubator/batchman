@@ -17,7 +17,7 @@ import com.flipkart.batching.persistence.TapePersistenceStrategy;
 import com.flipkart.batching.strategy.BaseBatchingStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.SizeTimeBatchingStrategy;
-import com.flipkart.batching.tape.QueueFile;
+import com.flipkart.batching.tape.ObjectQueue;
 
 import junit.framework.Assert;
 
@@ -29,7 +29,6 @@ import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLooper;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -74,6 +73,7 @@ public class BatchManagerTest extends BaseTestClass {
 
         ArrayList<Data> fakeCollection = Utils.fakeCollection(5);
         when(persistenceStrategy.getData()).thenReturn(fakeCollection);
+        when(persistenceStrategy.getDataSize()).thenReturn(fakeCollection.size());
         batchController.addToBatch(fakeCollection);
         shadowLooper.runToEndOfTasks();
         //verify that it gets called once
@@ -297,7 +297,7 @@ public class BatchManagerTest extends BaseTestClass {
         batchController.addToBatch(thirdBatch);
         shadowLooper.runToEndOfTasks();
 
-        QueueFile oldQueueFile = batchReadyListener.getQueueFile();
+        ObjectQueue<Batch<Data>> oldQueueFile = batchReadyListener.getQueueFile();
         Assert.assertTrue(oldQueueFile.size() == 3);
         batchReadyListener.setQueueFile(oldQueueFile);
 

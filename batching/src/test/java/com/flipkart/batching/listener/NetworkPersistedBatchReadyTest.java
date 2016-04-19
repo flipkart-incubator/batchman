@@ -18,7 +18,7 @@ import com.flipkart.batching.exception.SerializeException;
 import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.flipkart.batching.tape.QueueFile;
+import com.flipkart.batching.tape.ObjectQueue;
 
 import junit.framework.Assert;
 
@@ -60,7 +60,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void test5XXRetryPolicy() throws IOException, SerializeException {
+    public void test5XXRetryPolicy() throws IOException {
         int ERROR_CODE_5XX = 500;
         long callbackIdle = 1000;
         int maxRetryCount = 5;
@@ -130,7 +130,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void test4XXRetryPolicy() throws IOException, SerializeException {
+    public void test4XXRetryPolicy() throws IOException {
         int ERROR_CODE_4XX = 400;
         long callbackIdle = 1000;
         int maxRetryCount = 5;
@@ -167,7 +167,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void test2XXRetryPolicy() throws IOException, SerializeException {
+    public void test2XXRetryPolicy() throws IOException {
         int ERROR_CODE_2XX = 200;
         long callbackIdle = 1000;
 
@@ -200,7 +200,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void testNetworkBroadcast() throws IOException, SerializeException {
+    public void testNetworkBroadcast() throws IOException {
         int ERROR_CODE_2XX = 200;
         long callbackIdle = 1000;
 
@@ -279,7 +279,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         networkPersistedBatchReadyListener.onReady(strategy, secondBatch);
         shadowLooper.runToEndOfTasks();
 
-        QueueFile oldQueueFile = networkPersistedBatchReadyListener.getQueueFile();
+        ObjectQueue<Batch<Data>> oldQueueFile = networkPersistedBatchReadyListener.getQueueFile();
 
         //reinitialize
         networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, createRandomString(), serializationStrategy, handler, networkBatchListener, 5, 50, 10, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, trimmedBatchCallback);
@@ -433,7 +433,6 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
 //    public void afterTest() {
 //        deleteRandomFiles();
 //    }
-
     @After
     public void tearDown() throws Exception {
         deleteRandomFiles();
