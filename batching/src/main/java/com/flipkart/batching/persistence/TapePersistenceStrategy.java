@@ -43,20 +43,11 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
 
             @Override
             public void toStream(E data, OutputStream bytes) throws IOException {
-                serializationStrategy.serializeData(data, bytes);
+                bytes.write(serializationStrategy.serializeData(data));
             }
         };
     }
 
-    /**
-     * Returns object of {@link ObjectQueue} type.
-     *
-     * @return queueFile
-     */
-
-    public ObjectQueue getQueueFile() {
-        return queueFile;
-    }
 
     /**
      * This method add a collection of data to initialized {@link ObjectQueue}.
@@ -74,9 +65,15 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
                     log.error("Null not expected in the data collection");
                 }
             } else {
-                queueFile.add(data);
-                add(data);
-                isAdded = true;
+                try {
+                    queueFile.add(data);
+                    add(data);
+                    isAdded = true;
+                } catch (IOException e) {
+                    if (log.isErrorEnabled()) {
+                        log.error(e.getLocalizedMessage());
+                    }
+                }
             }
         }
         return isAdded;
@@ -93,8 +90,14 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
         Iterator<?> it = dataList.iterator();
         while (it.hasNext()) {
             if (dataCollection.contains(it.next())) {
-                queueFile.remove();
-                it.remove();
+                try {
+                    queueFile.remove();
+                    it.remove();
+                } catch (IOException e) {
+                    if (log.isErrorEnabled()) {
+                        log.error(e.getLocalizedMessage());
+                    }
+                }
             }
         }
     }
@@ -127,6 +130,11 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
      */
 
     private void syncData() {
-        super.add(queueFile.peek(queueFile.size()));
+        try {
+            Collection<E> data = queueFile.peek(queueFile.size());
+            super.add(data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -40,7 +40,6 @@ public interface SerializationStrategy<E extends Data, T extends Batch> {
 
     byte[] serializeData(E data) throws SerializeException;
 
-
     byte[] serializeCollection(Collection<E> data) throws SerializeException;
 
     byte[] serializeBatch(T batch) throws SerializeException;
