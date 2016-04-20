@@ -5,7 +5,6 @@ import com.flipkart.batching.Data;
 /**
  * EventData class that extends {@link Data}.
  */
-
 public class EventData extends Data {
     public EventData() {
         super();

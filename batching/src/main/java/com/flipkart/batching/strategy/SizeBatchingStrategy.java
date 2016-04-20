@@ -19,7 +19,6 @@ import java.util.Collection;
  * {@link PersistenceStrategy} and calls {@link #onReadyListener} when the batch reaches the
  * maxBatchSize limit.
  */
-
 public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E, SizeBatchingStrategy.SizeBatch<E>> {
     private int currentBatchSize;
     private int maxBatchSize;
@@ -62,7 +61,6 @@ public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
      *
      * @return boolean type batch ready state
      */
-
     protected boolean isBatchReady() {
         return currentBatchSize >= maxBatchSize;
     }

@@ -9,7 +9,6 @@ import java.util.Collection;
  * A simple implementation of {@link PersistenceStrategy}.
  * This strategy persist data in an InMemory using {@link ArrayList}.
  */
-
 public class InMemoryPersistenceStrategy<E extends Data> implements PersistenceStrategy<E> {
     protected ArrayList<E> dataList = new ArrayList<>();
     private boolean initialized;
@@ -19,7 +18,6 @@ public class InMemoryPersistenceStrategy<E extends Data> implements PersistenceS
      *
      * @return true if initialized
      */
-
     public boolean isInitialized() {
         return initialized;
     }
@@ -30,7 +28,6 @@ public class InMemoryPersistenceStrategy<E extends Data> implements PersistenceS
      * @param dataCollection collection of {@link Data} objects
      * @return true if list is edited
      */
-
     @Override
     public boolean add(Collection<E> dataCollection) {
         boolean isAdded = false;

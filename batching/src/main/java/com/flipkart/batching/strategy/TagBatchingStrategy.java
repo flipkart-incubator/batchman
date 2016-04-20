@@ -28,7 +28,6 @@ import java.util.Map;
  * @see TimeBatchingStrategy
  * @see TagBatchingStrategy
  */
-
 public class TagBatchingStrategy<E extends TagData> implements BatchingStrategy<E, TagBatchingStrategy.TagBatch<E>> {
     private Map<Tag, BatchingStrategy<E, Batch<E>>> batchingStrategyMap = new HashMap<>();
     private boolean initialized = false;
@@ -92,7 +91,6 @@ public class TagBatchingStrategy<E extends TagData> implements BatchingStrategy<
      * @param tag      {@link Tag} type tag
      * @param strategy {@link BatchingStrategy} type strategy
      */
-
     public void addTagStrategy(Tag tag, BatchingStrategy<E, Batch<E>> strategy) {
         batchingStrategyMap.put(tag, strategy);
     }

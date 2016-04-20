@@ -19,7 +19,6 @@ import java.util.List;
 /**
  * Database Helper class that extends {@link SQLiteOpenHelper}.
  */
-
 public class DatabaseHelper<E extends Data, T extends Batch> extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_EVENT_DATA = "tableEventData";
@@ -58,7 +57,6 @@ public class DatabaseHelper<E extends Data, T extends Batch> extends SQLiteOpenH
      * @param dataCollection collection of {@link Data} objects.
      * @throws SerializeException
      */
-
     public void addData(Collection<E> dataCollection) throws SerializeException {
         SQLiteDatabase db = this.getWritableDatabase();
         try {
@@ -84,7 +82,6 @@ public class DatabaseHelper<E extends Data, T extends Batch> extends SQLiteOpenH
      * @return collection of {@link Data} objects
      * @throws DeserializeException
      */
-
     public Collection<E> getAllData() throws DeserializeException {
         ArrayList<E> allEventData = new ArrayList<>();
         SQLiteDatabase db = getWritableDatabase();
@@ -105,7 +102,6 @@ public class DatabaseHelper<E extends Data, T extends Batch> extends SQLiteOpenH
      *
      * @param dataCollection collection of {@link Data} objects to be deleted
      */
-
     public void deleteDataList(Collection<E> dataCollection) {
         List<String> eventIdList = new ArrayList<>();
         for (E data : dataCollection) {
@@ -119,7 +115,6 @@ public class DatabaseHelper<E extends Data, T extends Batch> extends SQLiteOpenH
     /**
      * This method deletes all the data in the database.
      */
-
     public void deleteAll() {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_EVENT_DATA, null, null);
@@ -131,7 +126,6 @@ public class DatabaseHelper<E extends Data, T extends Batch> extends SQLiteOpenH
      * @param id eventId of {@link Data} object
      * @return true is {@link Data} object is in database
      */
-
     public boolean isDataInDB(String id) {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(TABLE_EVENT_DATA, new String[]{KEY_ID}, IS_IN_DB_WHERE_CLAUSE, new String[]{id}, null, null, null);

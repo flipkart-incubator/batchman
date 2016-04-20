@@ -7,7 +7,6 @@ import java.io.IOException;
  * <p/>
  * To get the real exception use {@link #getRealException()}.
  */
-
 public class SerializeException extends IOException {
     private final Exception realException;
 

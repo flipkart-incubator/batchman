@@ -18,7 +18,6 @@ import java.util.Iterator;
  * TapePersistenceStrategy that extends {@link InMemoryPersistenceStrategy} Strategy is an
  * implementation of {@link PersistenceStrategy}. This strategy is used to persist data to disk.
  */
-
 public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(TapePersistenceStrategy.class);
     private String filePath;
@@ -32,7 +31,6 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
      * @param filePath              path where file is created
      * @param serializationStrategy serializationStrategy
      */
-
     public TapePersistenceStrategy(String filePath, final SerializationStrategy<E, ? extends Batch> serializationStrategy) {
         this.filePath = filePath;
         this.converter = new FileObjectQueue.Converter<E>() {
@@ -55,7 +53,6 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
      * @param dataCollection collection of data to add
      * @return true if list is edited
      */
-
     @Override
     public boolean add(Collection<E> dataCollection) {
         boolean isAdded = false;
@@ -84,7 +81,6 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
      *
      * @param dataCollection collection of data to be removed
      */
-
     @Override
     public void removeData(Collection<E> dataCollection) {
         Iterator<?> it = dataList.iterator();
@@ -106,7 +102,6 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
      * Initializes {@link ObjectQueue} with {@link FileObjectQueue} and if there is an exception
      * while creating fileObjectQueue, {@link InMemoryObjectQueue} is initialized.
      */
-
     @Override
     public void onInitialized() {
         if (!isInitialized()) {
@@ -128,7 +123,6 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
      * This method syncs the InMemoryLayout with the data from {@link ObjectQueue}.
      * This happens only once at app startup while initialization.
      */
-
     private void syncData() {
         try {
             Collection<E> data = queueFile.peek(queueFile.size());

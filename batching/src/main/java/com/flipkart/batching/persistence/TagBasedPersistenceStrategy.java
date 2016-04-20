@@ -12,7 +12,6 @@ import java.util.Iterator;
  * This strategy links the provide {@link Tag} with provided {@link PersistenceStrategy} and
  * persist {@link Data} objects depending on there {@link Tag}.
  */
-
 public class TagBasedPersistenceStrategy<E extends Data> implements PersistenceStrategy<E> {
     private final PersistenceStrategy<E> persistenceStrategy;
     private final Tag tag;
@@ -65,7 +64,6 @@ public class TagBasedPersistenceStrategy<E extends Data> implements PersistenceS
      *
      * @param allData collection of {@link Data} objects.
      */
-
     private void filterByTag(Collection<E> allData) {
         Iterator<E> iterator = allData.iterator();
         while (iterator.hasNext()) {

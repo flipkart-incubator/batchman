@@ -7,7 +7,6 @@ import com.google.gson.annotations.SerializedName;
  * TagData Class that extends {@link Data}.
  * It takes {@link Tag} as a parameter in constructor.
  */
-
 public class TagData extends Data {
 
     @SerializedName("tag")

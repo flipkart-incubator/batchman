@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Network Persisted Batch Ready Listener
  */
-
 public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends TrimPersistedBatchReadyListener<E, T> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(NetworkPersistedBatchReadyListener.class);
     private static final int HTTP_SERVER_ERROR_CODE_RANGE_START = 500;
@@ -188,7 +187,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
      *
      * @return new timeOut
      */
-
     private int exponentialBackOff() {
         int timeOut = mCurrentTimeoutMs;
         mCurrentTimeoutMs += (mCurrentTimeoutMs * defaultBackoffMultiplier);
@@ -235,13 +233,11 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
          * @param batch    batch of data
          * @param callback callback
          */
-
         public abstract void performNetworkRequest(final T batch, final ValueCallback<NetworkRequestResponse> callback);
 
         /**
          * @return true if network is connected
          */
-
         public boolean isNetworkConnected(Context context) {
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();

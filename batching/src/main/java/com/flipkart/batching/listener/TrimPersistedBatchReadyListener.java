@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 /**
  * TrimPersistedBatchReadyListener that extends {@link PersistedBatchReadyListener}
  */
-
 public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends PersistedBatchReadyListener<E, T> {
     public final static int MODE_TRIM_NONE = 0;
     public final static int MODE_TRIM_AT_START = 1;

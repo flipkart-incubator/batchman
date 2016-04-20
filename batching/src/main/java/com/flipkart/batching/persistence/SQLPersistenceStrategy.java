@@ -18,7 +18,6 @@ import java.util.Collection;
  * and all the overridden methods must call super method, to initialize and perform operations on
  * InMemory data list.
  */
-
 public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(SQLPersistenceStrategy.class);
     private DatabaseHelper<E, ? extends Batch> databaseHelper;
@@ -51,7 +50,6 @@ public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceS
      * initialized. The InMemory data list is updated with the persisted {@link Data} objects
      * which were not batched before.
      */
-
     private void syncData() {
         try {
             super.add(databaseHelper.getAllData());

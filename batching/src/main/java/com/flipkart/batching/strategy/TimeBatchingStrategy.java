@@ -19,7 +19,6 @@ import java.util.Collection;
  * {@link PersistenceStrategy}, starts/reset the timer whenever {@link Data} objects are pushed
  * and calls {@link #onReadyListener} when timeOut happens.
  */
-
 public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E, TimeBatchingStrategy.TimeBatch<E>> {
     private long timeOut;
     private Handler handler;
@@ -38,7 +37,6 @@ public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
      * @param timeOut             time out
      * @param persistenceStrategy persistence strategy
      */
-
     public TimeBatchingStrategy(long timeOut, PersistenceStrategy<E> persistenceStrategy) {
         super(persistenceStrategy);
         if (timeOut <= 0) {
@@ -53,7 +51,6 @@ public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
      *
      * @param forced set true if forced
      */
-
     @Override
     public void flush(boolean forced) {
         Collection<E> data = getPersistenceStrategy().getData();
@@ -80,7 +77,6 @@ public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
     /**
      * This method starts the timer.
      */
-
     private void startTimer() {
         handler.postDelayed(runnable, timeOut);
     }
@@ -88,7 +84,6 @@ public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
     /**
      * This method stops the timer.
      */
-
     private void stopTimer() {
         handler.removeCallbacks(runnable);
     }

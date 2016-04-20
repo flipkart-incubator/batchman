@@ -8,7 +8,6 @@ import java.io.Serializable;
  * Tag represents a group of {@link com.flipkart.batching.Data} objects to batch together.
  * It takes a {@link String} type ID as parameter in constructor.
  */
-
 public class Tag implements Serializable {
 
     @SerializedName("id")

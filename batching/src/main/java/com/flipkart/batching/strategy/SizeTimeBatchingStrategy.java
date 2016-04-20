@@ -15,7 +15,6 @@ import java.util.Collection;
  * Created by kushal.sharma on 18/04/16.
  * Time Size Batching Strategy
  */
-
 public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E, SizeTimeBatchingStrategy.SizeTimeBatch<E>> {
     private int currentBatchSize;
     private int maxBatchSize;
@@ -49,7 +48,6 @@ public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrate
      *
      * @return boolean type batch ready state
      */
-
     private boolean isBatchSizeReady() {
         return currentBatchSize >= maxBatchSize;
     }
@@ -85,7 +83,6 @@ public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrate
     /**
      * This method starts the timer.
      */
-
     private void startTimer() {
         handler.postDelayed(runnable, timeOut);
     }
@@ -93,7 +90,6 @@ public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrate
     /**
      * This method stops the timer.
      */
-
     private void stopTimer() {
         handler.removeCallbacks(runnable);
     }

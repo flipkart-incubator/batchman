@@ -5,7 +5,6 @@ import com.flipkart.batching.Batch;
 /**
  * Persisted Batch Callback
  */
-
 public interface PersistedBatchCallback<T extends Batch> {
     void onPersistFailure(T batch, Exception e);
 

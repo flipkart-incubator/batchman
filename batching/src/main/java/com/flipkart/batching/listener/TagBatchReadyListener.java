@@ -12,7 +12,6 @@ import java.util.Map;
 /**
  * TagBatchReadyListener that implements {@link OnBatchReadyListener}.
  */
-
 public class TagBatchReadyListener<E extends TagData> implements OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E>> {
     private Map<Tag, OnBatchReadyListener<E, TagBatchingStrategy.TagBatch<E>>> tagOnBatchReadyListenerMap;
 
