@@ -19,7 +19,6 @@ import java.util.Collection;
  * {@link PersistenceStrategy} and calls {@link #onReadyListener} when the batch reaches the
  * maxBatchSize limit.
  */
-
 public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E, SizeBatchingStrategy.SizeBatch<E>> {
     private int currentBatchSize;
     private int maxBatchSize;
@@ -34,19 +33,16 @@ public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
         }
     }
 
-    public void setMaxBatchSize(int maxBatchSize) {
-        this.maxBatchSize = maxBatchSize;
-    }
 
     @Override
     public void onDataPushed(Collection<E> dataCollection) {
         super.onDataPushed(dataCollection);
-        currentBatchSize = getPersistenceStrategy().getData().size();
+        currentBatchSize = getPersistenceStrategy().getDataSize();
     }
 
     @Override
     public void flush(boolean forced) {
-        currentBatchSize = getPersistenceStrategy().getData().size();
+        currentBatchSize = getPersistenceStrategy().getDataSize();
         if ((forced || isBatchReady()) && currentBatchSize > 0) {
             Collection<E> data = getPersistenceStrategy().getData();
             getPersistenceStrategy().removeData(data);
@@ -70,7 +66,6 @@ public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
     }
 
     public static class SizeBatch<T extends Data> extends Batch<T> {
-
         @SerializedName("maxBatchSize")
         private int maxBatchSize;
 

@@ -14,7 +14,7 @@ import com.flipkart.batching.exception.SerializeException;
 import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.squareup.tape.QueueFile;
+import com.flipkart.batching.tape.QueueFile;
 
 import junit.framework.Assert;
 
@@ -47,9 +47,6 @@ import static org.mockito.Mockito.when;
 @Config(constants = BuildConfig.class)
 public class PersistedBatchReadyTest extends BaseTestClass {
 
-    /**
-     * Test to verify that {@link PersistedBatchReadyListener#onInitialized(QueueFile)} is called
-     */
     @Test
     public void testIfInitializedCalled() {
         File file = createRandomFile();
@@ -107,7 +104,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void testFinishCalled() throws IOException, SerializeException {
+    public void testFinishCalled() throws IOException {
         File file = createRandomFile();
         QueueFile queueFile = mock(QueueFile.class);
         HandlerThread handlerThread = new HandlerThread(createRandomString());
@@ -138,7 +135,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         persistedBatchReadyListener.finish(sizeBatchInfo);
 
         //verify that finish method gets called
-        verify(persistedBatchCallback,times(1)).onFinish();
+        verify(persistedBatchCallback, times(1)).onFinish();
     }
 
     /**
@@ -148,7 +145,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void testPersistSuccessNotCalledMoreThanOnce() throws IOException, SerializeException {
+    public void testPersistSuccessNotCalledMoreThanOnce() throws IOException {
         File file = createRandomFile();
         HandlerThread handlerThread = new HandlerThread(createRandomString());
         handlerThread.start();
@@ -174,28 +171,28 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         shadowLooper.runToEndOfTasks();
 
         //verify that it gets called with firstBatch
-        verify(persistedBatchCallback,times(1)).onPersistSuccess(firstBatch);
+        verify(persistedBatchCallback, times(1)).onPersistSuccess(firstBatch);
         persistedBatchReadyListener.finish(firstBatch);
         shadowLooper.runToEndOfTasks();
         //verify that it gets called with secondBatch
-        verify(persistedBatchCallback,times(1)).onPersistSuccess(secondBatch);
+        verify(persistedBatchCallback, times(1)).onPersistSuccess(secondBatch);
         persistedBatchReadyListener.finish(secondBatch);
         shadowLooper.runToEndOfTasks();
         //verify that it gets called with thirdBatch
-        verify(persistedBatchCallback,times(1)).onPersistSuccess(thirdBatch);
+        verify(persistedBatchCallback, times(1)).onPersistSuccess(thirdBatch);
         //verify that there is no more interactions
         verifyNoMoreInteractions(persistedBatchCallback);
     }
 
     /**
      * Test to verify that finish throws an {@link IllegalStateException} when it gets called with a different batch.
+     * Ignoring this test because we are catching this exception and logging it now.
      *
      * @throws SerializeException
      * @throws IOException
      */
-    @Ignore
     @Test(expected = IllegalStateException.class)
-    public void testFinishException() throws SerializeException, IOException {
+    public void testFinishException() throws IOException {
         File file = createRandomFile();
         QueueFile queueFile = mock(QueueFile.class);
         HandlerThread handlerThread = new HandlerThread(createRandomString());
@@ -220,9 +217,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo1 = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeAdsCollection(4), 5);
         try {
             persistedBatchReadyListener.finish(sizeBatchInfo1);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         shadowLooper.runToEndOfTasks();
@@ -235,7 +230,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
      * @throws IOException
      */
     @Test
-    public void testIfPersistFailureCalled() throws SerializeException, IOException {
+    public void testIfPersistFailureCalled() throws IOException {
         File file = createRandomFile();
         QueueFile queueFile = mock(QueueFile.class);
         HandlerThread handlerThread = new HandlerThread(createRandomString());

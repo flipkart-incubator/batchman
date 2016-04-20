@@ -46,7 +46,7 @@ public class BaseTestClass {
     public void deleteRandomFiles() {
         File folder = new File(TEST_FILE_DIR);
         File fList[] = folder.listFiles();
-        if(fList != null) {
+        if (fList != null) {
             for (File testFile : fList) {
                 if (testFile.getName().endsWith(TEST_FILE_SUFFIX)) {
                     testFile.delete();

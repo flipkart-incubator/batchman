@@ -25,7 +25,7 @@ import java.util.Collection;
  */
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
-public class SQLPersistenceTest extends BaseTestClass{
+public class SQLPersistenceTest extends BaseTestClass {
 
     /**
      * Test to verify that data is retained in InMemoryList after {@link PersistenceStrategy#add(Collection)} is called.

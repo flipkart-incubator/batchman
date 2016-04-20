@@ -7,7 +7,6 @@ import java.util.Collection;
 
 
 public class Batch<T extends Data> implements Serializable {
-
     @SerializedName("dataCollection")
     private DataCollection dataCollection;
 

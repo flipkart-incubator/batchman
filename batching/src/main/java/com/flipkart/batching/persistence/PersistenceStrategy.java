@@ -8,7 +8,6 @@ import java.util.Collection;
  * Interface for PersistenceStrategy. A persistence strategy must implement this interface
  * and override all it's methods. Persistence strategy is responsible for persisting the.
  */
-
 public interface PersistenceStrategy<E extends Data> {
 
     /**
@@ -25,6 +24,13 @@ public interface PersistenceStrategy<E extends Data> {
      * @return collection of {@link Data} objects
      */
     Collection<E> getData();
+
+    /**
+     * This method returns {@link int} size of persisted {@link Data} objects.
+     *
+     * @return size of {@link int} objects
+     */
+    int getDataSize();
 
     /**
      * This method removes the provided {@link Collection} of {@link Data} objects from

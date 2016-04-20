@@ -47,7 +47,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void testOnTrimmedCalled() throws IOException, SerializeException {
+    public void testOnTrimmedCalled() throws IOException {
         int MAX_QUEUE_SIZE = 3;
         int TRIM_TO_SIZE = 1;
 
@@ -85,7 +85,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void testTrimmedNotCalled() throws IOException, SerializeException {
+    public void testTrimmedNotCalled() throws IOException {
         int MAX_QUEUE_SIZE = 3;
         int TRIM_TO_SIZE = 1;
 
@@ -122,7 +122,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void testTrimMode() throws IOException, SerializeException {
+    public void testTrimMode() throws IOException {
         int MAX_QUEUE_SIZE = 3;
         int TRIM_TO_SIZE = 1;
 
@@ -165,7 +165,6 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
     /**
      * Test to verify that exception is thrown
      * when {@link TrimPersistedBatchReadyListener#trimSize} > {@link TrimPersistedBatchReadyListener#queueSize}
-     *
      */
     @Test(expected = IllegalArgumentException.class)
     public void testThrowException() {

@@ -13,15 +13,12 @@ import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.persistence.SerializationStrategy;
-import com.squareup.tape.QueueFile;
 
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by kushal.sharma on 29/02/16 at 11:58 AM.
  * Network Persisted Batch Ready Listener
  */
-
 public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends TrimPersistedBatchReadyListener<E, T> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(NetworkPersistedBatchReadyListener.class);
     private static final int HTTP_SERVER_ERROR_CODE_RANGE_START = 500;
@@ -70,9 +67,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         this.setListener(persistedBatchCallback);
     }
 
-    public void setNetworkBatchListener(NetworkBatchListener<E, T> networkBatchListener) {
-        this.networkBatchListener = networkBatchListener;
-    }
 
     public int getDefaultTimeoutMs() {
         return defaultTimeoutMs;
@@ -106,7 +100,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         if (!receiverRegistered) {
             //Register the broadcast receiver
             IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-            context.registerReceiver(networkBroadcastReceiver, filter); //todo, does calling this multple times cause duplicate broadcasts
+            context.registerReceiver(networkBroadcastReceiver, filter);
             receiverRegistered = true;
             if (log.isDebugEnabled()) {
                 log.debug("Registered network broadcast receiver {}", this);
@@ -123,10 +117,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         }
     }
 
-    @Override
-    protected void onInitialized(QueueFile queueFile) {
-        super.onInitialized(queueFile);
-    }
 
     private boolean isConnectedToNetwork() {
         return networkBatchListener.isNetworkConnected(context);
@@ -166,7 +156,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
                                     }, backOff);
                                 } else {
                                     if (log.isDebugEnabled()) {
-                                        log.debug("Maximum network retry reached for {}", getQueueFile());
+                                        log.debug("Maximum network retry reached for {}", filePath);
                                     }
                                     needsResumeOnReady = true;
                                 }
@@ -240,8 +230,8 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
          * <p/>
          * Note: If there is a network redirect, do not call the networkBatchListener, and wait for the final redirected response and pass that one.
          *
-         * @param batch
-         * @param callback
+         * @param batch    batch of data
+         * @param callback callback
          */
         public abstract void performNetworkRequest(final T batch, final ValueCallback<NetworkRequestResponse> callback);
 
@@ -266,7 +256,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     }
 
     public class NetworkBroadcastReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context context, Intent intent) {
             if (log.isDebugEnabled()) {
