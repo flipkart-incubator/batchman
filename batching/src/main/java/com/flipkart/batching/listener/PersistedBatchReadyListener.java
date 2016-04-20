@@ -6,6 +6,7 @@ import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
+import com.flipkart.batching.persistence.BatchObjectConverter;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.tape.FileObjectQueue;
 import com.flipkart.batching.tape.InMemoryObjectQueue;
@@ -16,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -32,25 +32,16 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
     private final Queue<T> cachedQueue;
     private PersistedBatchCallback<T> listener;
     private ObjectQueue<T> queueFile;
-    private FileObjectQueue.Converter<T> converter;
+    private BatchObjectConverter<E, T> converter;
     private boolean isWaitingToFinish;
     private T peekedBatch;
 
-    public PersistedBatchReadyListener(String filePath, final SerializationStrategy<E, T> serializationStrategy, Handler handler, @Nullable PersistedBatchCallback<T> listener) {
+
+    public PersistedBatchReadyListener(String filePath, SerializationStrategy<E, T> serializationStrategy, Handler handler, @Nullable PersistedBatchCallback<T> listener) {
         this.filePath = filePath;
         this.handler = handler;
         this.listener = listener;
-        this.converter = new FileObjectQueue.Converter<T>() {
-            @Override
-            public T from(byte[] bytes) throws IOException {
-                return serializationStrategy.deserializeBatch(bytes);
-            }
-
-            @Override
-            public void toStream(T batch, OutputStream bytes) throws IOException {
-                bytes.write(serializationStrategy.serializeBatch(batch));
-            }
-        };
+        this.converter = new BatchObjectConverter(serializationStrategy);
         this.cachedQueue = new LinkedList();
     }
 
@@ -183,7 +174,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                                 if (log.isErrorEnabled()) {
                                     log.error("Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
                                 }
-                                //throw new IllegalStateException("Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
+                                throw new IllegalStateException("Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
                             }
                         }
                     } catch (IOException e) {
