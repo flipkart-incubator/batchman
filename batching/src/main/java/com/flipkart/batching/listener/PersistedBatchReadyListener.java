@@ -148,7 +148,9 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
             try {
                 queueFile.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                if (log.isErrorEnabled()) {
+                    log.error(e.getLocalizedMessage());
+                }
             }
         }
     }
@@ -204,7 +206,9 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                     callPersistSuccess(peekedBatch);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                if (log.isErrorEnabled()) {
+                    log.error(e.getLocalizedMessage());
+                }
             }
         } else {
             callQueueEnd();

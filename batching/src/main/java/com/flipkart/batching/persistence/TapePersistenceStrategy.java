@@ -117,7 +117,9 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
             Collection<E> data = queueFile.peek(queueFile.size());
             super.add(data);
         } catch (IOException e) {
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getLocalizedMessage());
+            }
         }
     }
 }
