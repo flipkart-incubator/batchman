@@ -24,8 +24,8 @@ import java.util.Queue;
 /**
  * PersistedBatchReadyListener that implements {@link OnBatchReadyListener}.
  */
-
 public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T> {
+    private static final int MAX_ITEMS_CACHED = 2000;
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(PersistedBatchReadyListener.class);
     protected final Handler handler;
     protected final String filePath;
@@ -51,7 +51,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                 bytes.write(serializationStrategy.serializeBatch(batch));
             }
         };
-        this.cachedQueue = (Queue<T>) new LinkedList();
+        this.cachedQueue = new LinkedList();
     }
 
     public PersistedBatchCallback getListener() {
@@ -82,6 +82,9 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                 initializeIfRequired();
                 try {
                     queueFile.add(batch);
+                    if (cachedQueue.size() == MAX_ITEMS_CACHED) {
+                        cachedQueue.remove();
+                    }
                     cachedQueue.add(batch);
                     checkPendingAndContinue();
                 } catch (Exception e) {
