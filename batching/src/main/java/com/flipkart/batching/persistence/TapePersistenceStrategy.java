@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -33,17 +32,7 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
      */
     public TapePersistenceStrategy(String filePath, final SerializationStrategy<E, ? extends Batch> serializationStrategy) {
         this.filePath = filePath;
-        this.converter = new FileObjectQueue.Converter<E>() {
-            @Override
-            public E from(byte[] bytes) throws IOException {
-                return serializationStrategy.deserializeData(bytes);
-            }
-
-            @Override
-            public void toStream(E data, OutputStream bytes) throws IOException {
-                bytes.write(serializationStrategy.serializeData(data));
-            }
-        };
+        this.converter = new DataObjectConverter<>(serializationStrategy);
     }
 
 
