@@ -184,11 +184,11 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
             } else if (value instanceof JSONArray) {
                 element = serializeJSONArray((JSONArray) value, context);
             } else if (value instanceof String) {
-                element = context.serialize(value, String.class);
+                element = new JsonPrimitive((String) value);
             } else if (value instanceof Number) {
-                element = context.serialize(value, Number.class);
+                element = new JsonPrimitive((Number) value);
             } else if (value instanceof Boolean) {
-                element = context.serialize(value, Boolean.class);
+                element = new JsonPrimitive((Boolean) value);
             } else {
                 element = context.serialize(value);
             }
