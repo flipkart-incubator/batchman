@@ -22,7 +22,7 @@ import java.util.ArrayList;
  * Test for {@link TapePersistenceStrategy}
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class TapePersistenceTest extends BaseTestClass {
 
     /**

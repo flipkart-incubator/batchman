@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
  * Test for {@link BatchManager}
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class BatchManagerTest extends BaseTestClass {
 
     /**
@@ -276,7 +276,7 @@ public class BatchManagerTest extends BaseTestClass {
                 callback.onReceiveValue(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(false, 500));
             }
         };
-        NetworkPersistedBatchReadyListener batchReadyListener = new NetworkPersistedBatchReadyListener(context, filePath, serializationStrategy, handler, batchListener, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null);
+        NetworkPersistedBatchReadyListener batchReadyListener = new NetworkPersistedBatchReadyListener(context, filePath, serializationStrategy, handler, batchListener, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null, false);
         BatchController batchController = new BatchManager.Builder()
                 .setSerializationStrategy(serializationStrategy)
                 .setBatchingStrategy(sizeTimeBatchingStrategy)
@@ -320,7 +320,7 @@ public class BatchManagerTest extends BaseTestClass {
         sizeTimeBatchingStrategy = new SizeTimeBatchingStrategy(persistenceStrategy, 2, 5000);
 
         NetworkBatchListener batchListener2Spy = spy(batchListener2);
-        batchReadyListener = new NetworkPersistedBatchReadyListener(context, filePath, serializationStrategy, handler, batchListener2Spy, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null);
+        batchReadyListener = new NetworkPersistedBatchReadyListener(context, filePath, serializationStrategy, handler, batchListener2Spy, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null, false);
 
         batchController = new BatchManager.Builder()
                 .setSerializationStrategy(serializationStrategy)

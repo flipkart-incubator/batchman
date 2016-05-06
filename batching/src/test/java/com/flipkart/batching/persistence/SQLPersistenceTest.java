@@ -24,7 +24,7 @@ import java.util.Collection;
  * Test for {@link SQLPersistenceStrategy}
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class SQLPersistenceTest extends BaseTestClass {
 
     /**

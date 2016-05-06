@@ -36,7 +36,7 @@ import static org.mockito.Mockito.verify;
  */
 
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class TrimPersistedBatchReadyTest extends BaseTestClass {
 
 
