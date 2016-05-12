@@ -276,7 +276,7 @@ public class BatchManagerTest extends BaseTestClass {
                 callback.onReceiveValue(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(false, 500));
             }
         };
-        NetworkPersistedBatchReadyListener batchReadyListener = new NetworkPersistedBatchReadyListener(context, filePath, serializationStrategy, handler, batchListener, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null, false);
+        NetworkPersistedBatchReadyListener batchReadyListener = new NetworkPersistedBatchReadyListener(context, filePath, serializationStrategy, handler, batchListener, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null);
         BatchController batchController = new BatchManager.Builder()
                 .setSerializationStrategy(serializationStrategy)
                 .setBatchingStrategy(sizeTimeBatchingStrategy)
@@ -320,7 +320,7 @@ public class BatchManagerTest extends BaseTestClass {
         sizeTimeBatchingStrategy = new SizeTimeBatchingStrategy(persistenceStrategy, 2, 5000);
 
         NetworkBatchListener batchListener2Spy = spy(batchListener2);
-        batchReadyListener = new NetworkPersistedBatchReadyListener(context, filePath, serializationStrategy, handler, batchListener2Spy, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null, false);
+        batchReadyListener = new NetworkPersistedBatchReadyListener(context, filePath, serializationStrategy, handler, batchListener2Spy, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null);
 
         batchController = new BatchManager.Builder()
                 .setSerializationStrategy(serializationStrategy)
