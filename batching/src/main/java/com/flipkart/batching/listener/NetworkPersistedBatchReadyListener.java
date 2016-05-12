@@ -36,7 +36,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     private boolean waitingForCallback = false;
     private boolean receiverRegistered;
     private boolean callFinishAfterMaxRetry = false;
-
     private PersistedBatchCallback<T> persistedBatchCallback = new PersistedBatchCallback<T>() {
         @Override
         public void onPersistFailure(T batch, Exception e) {
@@ -63,17 +62,18 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
                                               SerializationStrategy<E, T> serializationStrategy,
                                               final Handler handler, NetworkBatchListener<E, T> listener,
                                               int maxRetryCount, int maxQueueSize, int trimToSize,
-                                              int trimmingMode, TrimmedBatchCallback trimmedBatchCallback,
-                                              boolean callFinishAfterMaxRetry) {
+                                              int trimmingMode, TrimmedBatchCallback trimmedBatchCallback) {
         super(filePath, serializationStrategy, handler, maxQueueSize, trimToSize, trimmingMode, null, trimmedBatchCallback);
         this.context = context;
         this.networkBatchListener = listener;
         this.maxRetryCount = maxRetryCount;
         this.mCurrentTimeoutMs = defaultTimeoutMs;
         this.setListener(persistedBatchCallback);
-        this.callFinishAfterMaxRetry = callFinishAfterMaxRetry;
     }
 
+    public void setCallFinishAfterMaxRetry(boolean callFinishAfterMaxRetry) {
+        this.callFinishAfterMaxRetry = callFinishAfterMaxRetry;
+    }
 
     public int getDefaultTimeoutMs() {
         return defaultTimeoutMs;
@@ -189,12 +189,8 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     }
 
     public boolean callFinishWithBatch(T batch) {
-        try {
-            finish(batch);
-            return true;
-        }catch (Exception e){
-            return false;
-        }
+        finish(batch);
+        return true;
     }
 
     private void resetRetryCounters() {
