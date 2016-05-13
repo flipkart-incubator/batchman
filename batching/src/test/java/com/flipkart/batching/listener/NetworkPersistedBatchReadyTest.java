@@ -35,6 +35,7 @@ import org.robolectric.shadows.ShadowLooper;
 import java.io.File;
 import java.io.IOException;
 
+import static junit.framework.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
@@ -50,7 +51,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * Test for {@link NetworkPersistedBatchReadyListener}
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class NetworkPersistedBatchReadyTest extends BaseTestClass {
 
     /**
@@ -359,6 +360,50 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         verifyNoMoreInteractions(networkBatchListener);
     }
 
+    @Test
+    public void testFinishCalledIfRemoveAfterMaxRetryTrue() {
+        int errorCode = 500;
+        long callbackIdle = 1000;
+        int retryCount = 4;
+
+        Context context = RuntimeEnvironment.application;
+        File file = createRandomFile();
+        ShadowLooper shadowLooper = Shadows.shadowOf(Looper.getMainLooper());
+        Handler handler = new Handler();
+        SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
+        SizeBatchingStrategy.SizeBatch<Data> firstBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+        NetworkPersistedBatchReadyListener.NetworkRequestResponse requestResponse = new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, errorCode);
+        TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
+
+        MockNetworkPersistedBatchReadyListener networkBatchListener = spy(new MockNetworkPersistedBatchReadyListener(requestResponse, handler, callbackIdle, context));
+        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, createRandomString(), serializationStrategy, handler, networkBatchListener, retryCount, 50, 10, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, trimmedBatchCallback);
+        networkPersistedBatchReadyListener.onReady(strategy, firstBatch);
+        networkPersistedBatchReadyListener.setCallFinishAfterMaxRetry(true);
+        shadowLooper.runToEndOfTasks();
+
+        //verify that it gets called 1 times
+        verify(networkBatchListener, times(1)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
+        shadowLooper.idle(networkPersistedBatchReadyListener.getDefaultTimeoutMs());
+        //verify that it gets called 2 times after waiting for specified time
+        verify(networkBatchListener, times(2)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 2);
+        //verify that it gets called 3 times after waiting for specified time
+        verify(networkBatchListener, times(3)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
+        //verify that it gets called 3 times after waiting for specified time
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 4);
+        //verify that it gets called 4 times after waiting for specified time
+        verify(networkBatchListener, times(4)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 8);
+        // now it should have stopped retrying anymore since max retry is reached
+        verify(networkBatchListener, times(4)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
+
+        assertTrue(networkPersistedBatchReadyListener.callFinishWithBatch(firstBatch));
+    }
+
+
     /**
      * Test to verify {@link NetworkPersistedBatchReadyListener#getDefaultTimeoutMs()} and {@link NetworkPersistedBatchReadyListener#getDefaultBackoffMultiplier()}
      * setter properties
@@ -412,7 +457,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
             }
         };
 
-        Assert.assertTrue(networkBatchListener.isNetworkConnected(context));
+        assertTrue(networkBatchListener.isNetworkConnected(context));
     }
 
     /**

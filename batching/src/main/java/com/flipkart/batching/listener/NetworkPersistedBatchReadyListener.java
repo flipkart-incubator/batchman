@@ -35,7 +35,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     private boolean needsResumeOnReady = false;
     private boolean waitingForCallback = false;
     private boolean receiverRegistered;
-
+    private boolean callFinishAfterMaxRetry = false;
     private PersistedBatchCallback<T> persistedBatchCallback = new PersistedBatchCallback<T>() {
         @Override
         public void onPersistFailure(T batch, Exception e) {
@@ -58,7 +58,11 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         }
     };
 
-    public NetworkPersistedBatchReadyListener(final Context context, String filePath, SerializationStrategy<E, T> serializationStrategy, final Handler handler, NetworkBatchListener<E, T> listener, int maxRetryCount, int maxQueueSize, int trimToSize, int trimmingMode, TrimmedBatchCallback trimmedBatchCallback) {
+    public NetworkPersistedBatchReadyListener(final Context context, String filePath,
+                                              SerializationStrategy<E, T> serializationStrategy,
+                                              final Handler handler, NetworkBatchListener<E, T> listener,
+                                              int maxRetryCount, int maxQueueSize, int trimToSize,
+                                              int trimmingMode, TrimmedBatchCallback trimmedBatchCallback) {
         super(filePath, serializationStrategy, handler, maxQueueSize, trimToSize, trimmingMode, null, trimmedBatchCallback);
         this.context = context;
         this.networkBatchListener = listener;
@@ -67,6 +71,9 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         this.setListener(persistedBatchCallback);
     }
 
+    public void setCallFinishAfterMaxRetry(boolean callFinishAfterMaxRetry) {
+        this.callFinishAfterMaxRetry = callFinishAfterMaxRetry;
+    }
 
     public int getDefaultTimeoutMs() {
         return defaultTimeoutMs;
@@ -158,7 +165,11 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
                                     if (log.isDebugEnabled()) {
                                         log.debug("Maximum network retry reached for {}", filePath);
                                     }
-                                    needsResumeOnReady = true;
+                                    if (callFinishAfterMaxRetry) {
+                                        callFinishWithBatch(batch);
+                                    } else {
+                                        needsResumeOnReady = true;
+                                    }
                                 }
                             } else {
                                 //all well :) now we go to next batch
@@ -175,6 +186,11 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             waitingForCallback = false;
             needsResumeOnReady = true;
         }
+    }
+
+    public boolean callFinishWithBatch(T batch) {
+        finish(batch);
+        return true;
     }
 
     private void resetRetryCounters() {

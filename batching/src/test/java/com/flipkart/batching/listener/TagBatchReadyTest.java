@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
  * Test for {@link TagBatchReadyListener}
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class TagBatchReadyTest {
 
 

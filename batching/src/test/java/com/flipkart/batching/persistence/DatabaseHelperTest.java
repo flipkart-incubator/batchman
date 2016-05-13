@@ -31,7 +31,7 @@ import static junit.framework.Assert.assertEquals;
  */
 
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class DatabaseHelperTest {
 
     /**

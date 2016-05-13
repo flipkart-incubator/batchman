@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
  * Test for {@link BatchManager}
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class BatchManagerTest extends BaseTestClass {
 
     /**
