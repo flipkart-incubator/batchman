@@ -57,7 +57,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             unregisterReceiver();
         }
     };
-
     public NetworkPersistedBatchReadyListener(final Context context, String filePath,
                                               SerializationStrategy<E, T> serializationStrategy,
                                               final Handler handler, NetworkBatchListener<E, T> listener,
@@ -69,6 +68,10 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         this.maxRetryCount = maxRetryCount;
         this.mCurrentTimeoutMs = defaultTimeoutMs;
         this.setListener(persistedBatchCallback);
+    }
+
+    public void setNetworkBatchListener(NetworkBatchListener<E, T> networkBatchListener) {
+        this.networkBatchListener = networkBatchListener;
     }
 
     public void setCallFinishAfterMaxRetry(boolean callFinishAfterMaxRetry) {
@@ -243,7 +246,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
          * While invoking the networkBatchListener, pass a {@link NetworkRequestResponse} object with the following data.
          * If the network response was successfully received, set complete to true, and set httpErrorCode to the status code from server. If status code is 5XX, this batch will be retried. If status code is 200 or 4XX the batch will be discarded and next batch will be processed.
          * If the network response was not received (timeout or not connected or any other network error), set complete to false. This will cause a retry until max retries are reached.
-         * <p/>
+         * <p>
          * Note: If there is a network redirect, do not call the networkBatchListener, and wait for the final redirected response and pass that one.
          *
          * @param batch    batch of data
