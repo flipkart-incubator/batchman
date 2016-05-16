@@ -19,7 +19,6 @@ import java.util.List;
 /**
  * Database Helper class that extends {@link SQLiteOpenHelper}.
  */
-
 public class DatabaseHelper<E extends Data, T extends Batch> extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_EVENT_DATA = "tableEventData";
@@ -58,7 +57,6 @@ public class DatabaseHelper<E extends Data, T extends Batch> extends SQLiteOpenH
      * @param dataCollection collection of {@link Data} objects.
      * @throws SerializeException
      */
-
     public void addData(Collection<E> dataCollection) throws SerializeException {
         SQLiteDatabase db = this.getWritableDatabase();
         try {

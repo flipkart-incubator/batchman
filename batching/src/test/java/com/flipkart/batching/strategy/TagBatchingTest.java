@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
  */
 
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class TagBatchingTest {
 
     /**
@@ -123,7 +123,9 @@ public class TagBatchingTest {
 
         tagBatchingStrategy.onDataPushed(arrayList);
         when(inMemoryPersistenceStrategy.getData()).thenReturn(adsDataArrayList);
+        when(inMemoryPersistenceStrategy.getDataSize()).thenReturn(adsDataArrayList.size());
         when(sqlPersistenceStrategy.getData()).thenReturn(debugDataArrayList);
+        when(sqlPersistenceStrategy.getDataSize()).thenReturn(debugDataArrayList.size());
         tagBatchingStrategy.flush(true);
 
         //verify that removeData gets called for inMemoryPersistence
@@ -162,7 +164,9 @@ public class TagBatchingTest {
         arrayList.addAll(debugDataArrayList);
         tagBatchingStrategy.onDataPushed(arrayList);
         when(inMemoryPersistenceStrategy.getData()).thenReturn(adsDataArrayList);
+        when(inMemoryPersistenceStrategy.getDataSize()).thenReturn(adsDataArrayList.size());
         when(sqlPersistenceStrategy.getData()).thenReturn(debugDataArrayList);
+        when(sqlPersistenceStrategy.getDataSize()).thenReturn(debugDataArrayList.size());
         tagBatchingStrategy.flush(true);
 
         //verify that onReady is called, as flush force is true
@@ -198,6 +202,7 @@ public class TagBatchingTest {
         ArrayList<TagData> adsTagDataList = Utils.fakeTagAdsCollection(5);
         tagBatchingStrategy.onDataPushed(adsTagDataList);
         when(inMemoryPersistenceStrategy.getData()).thenReturn(adsTagDataList);
+        when(inMemoryPersistenceStrategy.getDataSize()).thenReturn(adsTagDataList.size());
         tagBatchingStrategy.flush(false);
         verify(onBatchReadyListener, times(1)).onReady(eq(tagBatchingStrategy), any(TagBatchingStrategy.TagBatch.class));
     }

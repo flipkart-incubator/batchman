@@ -7,8 +7,8 @@ import android.os.HandlerThread;
 import com.flipkart.batching.data.EventData;
 import com.flipkart.batching.data.TagData;
 import com.flipkart.batching.persistence.SerializationStrategy;
-import com.flipkart.batching.strategy.ComboBatchingStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
+import com.flipkart.batching.strategy.SizeTimeBatchingStrategy;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
 import com.flipkart.batching.strategy.TimeBatchingStrategy;
 
@@ -72,7 +72,7 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
         serializationStrategy.registerBatch(SizeBatchingStrategy.SizeBatch.class);
         serializationStrategy.registerBatch(TimeBatchingStrategy.TimeBatch.class);
         serializationStrategy.registerBatch(TagBatchingStrategy.TagBatch.class);
-        serializationStrategy.registerBatch(ComboBatchingStrategy.ComboBatch.class);
+        serializationStrategy.registerBatch(SizeTimeBatchingStrategy.SizeTimeBatch.class);
     }
 
     private void registerSuppliedTypes(Builder<E, T> builder, SerializationStrategy serializationStrategy) {
@@ -113,7 +113,6 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
             i++;
             data.setEventId(System.currentTimeMillis() + System.nanoTime() + i);
         }
-
     }
 
     @Override
@@ -146,6 +145,7 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
      * @param onBatchReadyListener instance of {@link OnBatchReadyListener}
      * @param handler              instance of {@link Handler}
      */
+
     private void initialize(BatchController<E, T> batchController, Context context,
                             OnBatchReadyListener<E, T> onBatchReadyListener, Handler handler) {
         batchingStrategy.onInitialized(context, onBatchReadyListener, handler);

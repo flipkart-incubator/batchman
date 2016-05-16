@@ -25,7 +25,7 @@ import java.util.Collection;
  */
 
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class TagBasedPersistenceTest {
 
     /**

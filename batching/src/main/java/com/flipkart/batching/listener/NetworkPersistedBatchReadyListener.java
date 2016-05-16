@@ -13,15 +13,12 @@ import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.persistence.SerializationStrategy;
-import com.squareup.tape.QueueFile;
 
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by kushal.sharma on 29/02/16 at 11:58 AM.
  * Network Persisted Batch Ready Listener
  */
-
 public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends TrimPersistedBatchReadyListener<E, T> {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(NetworkPersistedBatchReadyListener.class);
     private static final int HTTP_SERVER_ERROR_CODE_RANGE_START = 500;
@@ -38,7 +35,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     private boolean needsResumeOnReady = false;
     private boolean waitingForCallback = false;
     private boolean receiverRegistered;
-
+    private boolean callFinishAfterMaxRetry = false;
     private PersistedBatchCallback<T> persistedBatchCallback = new PersistedBatchCallback<T>() {
         @Override
         public void onPersistFailure(T batch, Exception e) {
@@ -61,7 +58,11 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         }
     };
 
-    public NetworkPersistedBatchReadyListener(final Context context, String filePath, SerializationStrategy<E, T> serializationStrategy, final Handler handler, NetworkBatchListener<E, T> listener, int maxRetryCount, int maxQueueSize, int trimToSize, int trimmingMode, TrimmedBatchCallback trimmedBatchCallback) {
+    public NetworkPersistedBatchReadyListener(final Context context, String filePath,
+                                              SerializationStrategy<E, T> serializationStrategy,
+                                              final Handler handler, NetworkBatchListener<E, T> listener,
+                                              int maxRetryCount, int maxQueueSize, int trimToSize,
+                                              int trimmingMode, TrimmedBatchCallback trimmedBatchCallback) {
         super(filePath, serializationStrategy, handler, maxQueueSize, trimToSize, trimmingMode, null, trimmedBatchCallback);
         this.context = context;
         this.networkBatchListener = listener;
@@ -70,8 +71,8 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         this.setListener(persistedBatchCallback);
     }
 
-    public void setNetworkBatchListener(NetworkBatchListener<E, T> networkBatchListener) {
-        this.networkBatchListener = networkBatchListener;
+    public void setCallFinishAfterMaxRetry(boolean callFinishAfterMaxRetry) {
+        this.callFinishAfterMaxRetry = callFinishAfterMaxRetry;
     }
 
     public int getDefaultTimeoutMs() {
@@ -106,7 +107,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         if (!receiverRegistered) {
             //Register the broadcast receiver
             IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-            context.registerReceiver(networkBroadcastReceiver, filter); //todo, does calling this multple times cause duplicate broadcasts
+            context.registerReceiver(networkBroadcastReceiver, filter);
             receiverRegistered = true;
             if (log.isDebugEnabled()) {
                 log.debug("Registered network broadcast receiver {}", this);
@@ -123,10 +124,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         }
     }
 
-    @Override
-    protected void onInitialized(QueueFile queueFile) {
-        super.onInitialized(queueFile);
-    }
 
     private boolean isConnectedToNetwork() {
         return networkBatchListener.isNetworkConnected(context);
@@ -166,9 +163,13 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
                                     }, backOff);
                                 } else {
                                     if (log.isDebugEnabled()) {
-                                        log.debug("Maximum network retry reached for {}", getQueueFile());
+                                        log.debug("Maximum network retry reached for {}", filePath);
                                     }
-                                    needsResumeOnReady = true;
+                                    if (callFinishAfterMaxRetry) {
+                                        callFinishWithBatch(batch);
+                                    } else {
+                                        needsResumeOnReady = true;
+                                    }
                                 }
                             } else {
                                 //all well :) now we go to next batch
@@ -185,6 +186,11 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             waitingForCallback = false;
             needsResumeOnReady = true;
         }
+    }
+
+    public boolean callFinishWithBatch(T batch) {
+        finish(batch);
+        return true;
     }
 
     private void resetRetryCounters() {
@@ -240,8 +246,8 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
          * <p/>
          * Note: If there is a network redirect, do not call the networkBatchListener, and wait for the final redirected response and pass that one.
          *
-         * @param batch
-         * @param callback
+         * @param batch    batch of data
+         * @param callback callback
          */
         public abstract void performNetworkRequest(final T batch, final ValueCallback<NetworkRequestResponse> callback);
 
@@ -266,7 +272,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     }
 
     public class NetworkBroadcastReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context context, Intent intent) {
             if (log.isDebugEnabled()) {

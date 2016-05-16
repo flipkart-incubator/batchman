@@ -13,8 +13,8 @@ import java.util.Collection;
  *
  * @see GsonSerializationStrategy
  */
-
 public interface SerializationStrategy<E extends Data, T extends Batch> {
+
     /**
      * Register sub classes of {@link Data}
      *
@@ -37,7 +37,6 @@ public interface SerializationStrategy<E extends Data, T extends Batch> {
      * @return byte array
      * @throws SerializeException
      */
-
     byte[] serializeData(E data) throws SerializeException;
 
     byte[] serializeCollection(Collection<E> data) throws SerializeException;
@@ -51,7 +50,6 @@ public interface SerializationStrategy<E extends Data, T extends Batch> {
      * @return {@link Object} type data
      * @throws DeserializeException
      */
-
     E deserializeData(byte[] data) throws DeserializeException;
 
     Collection<E> deserializeCollection(byte[] data) throws DeserializeException;

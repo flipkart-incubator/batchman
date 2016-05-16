@@ -18,7 +18,6 @@ import android.view.View;
 import android.webkit.ValueCallback;
 
 import com.flipkart.batching.Batch;
-import com.flipkart.batching.ComboStrategyFactory;
 import com.flipkart.batching.TagBatchManager;
 import com.flipkart.batching.data.Tag;
 import com.flipkart.batching.data.TagData;
@@ -27,6 +26,8 @@ import com.flipkart.batching.listener.PersistedBatchCallback;
 import com.flipkart.batching.listener.TrimmedBatchCallback;
 import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
+import com.flipkart.batching.persistence.TapePersistenceStrategy;
+import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
 
 import java.util.ArrayList;
@@ -37,9 +38,9 @@ public class MainActivity extends AppCompatActivity
     public final static String DEBUG_LOGGER_GROUPID = "debug";
     public final static String PERF_LOGGER_GROUPID = "perf";
     public final static String DG_LOGGER_GROUPID = "dg";
-
     public Tag debugTag, perfTag, dgTag;
     public TagBatchManager batchManager;
+    int count = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,9 +163,9 @@ public class MainActivity extends AppCompatActivity
         batchManager = new TagBatchManager.Builder<>()
                 .setSerializationStrategy(serializationStrategy)
                 .setHandler(backgroundHandler)
-                .addTag(perfTag, ComboStrategyFactory.createDefault(getApplicationContext(), perfTag, serializationStrategy), perfListener)
-                .addTag(debugTag, ComboStrategyFactory.createDefault(getApplicationContext(), debugTag, serializationStrategy), debugListener)
-                .addTag(dgTag, ComboStrategyFactory.createDefault(getApplicationContext(), dgTag, serializationStrategy), dgListener)
+                .addTag(perfTag, new SizeBatchingStrategy(3, new TapePersistenceStrategy(getCacheDir() + "/perf1", serializationStrategy)), perfListener)
+                .addTag(debugTag, new SizeBatchingStrategy(3, new TapePersistenceStrategy(getCacheDir() + "/debug1", serializationStrategy)), debugListener)
+                .addTag(dgTag, new SizeBatchingStrategy(3, new TapePersistenceStrategy(getCacheDir() + "/dg1", serializationStrategy)), dgListener)
                 .build(getApplicationContext());
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -175,10 +176,11 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.e("IN", TrackingHelper.getProductPageViewEvent("asd", "dfg", "fgh").toString());
-                batchManager.addToBatch(Collections.singleton(new CustomTagData(perfTag, TrackingHelper.getProductPageViewEvent("asd", "dfg", "fgh"))));
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Log.e("IN", TrackingHelper.getProductPageViewEvent(String.valueOf(count), "dfg", "fgh").toString());
+                batchManager.addToBatch(Collections.singleton(new CustomTagData(perfTag, TrackingHelper.getProductPageViewEvent(String.valueOf(count), "dfg", "fgh"))));
+                Snackbar.make(view, "Replace with your own action " + count, Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                count++;
             }
         });
 

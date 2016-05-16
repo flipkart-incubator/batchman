@@ -20,7 +20,6 @@ import java.util.Collection;
  * A class extending BaseBatchingStrategy must call super from it's constructor,
  * {@link #onDataPushed(Collection)} and {@link BatchingStrategy#onInitialized(Context, OnBatchReadyListener, Handler)} methods.
  */
-
 public abstract class BaseBatchingStrategy<E extends Data, T extends Batch<E>> implements BatchingStrategy<E, T> {
     private Context context;
     private OnBatchReadyListener<E, T> onReadyListener;

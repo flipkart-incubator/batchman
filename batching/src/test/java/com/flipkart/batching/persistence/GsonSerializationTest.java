@@ -28,7 +28,6 @@ public class GsonSerializationTest {
     /**
      * Test the working of {@link GsonSerializationStrategy#serializeBatch(Batch)}
      * and {@link GsonSerializationStrategy#deserializeBatch(byte[])}
-     *
      */
     @Test
     public void testGSONSerialization() {

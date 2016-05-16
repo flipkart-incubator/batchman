@@ -18,7 +18,7 @@ import com.flipkart.batching.exception.SerializeException;
 import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.squareup.tape.QueueFile;
+import com.flipkart.batching.tape.ObjectQueue;
 
 import junit.framework.Assert;
 
@@ -35,6 +35,7 @@ import org.robolectric.shadows.ShadowLooper;
 import java.io.File;
 import java.io.IOException;
 
+import static junit.framework.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
@@ -50,7 +51,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * Test for {@link NetworkPersistedBatchReadyListener}
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class NetworkPersistedBatchReadyTest extends BaseTestClass {
 
     /**
@@ -60,7 +61,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void test5XXRetryPolicy() throws IOException, SerializeException {
+    public void test5XXRetryPolicy() throws IOException {
         int ERROR_CODE_5XX = 500;
         long callbackIdle = 1000;
         int maxRetryCount = 5;
@@ -130,7 +131,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void test4XXRetryPolicy() throws IOException, SerializeException {
+    public void test4XXRetryPolicy() throws IOException {
         int ERROR_CODE_4XX = 400;
         long callbackIdle = 1000;
         int maxRetryCount = 5;
@@ -167,7 +168,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void test2XXRetryPolicy() throws IOException, SerializeException {
+    public void test2XXRetryPolicy() throws IOException {
         int ERROR_CODE_2XX = 200;
         long callbackIdle = 1000;
 
@@ -200,7 +201,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
      * @throws SerializeException
      */
     @Test
-    public void testNetworkBroadcast() throws IOException, SerializeException {
+    public void testNetworkBroadcast() throws IOException {
         int ERROR_CODE_2XX = 200;
         long callbackIdle = 1000;
 
@@ -246,7 +247,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         // now we should get perform request callback with the new batch. Gets called
         verify(networkBatchListener, times(2)).performNetworkRequest(batchCapture.capture(), any(ValueCallback.class));
         //assert that value received in params is equal to the sent batch.
-        Assert.assertEquals(batchCapture.getValue(),secondBatch);
+        Assert.assertEquals(batchCapture.getValue(), secondBatch);
 
         verify(networkBatchListener, atLeastOnce()).isNetworkConnected(context);
         verify(networkBatchListener, atLeastOnce()).setMockedNetworkConnected(anyBoolean());
@@ -279,7 +280,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         networkPersistedBatchReadyListener.onReady(strategy, secondBatch);
         shadowLooper.runToEndOfTasks();
 
-        QueueFile oldQueueFile = networkPersistedBatchReadyListener.getQueueFile();
+        ObjectQueue<Batch<Data>> oldQueueFile = networkPersistedBatchReadyListener.getQueueFile();
 
         //reinitialize
         networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, createRandomString(), serializationStrategy, handler, networkBatchListener, 5, 50, 10, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, trimmedBatchCallback);
@@ -289,7 +290,6 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         SizeBatchingStrategy.SizeBatch<Data> thirdBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 3);
         networkPersistedBatchReadyListener.onReady(strategy, thirdBatch);
         shadowLooper.runToEndOfTasks(); //all retries finished
-
 
 
     }
@@ -360,6 +360,50 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         verifyNoMoreInteractions(networkBatchListener);
     }
 
+    @Test
+    public void testFinishCalledIfRemoveAfterMaxRetryTrue() {
+        int errorCode = 500;
+        long callbackIdle = 1000;
+        int retryCount = 4;
+
+        Context context = RuntimeEnvironment.application;
+        File file = createRandomFile();
+        ShadowLooper shadowLooper = Shadows.shadowOf(Looper.getMainLooper());
+        Handler handler = new Handler();
+        SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
+        SizeBatchingStrategy.SizeBatch<Data> firstBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+        NetworkPersistedBatchReadyListener.NetworkRequestResponse requestResponse = new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, errorCode);
+        TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
+
+        MockNetworkPersistedBatchReadyListener networkBatchListener = spy(new MockNetworkPersistedBatchReadyListener(requestResponse, handler, callbackIdle, context));
+        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, createRandomString(), serializationStrategy, handler, networkBatchListener, retryCount, 50, 10, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, trimmedBatchCallback);
+        networkPersistedBatchReadyListener.onReady(strategy, firstBatch);
+        networkPersistedBatchReadyListener.setCallFinishAfterMaxRetry(true);
+        shadowLooper.runToEndOfTasks();
+
+        //verify that it gets called 1 times
+        verify(networkBatchListener, times(1)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
+        shadowLooper.idle(networkPersistedBatchReadyListener.getDefaultTimeoutMs());
+        //verify that it gets called 2 times after waiting for specified time
+        verify(networkBatchListener, times(2)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 2);
+        //verify that it gets called 3 times after waiting for specified time
+        verify(networkBatchListener, times(3)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
+        //verify that it gets called 3 times after waiting for specified time
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 4);
+        //verify that it gets called 4 times after waiting for specified time
+        verify(networkBatchListener, times(4)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 8);
+        // now it should have stopped retrying anymore since max retry is reached
+        verify(networkBatchListener, times(4)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
+
+        assertTrue(networkPersistedBatchReadyListener.callFinishWithBatch(firstBatch));
+    }
+
+
     /**
      * Test to verify {@link NetworkPersistedBatchReadyListener#getDefaultTimeoutMs()} and {@link NetworkPersistedBatchReadyListener#getDefaultBackoffMultiplier()}
      * setter properties
@@ -413,7 +457,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
             }
         };
 
-        Assert.assertTrue(networkBatchListener.isNetworkConnected(context));
+        assertTrue(networkBatchListener.isNetworkConnected(context));
     }
 
     /**
@@ -434,6 +478,10 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
 //    public void afterTest() {
 //        deleteRandomFiles();
 //    }
+    @After
+    public void tearDown() throws Exception {
+        deleteRandomFiles();
+    }
 
     /**
      * Custom MockNetworkPersistedBatchReadyListener
@@ -470,10 +518,5 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         public boolean isNetworkConnected(Context context) {
             return mockedNetworkConnected;
         }
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        deleteRandomFiles();
     }
 }
