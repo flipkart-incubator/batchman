@@ -59,7 +59,6 @@ public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>>
     private void trimQueue() {
         int oldSize = getSize();
         if (oldSize >= maxQueueSize && remove(trimSize)) {
-            remove(trimSize);
             callTrimListener(oldSize, getSize());
         }
     }
