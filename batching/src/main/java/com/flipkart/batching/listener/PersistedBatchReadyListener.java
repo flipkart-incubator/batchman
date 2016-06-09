@@ -8,7 +8,6 @@ import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.BatchObjectConverter;
 import com.flipkart.batching.persistence.SerializationStrategy;
-import com.flipkart.batching.tape.FileObjectQueue;
 import com.flipkart.batching.tape.InMemoryObjectQueue;
 import com.flipkart.batching.tape.ObjectQueue;
 import com.flipkart.batching.toolbox.LenientFileObjectQueue;
@@ -26,7 +25,7 @@ import java.util.Queue;
 /**
  * PersistedBatchReadyListener that implements {@link OnBatchReadyListener}.
  */
-public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T>,LenientQueueFile.QueueFileErrorCallback {
+public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T>, LenientQueueFile.QueueFileErrorCallback {
     private static final int MAX_ITEMS_CACHED = 2000;
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(PersistedBatchReadyListener.class);
     protected final Handler handler;
@@ -140,7 +139,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
     private void tryCreatingQueueFile() {
         try {
             File file = new File(filePath);
-            this.queueFile = new LenientFileObjectQueue<>(file, converter,this);
+            this.queueFile = new LenientFileObjectQueue<>(file, converter, this);
         } catch (IOException e) {
             this.queueFile = new InMemoryObjectQueue<>();
             if (log.isErrorEnabled()) {
