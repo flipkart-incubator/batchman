@@ -5,6 +5,8 @@ import com.flipkart.batching.Data;
 import com.flipkart.batching.tape.FileObjectQueue;
 import com.flipkart.batching.tape.InMemoryObjectQueue;
 import com.flipkart.batching.tape.ObjectQueue;
+import com.flipkart.batching.toolbox.LenientFileObjectQueue;
+import com.flipkart.batching.toolbox.LenientQueueFile;
 
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +19,7 @@ import java.util.Iterator;
  * TapePersistenceStrategy that extends {@link InMemoryPersistenceStrategy} Strategy is an
  * implementation of {@link PersistenceStrategy}. This strategy is used to persist data to disk.
  */
-public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> {
+public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> implements LenientQueueFile.QueueFileErrorCallback {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(TapePersistenceStrategy.class);
     private String filePath;
     private ObjectQueue<E> queueFile;
@@ -94,18 +96,22 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
     @Override
     public void onInitialized() {
         if (!isInitialized()) {
-            try {
-                File file = new File(filePath);
-                this.queueFile = new FileObjectQueue<E>(file, converter);
-            } catch (IOException e) {
-                this.queueFile = new InMemoryObjectQueue<E>();
-                if (log.isErrorEnabled()) {
-                    log.error(e.getLocalizedMessage());
-                }
-            }
+            tryCreatingQueueFile();
             syncData();
         }
         super.onInitialized();
+    }
+
+    private void tryCreatingQueueFile() {
+        try {
+            File file = new File(filePath);
+            this.queueFile = new LenientFileObjectQueue(file, converter, this);
+        } catch (IOException e) {
+            this.queueFile = new InMemoryObjectQueue<E>();
+            if (log.isErrorEnabled()) {
+                log.error(e.getLocalizedMessage());
+            }
+        }
     }
 
     /**
@@ -121,5 +127,15 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
                 log.error(e.getLocalizedMessage());
             }
         }
+    }
+
+    @Override
+    public void onQueueFileOperationError(Throwable e) {
+        if (log.isErrorEnabled()) {
+            log.error("QueueFile {} is corrupt, gonna recreate it", filePath);
+        }
+        File file = new File(filePath);
+        file.delete();
+        tryCreatingQueueFile();
     }
 }

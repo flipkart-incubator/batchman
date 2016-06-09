@@ -11,6 +11,8 @@ import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.tape.FileObjectQueue;
 import com.flipkart.batching.tape.InMemoryObjectQueue;
 import com.flipkart.batching.tape.ObjectQueue;
+import com.flipkart.batching.toolbox.LenientFileObjectQueue;
+import com.flipkart.batching.toolbox.LenientQueueFile;
 
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,7 @@ import java.util.Queue;
 /**
  * PersistedBatchReadyListener that implements {@link OnBatchReadyListener}.
  */
-public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T> {
+public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T>,LenientQueueFile.QueueFileErrorCallback {
     private static final int MAX_ITEMS_CACHED = 2000;
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(PersistedBatchReadyListener.class);
     protected final Handler handler;
@@ -130,17 +132,31 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
 
     private void initializeIfRequired() {
         if (!isInitialized()) {
-            try {
-                File file = new File(filePath);
-                this.queueFile = new FileObjectQueue<>(file, converter);
-                onInitialized();
-            } catch (IOException e) {
-                this.queueFile = new InMemoryObjectQueue<>();
-                if (log.isErrorEnabled()) {
-                    log.error(e.getLocalizedMessage());
-                }
+            tryCreatingQueueFile();
+            onInitialized();
+        }
+    }
+
+    private void tryCreatingQueueFile() {
+        try {
+            File file = new File(filePath);
+            this.queueFile = new LenientFileObjectQueue<>(file, converter,this);
+        } catch (IOException e) {
+            this.queueFile = new InMemoryObjectQueue<>();
+            if (log.isErrorEnabled()) {
+                log.error(e.getLocalizedMessage());
             }
         }
+    }
+
+    @Override
+    public void onQueueFileOperationError(Throwable e) {
+        if (log.isErrorEnabled()) {
+            log.error("QueueFile {} is corrupt, gonna recreate it", filePath);
+        }
+        File file = new File(filePath);
+        file.delete();
+        tryCreatingQueueFile();
     }
 
     public void close() {
@@ -220,4 +236,6 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
             listener.onFinish();
         }
     }
+
+
 }

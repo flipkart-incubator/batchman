@@ -39,10 +39,14 @@ public class FileObjectQueue<T> implements ObjectQueue<T> {
     private final Converter<T> converter;
     private Listener<T> listener;
 
-    public FileObjectQueue(File file, Converter<T> converter) throws IOException {
+    public FileObjectQueue(File file, QueueFile queueFile, Converter<T> converter) throws IOException {
         this.file = file;
         this.converter = converter;
-        this.queueFile = new QueueFile(file);
+        this.queueFile = queueFile;
+    }
+
+    protected QueueFile createQueueFile(File file) throws IOException {
+        return new QueueFile(file);
     }
 
     @Override
