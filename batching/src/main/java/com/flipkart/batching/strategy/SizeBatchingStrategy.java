@@ -85,5 +85,10 @@ public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
             }
             return super.equals(o);
         }
+
+        @Override
+        public int hashCode() {
+            return 31 * super.hashCode() + maxBatchSize;
+        }
     }
 }

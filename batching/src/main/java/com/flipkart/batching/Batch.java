@@ -26,4 +26,8 @@ public class Batch<T extends Data> implements Serializable {
         return super.equals(o);
     }
 
+    @Override
+    public int hashCode() {
+        return dataCollection == null ? 0 : dataCollection.hashCode();
+    }
 }

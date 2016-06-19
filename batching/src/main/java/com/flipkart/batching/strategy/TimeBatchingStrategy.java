@@ -108,6 +108,11 @@ public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
             }
             return super.equals(o);
         }
+
+        @Override
+        public int hashCode() {
+            return 31 * super.hashCode() + Long.valueOf(timeOut).hashCode();
+        }
     }
 }
 

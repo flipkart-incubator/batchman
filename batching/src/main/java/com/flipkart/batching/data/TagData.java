@@ -29,4 +29,9 @@ public class TagData extends Data {
             return super.equals(o);
         }
     }
+
+    @Override
+    public int hashCode() {
+        return 31 * super.hashCode() + (getTag() == null ? 0 : getTag().hashCode());
+    }
 }

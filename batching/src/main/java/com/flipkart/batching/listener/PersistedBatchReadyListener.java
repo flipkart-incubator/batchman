@@ -216,7 +216,6 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                 peekedBatch = (queueFile.size() == cachedQueue.size())
                         ? cachedQueue.peek()
                         : queueFile.peek();
-
                 if (peekedBatch != null) {
                     callPersistSuccess(peekedBatch);
                 }
@@ -235,6 +234,4 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
             listener.onFinish();
         }
     }
-
-
 }

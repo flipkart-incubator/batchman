@@ -33,6 +33,11 @@ public class DataCollection<T extends Data> {
         return super.equals(o);
     }
 
+    @Override
+    public int hashCode() {
+        return dataCollection == null ? 0 : dataCollection.hashCode();
+    }
+
     public static class Serializer implements JsonSerializer<DataCollection> {
         @Override
         public JsonElement serialize(DataCollection src, Type typeOfSrc, JsonSerializationContext context) {

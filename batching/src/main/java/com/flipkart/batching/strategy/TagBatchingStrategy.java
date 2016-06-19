@@ -84,7 +84,7 @@ public class TagBatchingStrategy<E extends TagData> implements BatchingStrategy<
     /**
      * This method takes {@link Tag} and {@link BatchingStrategy} as parameters and
      * adds the data to batchingStrategyMap.
-     * <p/>
+     * <p>
      * Whenever new data is pushed, tag is checked and data is pushed to the specified
      * batching strategy.
      *
@@ -115,6 +115,11 @@ public class TagBatchingStrategy<E extends TagData> implements BatchingStrategy<
                 return ((TagBatch) o).getTag().equals(tag) && super.equals(o);
             }
             return super.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * super.hashCode() + (getTag() == null ? 0 : getTag().hashCode());
         }
     }
 }
