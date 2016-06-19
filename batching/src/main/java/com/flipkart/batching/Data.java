@@ -47,6 +47,6 @@ public abstract class Data implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31 * 17 + (int) (eventId ^ (eventId >>> 32));
+        return Long.valueOf(eventId).hashCode();
     }
 }
