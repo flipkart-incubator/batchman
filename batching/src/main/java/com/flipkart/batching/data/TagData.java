@@ -32,6 +32,6 @@ public class TagData extends Data {
 
     @Override
     public int hashCode() {
-        return getTag() == null ? 0 : getTag().hashCode();
+        return 31 * super.hashCode() + (getTag() == null ? 0 : getTag().hashCode());
     }
 }

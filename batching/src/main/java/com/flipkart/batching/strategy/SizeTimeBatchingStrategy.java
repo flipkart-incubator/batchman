@@ -129,7 +129,7 @@ public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrate
         public int hashCode() {
             int result = super.hashCode();
             result = 31 * result + maxBatchSize;
-            result = 31 * result + Long.valueOf(timeOut).hashCode();
+            result = 31 * result + (int) (timeOut ^ (timeOut >>> 32));
             return result;
         }
     }

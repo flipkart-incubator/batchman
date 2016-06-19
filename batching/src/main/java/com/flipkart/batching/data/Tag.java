@@ -36,6 +36,6 @@ public class Tag implements Serializable {
 
     @Override
     public int hashCode() {
-        return id == null ? 0 : id.hashCode();
+        return 31 * 17 + (id == null ? 0 : id.hashCode());
     }
 }

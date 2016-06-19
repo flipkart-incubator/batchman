@@ -119,9 +119,7 @@ public class TagBatchingStrategy<E extends TagData> implements BatchingStrategy<
 
         @Override
         public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + (getTag() == null ? 0 : getTag().hashCode());
-            return result;
+            return 31 * super.hashCode() + (getTag() == null ? 0 : getTag().hashCode());
         }
     }
 }
