@@ -127,7 +127,10 @@ public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrate
 
         @Override
         public int hashCode() {
-            return 31 * maxBatchSize + Long.valueOf(timeOut).hashCode();
+            int result = super.hashCode();
+            result = 31 * result + maxBatchSize;
+            result = 31 * result + Long.valueOf(timeOut).hashCode();
+            return result;
         }
     }
 }
