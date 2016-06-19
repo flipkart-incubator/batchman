@@ -33,6 +33,14 @@ public class DataCollection<T extends Data> {
         return super.equals(o);
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (dataCollection == null ? 0 : dataCollection.hashCode());
+        return result;
+    }
+
     public static class Serializer implements JsonSerializer<DataCollection> {
         @Override
         public JsonElement serialize(DataCollection src, Type typeOfSrc, JsonSerializationContext context) {
