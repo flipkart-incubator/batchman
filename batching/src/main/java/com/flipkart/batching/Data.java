@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 /**
  * This is an abstract base class for storing data which implements {@link Serializable}.
- * <p/>
+ * <p>
  * A custom data class must extend this class and call the super in the constructor with
  * {@link Tag} and {@link Object} as parameters.
  *
@@ -47,9 +47,6 @@ public abstract class Data implements Serializable {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + Long.valueOf(getEventId()).hashCode();
-        return result;
+        return Long.valueOf(getEventId()).hashCode();
     }
 }

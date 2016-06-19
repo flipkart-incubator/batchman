@@ -35,10 +35,7 @@ public class DataCollection<T extends Data> {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (dataCollection == null ? 0 : dataCollection.hashCode());
-        return result;
+        return dataCollection == null ? 0 : dataCollection.hashCode();
     }
 
     public static class Serializer implements JsonSerializer<DataCollection> {
