@@ -49,7 +49,7 @@ public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>>
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if ((mode & MODE_TRIM_ON_READY) == MODE_TRIM_ON_READY) {
+                if ((mode & MODE_TRIM_ON_READY) == MODE_TRIM_ON_READY && !isWaitingToFinish()) {
                     trimQueue();
                 }
             }

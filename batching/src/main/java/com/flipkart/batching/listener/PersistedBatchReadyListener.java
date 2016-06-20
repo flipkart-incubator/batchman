@@ -234,4 +234,8 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
             listener.onFinish();
         }
     }
+
+    public boolean isWaitingToFinish() {
+        return isWaitingToFinish;
+    }
 }
