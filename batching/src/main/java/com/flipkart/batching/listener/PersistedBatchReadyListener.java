@@ -121,12 +121,10 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
     }
 
     private void callPersistSuccess(T batch) {
-        if (!isWaitingToFinish) {
-            isWaitingToFinish = true;
-            if (listener != null) {
-                listener.onPersistSuccess(batch);
-            }
+        if (listener != null) {
+            listener.onPersistSuccess(batch);
         }
+
     }
 
     private void initializeIfRequired() {
@@ -213,11 +211,14 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
         initializeIfRequired();
         if (queueFile.size() > 0) {
             try {
-                peekedBatch = (queueFile.size() == cachedQueue.size())
-                        ? cachedQueue.peek()
-                        : queueFile.peek();
-                if (peekedBatch != null) {
-                    callPersistSuccess(peekedBatch);
+                if (!isWaitingToFinish) {
+                    peekedBatch = (queueFile.size() == cachedQueue.size())
+                            ? cachedQueue.peek()
+                            : queueFile.peek();
+                    if (peekedBatch != null) {
+                        isWaitingToFinish = true;
+                        callPersistSuccess(peekedBatch);
+                    }
                 }
             } catch (IOException e) {
                 if (log.isErrorEnabled()) {

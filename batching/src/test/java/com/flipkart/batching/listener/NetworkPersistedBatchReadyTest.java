@@ -34,6 +34,7 @@ import org.robolectric.shadows.ShadowLooper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -481,6 +482,45 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
     @After
     public void tearDown() throws Exception {
         deleteRandomFiles();
+    }
+
+    @Test
+    public void testDoNotTrimmingIfWaitingForFinish() throws Exception {
+        int ERROR_CODE_2XX = 200;
+        long callbackIdle = 5000;
+        Context context = RuntimeEnvironment.application;
+
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
+        BatchManager.registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+
+        HandlerThread handlerThread = new HandlerThread(createRandomString());
+        handlerThread.start();
+        Looper looper = handlerThread.getLooper();
+        ShadowLooper shadowLooper = Shadows.shadowOf(looper);
+        Handler handler = new Handler(looper);
+
+        TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
+        SizeBatchingStrategy sizeBatchingStrategy = mock(SizeBatchingStrategy.class);
+        final ArrayList<Data> dataList1 = Utils.fakeAdsCollection(10);
+        SizeBatchingStrategy.SizeBatch<Data> sizeBatch1 = new SizeBatchingStrategy.SizeBatch<>(dataList1, 3);
+
+        MockNetworkPersistedBatchReadyListener networkBatchListener = spy(new MockNetworkPersistedBatchReadyListener(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, ERROR_CODE_2XX), handler, callbackIdle, context));
+        NetworkPersistedBatchReadyListener networkPersistedBatchReadyListener = new NetworkPersistedBatchReadyListener(context, createRandomString(), serializationStrategy, handler, networkBatchListener, 1, 2, 1, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START | TrimPersistedBatchReadyListener.MODE_TRIM_ON_READY, trimmedBatchCallback);
+        networkPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch1);
+        shadowLooper.idle(100); //this will start waiting for finish callback
+        final ArrayList<Data> dataList2 = Utils.fakeAdsCollection(10);
+        SizeBatchingStrategy.SizeBatch<Data> sizeBatch2 = new SizeBatchingStrategy.SizeBatch<>(dataList2, 3);
+        networkPersistedBatchReadyListener.onReady(sizeBatchingStrategy,sizeBatch2);
+        shadowLooper.idle(100); // this will initiate a trim since size is 2
+        final ArrayList<Data> dataList3 = Utils.fakeAdsCollection(10);
+        SizeBatchingStrategy.SizeBatch<Data> sizeBatch3 = new SizeBatchingStrategy.SizeBatch<>(dataList2, 3);
+        networkPersistedBatchReadyListener.onReady(sizeBatchingStrategy,sizeBatch2);
+        shadowLooper.idle(100); // this will fire onReady once more
+
+        shadowLooper.runToEndOfTasks(); //this will invoke the network callback because the idle time is high
+
+
     }
 
     /**
