@@ -189,7 +189,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                                 if (log.isErrorEnabled()) {
                                     log.error("Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
                                 }
-                                throw new IllegalStateException("Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
+                                // throw new IllegalStateException("Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
                             }
                         }
                     } catch (IOException e) {
