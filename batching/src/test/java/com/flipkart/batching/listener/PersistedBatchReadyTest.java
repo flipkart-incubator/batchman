@@ -188,9 +188,12 @@ public class PersistedBatchReadyTest extends BaseTestClass {
      * Test to verify that finish throws an {@link IllegalStateException} when it gets called with a different batch.
      * Ignoring this test because we are catching this exception and logging it now.
      *
+     * UPDATE : not throwing this exception anymore, thus ignore.
+     *
      * @throws SerializeException
      * @throws IOException
      */
+    @Ignore
     @Test(expected = IllegalStateException.class)
     public void testFinishException() throws IOException {
         File file = createRandomFile();
