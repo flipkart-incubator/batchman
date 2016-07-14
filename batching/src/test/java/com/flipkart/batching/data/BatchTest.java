@@ -26,6 +26,7 @@ package com.flipkart.batching.data;
 
 import com.flipkart.Utils;
 import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchImpl;
 import com.flipkart.batching.Data;
 
 import junit.framework.Assert;
@@ -42,7 +43,7 @@ public class BatchTest {
     @Test
     public void testBatch() {
         ArrayList<Data> dataArrayList = Utils.fakeCollection(4);
-        Batch<Data> batch = new Batch<>(dataArrayList);
+        Batch<Data> batch = new BatchImpl<>(dataArrayList);
         Assert.assertEquals(batch.getDataCollection(), dataArrayList);
     }
 
@@ -53,8 +54,8 @@ public class BatchTest {
     public void testBatchEquals() {
         ArrayList<Data> arrayList = Utils.fakeCollection(4);
         ArrayList<Data> arrayList1 = Utils.fakeCollection(5);
-        Batch<Data> batch = new Batch<>(arrayList);
-        Batch<Data> batch1 = new Batch<>(arrayList1);
+        Batch<Data> batch = new BatchImpl<>(arrayList);
+        Batch<Data> batch1 = new BatchImpl<>(arrayList1);
         Assert.assertTrue(!batch.equals(batch1));
     }
 }
