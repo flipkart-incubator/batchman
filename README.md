@@ -69,5 +69,5 @@ The library has been written in a more flexible way, so that the client can plug
 
 ###License
 
-Batchman is available under the [MIT](https://opensource.org/licenses/MIT) license.
+BatchMan is available under the [MIT](https://opensource.org/licenses/MIT) license.
 
