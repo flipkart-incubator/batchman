@@ -98,7 +98,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
         trimPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch);
         shadowLooper.runToEndOfTasks();
         //verify that onTrimmed gets called once
-        verify(trimmedBatchCallback, times(1)).onTrimmed(MAX_QUEUE_SIZE, TRIM_TO_SIZE);
+        verify(trimmedBatchCallback, times(1)).onTrimmed(MAX_QUEUE_SIZE, MAX_QUEUE_SIZE - TRIM_TO_SIZE);
     }
 
     /**
@@ -182,7 +182,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
         trimPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch2);
         shadowLooper.runToEndOfTasks();
         //verify that onTrimmed gets called
-        verify(trimmedBatchCallback, times(1)).onTrimmed(MAX_QUEUE_SIZE, TRIM_TO_SIZE);
+        verify(trimmedBatchCallback, times(1)).onTrimmed(MAX_QUEUE_SIZE, MAX_QUEUE_SIZE - TRIM_TO_SIZE);
     }
 
     /**

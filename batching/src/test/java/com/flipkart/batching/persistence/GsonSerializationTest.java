@@ -26,6 +26,7 @@ package com.flipkart.batching.persistence;
 
 import com.flipkart.Utils;
 import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchImpl;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.data.EventData;
@@ -62,7 +63,7 @@ public class GsonSerializationTest {
 
         byte[] serializedData;
         try {
-            Batch<Data> batch = new Batch<>(Utils.fakeCollection(3));
+            Batch<Data> batch = new BatchImpl<>(Utils.fakeCollection(3));
             serializedData = serializationStrategy.serializeBatch(batch);
             Batch batchReturned = (Batch) serializationStrategy.deserializeBatch(serializedData);
             Assert.assertEquals(batch.getClass(), batchReturned.getClass());
@@ -86,7 +87,7 @@ public class GsonSerializationTest {
         serializationStrategy = new GsonSerializationStrategy<>();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
-        Batch<Data> batch = new Batch<>(dataCollection);
+        Batch<Data> batch = new BatchImpl<>(dataCollection);
 
         byte[] serializedData = serializationStrategy.serializeBatch(batch);
         try {
@@ -134,7 +135,7 @@ public class GsonSerializationTest {
         serializationStrategy = new GsonSerializationStrategy<>();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
-        Batch<Data> batch = new Batch<>(dataCollection);
+        Batch<Data> batch = new BatchImpl<>(dataCollection);
 
         serializationStrategy = new GsonSerializationStrategy<>();
         ArrayList<Data> fakeCollection = Utils.fakeCollection(4);

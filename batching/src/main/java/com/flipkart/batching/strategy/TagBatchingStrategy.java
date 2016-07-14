@@ -28,6 +28,7 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchImpl;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
@@ -120,7 +121,7 @@ public class TagBatchingStrategy<E extends TagData> implements BatchingStrategy<
     }
 
 
-    public static class TagBatch<T extends TagData> extends Batch<T> {
+    public static class TagBatch<T extends TagData> extends BatchImpl<T> {
         @SerializedName("tag")
         private Tag tag;
 

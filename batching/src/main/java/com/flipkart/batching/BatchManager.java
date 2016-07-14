@@ -91,7 +91,7 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
 
     public static void registerBuiltInTypes(SerializationStrategy serializationStrategy) {
         serializationStrategy.registerDataType(TagData.class);
-        serializationStrategy.registerBatch(Batch.class);
+        serializationStrategy.registerBatch(BatchImpl.class);
         serializationStrategy.registerDataType(EventData.class);
         serializationStrategy.registerBatch(SizeBatchingStrategy.SizeBatch.class);
         serializationStrategy.registerBatch(TimeBatchingStrategy.TimeBatch.class);

@@ -27,7 +27,7 @@ package com.flipkart.batching.strategy;
 import android.content.Context;
 import android.os.Handler;
 
-import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchImpl;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
@@ -89,7 +89,7 @@ public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
         return currentBatchSize >= maxBatchSize;
     }
 
-    public static class SizeBatch<T extends Data> extends Batch<T> {
+    public static class SizeBatch<T extends Data> extends BatchImpl<T> {
         @SerializedName("maxBatchSize")
         private int maxBatchSize;
 
