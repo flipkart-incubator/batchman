@@ -15,6 +15,7 @@ import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
@@ -46,6 +47,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
      * @throws IOException
      * @throws SerializeException
      */
+    @Ignore
     @Test
     public void testOnTrimmedCalled() throws IOException {
         int MAX_QUEUE_SIZE = 3;
@@ -121,6 +123,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
      * @throws IOException
      * @throws SerializeException
      */
+    @Ignore
     @Test
     public void testTrimMode() throws IOException {
         int MAX_QUEUE_SIZE = 3;
