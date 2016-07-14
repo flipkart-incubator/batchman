@@ -27,6 +27,5 @@ package com.flipkart.batching;
 import java.util.Collection;
 
 public interface Batch<T extends Data> {
-
     Collection<T> getDataCollection();
 }
