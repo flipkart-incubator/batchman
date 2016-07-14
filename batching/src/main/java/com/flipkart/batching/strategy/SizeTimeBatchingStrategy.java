@@ -28,6 +28,7 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchImpl;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
@@ -118,7 +119,7 @@ public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrate
         handler.removeCallbacks(runnable);
     }
 
-    public static class SizeTimeBatch<T extends Data> extends Batch<T> {
+    public static class SizeTimeBatch<T extends Data> extends BatchImpl<T> {
         @SerializedName("maxBatchSize")
         private int maxBatchSize;
         @SerializedName("timeOut")

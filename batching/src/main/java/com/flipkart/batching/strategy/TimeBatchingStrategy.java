@@ -28,6 +28,7 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.batching.Batch;
+import com.flipkart.batching.BatchImpl;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
@@ -112,7 +113,7 @@ public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
         handler.removeCallbacks(runnable);
     }
 
-    public static class TimeBatch<D extends Data> extends Batch<D> {
+    public static class TimeBatch<D extends Data> extends BatchImpl<D> {
         @SerializedName("timeOut")
         private long timeOut;
 
