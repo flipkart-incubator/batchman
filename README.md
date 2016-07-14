@@ -1,5 +1,5 @@
-#fk-android-batching
-Batching is an android library implementation responsible for batching of events based on the configurations done by the client, and giving the batch back to the client.
+#Batchman
+Batchman is an android library implementation responsible for batching of events based on the configurations done by the client, and giving the batch back to the client.
 
 The library has been written in a more flexible way, so that the client can plugin his own implementations for batching.
 * <b>BatchManager</b> : It is the entry point to the library, where in the client will use the instance of the batch manager to push in data to the library for batching.
@@ -53,9 +53,6 @@ The library has been written in a more flexible way, so that the client can plug
 
 ###Getting Started 
 
-Gradle Dependency : ````compile 'com.flipkart.android.batching:batching:0.9.1.2'````
-
-
 
 ###[Wiki](https://github.com/Flipkart/fk-android-batchnetworking/wiki)
 
@@ -72,5 +69,5 @@ Gradle Dependency : ````compile 'com.flipkart.android.batching:batching:0.9.1.2'
 
 ###License
 
-fk-android-batching is available under the [MIT](https://opensource.org/licenses/MIT) license.
+Batchman is available under the [MIT](https://opensource.org/licenses/MIT) license.
 
