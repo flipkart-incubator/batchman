@@ -228,7 +228,7 @@ public class BatchManagerTest extends BaseTestClass {
                 .setSerializationStrategy(serializationStrategy)
                 .setBatchingStrategy(sizeBatchingStrategy)
                 .setHandler(null)
-                .setOnBatchReadyListener(onBatchReadyListener).registerBatchInfoType(Batch.class)
+                .setOnBatchReadyListener(onBatchReadyListener).registerBatchInfoType(BatchImpl.class)
                 .build(context);
 
     }
