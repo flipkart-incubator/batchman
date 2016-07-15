@@ -1,4 +1,4 @@
-#BatchMan  [![Build Status](https://travis-ci.org/flipkart-incubator/batchman.svg?branch=master)](https://travis-ci.org/flipkart-incubator/batchman)
+#BatchMan  [![Build Status](https://travis-ci.org/flipkart-incubator/batchman.svg?branch=travis)](https://travis-ci.org/flipkart-incubator/batchman)
 BatchMan (short for batch manager) is an android library implementation responsible for batching of events based on the configurations done by the client, and giving the batch back to the client.
 
 The library has been written in a more flexible way, so that the client can plugin his own implementations for batching.
