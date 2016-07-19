@@ -1,4 +1,4 @@
-#BatchMan
+#BatchMan  [![Build Status](https://travis-ci.org/flipkart-incubator/batchman.svg?branch=travis)](https://travis-ci.org/flipkart-incubator/batchman)  [![](https://jitpack.io/v/flipkart-incubator/batchman.svg)](https://jitpack.io/#flipkart-incubator/batchman)
 BatchMan (short for batch manager) is an android library implementation responsible for batching of events based on the configurations done by the client, and giving the batch back to the client.
 
 The library has been written in a more flexible way, so that the client can plugin his own implementations for batching.
@@ -13,21 +13,40 @@ The library has been written in a more flexible way, so that the client can plug
 * <b>Data</b> : It is an abstract class, wherein the client will need to extend this class for his events.
 
 
+Get BatchMan
+------------
 
-###Sample Code
+Add it in your root build.gradle at the end of repositories:
+
+	allprojects {
+		repositories {
+			...
+			maven { url "https://jitpack.io" }
+		}
+	}
+
+Add the dependency:
+
+	dependencies {
+	        compile 'com.github.flipkart-incubator:batchman:1.1.7'
+	}
+
+
+How to use
+----------
 
 ````java
 
       int MAX_BATCH_SIZE = 5;
-      
+
       //using inMemoryPersistenceStrategy
       PersistenceStrategy persistenceStrategy = new InMemoryPersistenceStrategy();
-        
+
       //using sizeBatchingStrategy. Whenever the number of events is 5, a batch is formed
       SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(MAX_BATCH_SIZE, persistenceStrategy);
-        
+
       GsonSerializationStrategy gsonSerializationStrategy = new GsonSerializationStrategy();
-      
+
       //Handler for all operations
       HandlerThread handlerThread = new HandlerThread("bg");
       handlerThread.start();
@@ -46,19 +65,18 @@ The library has been written in a more flexible way, so that the client can plug
 
       //push in data to the library
       batchManager.addToBatch(Collections.singleton(new EventData()));
-        
+
 ````
 
-
-
-###Getting Started 
-
+Getting Started
+---------------
 
 ###[Wiki](https://github.com/Flipkart/fk-android-batchnetworking/wiki)
 
 
 
-###Dependencies
+Dependencies
+------------
 
 * For Testing : [JUnit](http://junit.org/), [Roboelectric](http://robolectric.org/), [Mockito](http://mockito.org/)
 * For logging : [Slf4J](http://www.slf4j.org/)
@@ -66,11 +84,8 @@ The library has been written in a more flexible way, so that the client can plug
 * For Serialization/Deserialization : [GSON](https://github.com/google/gson)
 
 
-
-###License
-
-BatchMan is available under the [MIT](https://opensource.org/licenses/MIT) license.
-
+License
+-------
 
     The MIT License (MIT)
     
