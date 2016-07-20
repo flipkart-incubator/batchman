@@ -1,4 +1,4 @@
-#BatchMan  [![Build Status](https://travis-ci.org/flipkart-incubator/batchman.svg?branch=travis)](https://travis-ci.org/flipkart-incubator/batchman)  [![](https://jitpack.io/v/flipkart-incubator/batchman.svg)](https://jitpack.io/#flipkart-incubator/batchman)
+#BatchMan  [![Build Status](https://travis-ci.org/flipkart-incubator/batchman.svg?branch=master)](https://travis-ci.org/flipkart-incubator/batchman)  [![](https://jitpack.io/v/flipkart-incubator/batchman.svg)](https://jitpack.io/#flipkart-incubator/batchman)
 BatchMan (short for batch manager) is an android library implementation responsible for batching of events based on the configurations done by the client, and giving the batch back to the client.
 
 The library has been written in a more flexible way, so that the client can plugin his own implementations for batching.
@@ -35,36 +35,74 @@ Add the dependency:
 How to use
 ----------
 
+###Step 1 :
+
+Initialize persistence strategy, batching strategy will take persistence strategy as one of it's parameters.
+
 ````java
 
-      int MAX_BATCH_SIZE = 5;
+// Using inMemoryPersistenceStrategy
+PersistenceStrategy persistenceStrategy = new InMemoryPersistenceStrategy();
 
-      //using inMemoryPersistenceStrategy
-      PersistenceStrategy persistenceStrategy = new InMemoryPersistenceStrategy();
+````
 
-      //using sizeBatchingStrategy. Whenever the number of events is 5, a batch is formed
-      SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(MAX_BATCH_SIZE, persistenceStrategy);
+###Step 2 :
 
-      GsonSerializationStrategy gsonSerializationStrategy = new GsonSerializationStrategy();
+Initialize batching strategy with a max batch size and persistence strategy.
 
-      //Handler for all operations
-      HandlerThread handlerThread = new HandlerThread("bg");
-      handlerThread.start();
-      Handler backgroundHandler = new Handler(handlerThread.getLooper());
+````java
 
-      BatchManager batchManager = new BatchManager.Builder<>()
-              .setBatchingStrategy(sizeBatchingStrategy)
-              .setSerializationStrategy(gsonSerializationStrategy)
-              .setHandler(backgroundHandler)
-              .setOnBatchReadyListener(new OnBatchReadyListener() {
-                  @Override
-                  public void onReady(BatchingStrategy causingStrategy, Batch batch) {
-                      //Callback that the batch is ready
-                  }
-              }).build(this);
+int MAX_BATCH_SIZE = 5;
 
-      //push in data to the library
-      batchManager.addToBatch(Collections.singleton(new EventData()));
+// Using SizeBatchingStrategy. Whenever the number of events is 5, a batch is formed
+SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(MAX_BATCH_SIZE, persistenceStrategy);
+
+````
+
+###Step 3 :
+
+Initialize serialization strategy and background handler thread.
+
+````java
+
+// Initialize serialization strategy
+SerializationStrategy gsonSerializationStrategy = new GsonSerializationStrategy();
+
+// Handler for doing heavy operations like read/write from disk
+HandlerThread handlerThread = new HandlerThread("bg");
+handlerThread.start();
+Handler backgroundHandler = new Handler(handlerThread.getLooper());
+
+````
+
+###Step 4 :
+
+Build batch manager with all the strategies and handler thread we initialized in previous steps. Batch manger will also take a listener for giving callbacks when a batch is ready.
+
+````java
+
+// Initialize batch manager
+BatchManager batchManager = new BatchManager.Builder<>()
+       .setBatchingStrategy(sizeBatchingStrategy)
+       .setSerializationStrategy(gsonSerializationStrategy)
+       .setHandler(backgroundHandler)
+       .setOnBatchReadyListener(new OnBatchReadyListener() {
+           @Override
+           public void onReady(BatchingStrategy causingStrategy, Batch batch) {
+               //Callback with batch when it's ready
+           }
+       }).build(this);
+
+````
+
+###Step 5 :
+
+Use addToBatch() for adding events to batch manager.
+
+````java
+
+// Push data to batch manager
+batchManager.addToBatch(Collections.singleton(new EventData()));
 
 ````
 
