@@ -25,7 +25,7 @@
 package com.flipkart.batching.persistence;
 
 import com.flipkart.Utils;
-import com.flipkart.batching.Data;
+import com.flipkart.batchingcore.Data;
 
 import junit.framework.Assert;
 

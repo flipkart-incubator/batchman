@@ -30,7 +30,9 @@ import com.flipkart.Utils;
 import com.flipkart.batching.BaseTestClass;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.Data;
+import com.flipkart.batching_gson.utils.GsonSerializationStrategy;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.SerializationStrategy;
 
 import junit.framework.Assert;
 
@@ -108,7 +110,7 @@ public class SQLPersistenceTest extends BaseTestClass {
         PersistenceStrategy<Data> persistenceStrategy;
         Context context;
         context = RuntimeEnvironment.application;
-        persistenceStrategy = new SQLPersistenceStrategy<>(new GsonSerializationStrategy<>(), createRandomString(), context);
+        persistenceStrategy = new SQLPersistenceStrategy<>(new GsonSerializationStrategy<>(), createRandomFile().getPath(), context);
         persistenceStrategy.onInitialized();
         persistenceStrategy.add(Utils.fakeCollection(4));
     }

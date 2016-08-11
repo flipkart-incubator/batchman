@@ -28,7 +28,9 @@ import com.flipkart.Utils;
 import com.flipkart.batching.BaseTestClass;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.Data;
+import com.flipkart.batching_gson.utils.GsonSerializationStrategy;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.SerializationStrategy;
 
 import junit.framework.Assert;
 
@@ -106,7 +108,7 @@ public class TapePersistenceTest extends BaseTestClass {
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
-        TapePersistenceStrategy<Data> persistenceStrategy = new TapePersistenceStrategy<>(createRandomString(), serializationStrategy);
+        TapePersistenceStrategy<Data> persistenceStrategy = new TapePersistenceStrategy<>(createRandomFile().getPath(), serializationStrategy);
         persistenceStrategy.onInitialized();
 
         return persistenceStrategy;
