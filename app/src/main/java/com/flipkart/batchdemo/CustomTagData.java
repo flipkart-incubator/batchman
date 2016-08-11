@@ -24,8 +24,8 @@
 
 package com.flipkart.batchdemo;
 
-import com.flipkart.batching.data.Tag;
-import com.flipkart.batching.data.TagData;
+import com.flipkart.batchingcore.data.Tag;
+import com.flipkart.batchingcore.data.TagData;
 import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONObject;
