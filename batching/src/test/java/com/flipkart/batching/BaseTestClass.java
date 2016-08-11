@@ -24,6 +24,8 @@
 
 package com.flipkart.batching;
 
+import org.junit.After;
+
 import java.io.File;
 
 /**
@@ -40,7 +42,7 @@ public class BaseTestClass {
      */
     public String createRandomString() {
         double random = Math.random();
-        return "Random" + random;
+        return  "Random" + random + TEST_FILE_SUFFIX;
     }
 
     /**
@@ -77,5 +79,21 @@ public class BaseTestClass {
             }
         }
         folder.delete();
+
+        folder = new File("");
+        fList = folder.listFiles();
+        if (fList != null) {
+            for (File testFile : fList) {
+                if (testFile.getName().endsWith(TEST_FILE_SUFFIX)) {
+                    testFile.delete();
+                }
+            }
+        }
     }
+
+    @After
+    public void tearDownBase() {
+        deleteRandomFiles();
+    }
+
 }

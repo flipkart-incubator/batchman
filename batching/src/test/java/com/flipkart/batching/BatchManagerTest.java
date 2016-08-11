@@ -40,6 +40,11 @@ import com.flipkart.batching.strategy.BaseBatchingStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.SizeTimeBatchingStrategy;
 import com.flipkart.batching.tape.ObjectQueue;
+import com.flipkart.batching_gson.utils.GsonSerializationStrategy;
+import com.flipkart.batchingcore.Batch;
+import com.flipkart.batchingcore.BatchImpl;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.SerializationStrategy;
 
 import junit.framework.Assert;
 
@@ -284,8 +289,8 @@ public class BatchManagerTest extends BaseTestClass {
         ShadowLooper shadowLooper = Shadows.shadowOf(Looper.getMainLooper());
         Handler handler = new Handler();
 
-        String filePath = createRandomString();
-        String filePath1 = createRandomString();
+        String filePath = createRandomFile().getPath();
+        String filePath1 = createRandomFile().getPath();
         SerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         TapePersistenceStrategy<Data> persistenceStrategy = new TapePersistenceStrategy<>(filePath1, serializationStrategy);
         Context context = RuntimeEnvironment.application;
@@ -358,4 +363,6 @@ public class BatchManagerTest extends BaseTestClass {
         Assert.assertTrue(outputData.size() == 6);
 
     }
+
+
 }
