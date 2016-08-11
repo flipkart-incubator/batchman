@@ -28,11 +28,12 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.Utils;
-import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
-import com.flipkart.batching.Data;
 import com.flipkart.batching.listener.PersistedBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
+import com.flipkart.batchingcore.Batch;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.batch.SizeBatch;
 
 import junit.framework.Assert;
 
@@ -295,8 +296,8 @@ public class SizeBatchingTest {
     public void testSizeBatchInfo() {
         ArrayList<Data> list1 = Utils.fakeCollection(5);
         ArrayList<Data> list2 = new ArrayList<>(list1);
-        SizeBatchingStrategy.SizeBatch sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(list1, 5);
-        SizeBatchingStrategy.SizeBatch sizeBatchInfo1 = new SizeBatchingStrategy.SizeBatch<>(list2, 5);
+        SizeBatch sizeBatchInfo = new SizeBatch<>(list1, 5);
+        SizeBatch sizeBatchInfo1 = new SizeBatch<>(list2, 5);
 
         Assert.assertTrue(sizeBatchInfo.equals(sizeBatchInfo1));
         Assert.assertTrue(!sizeBatchInfo.equals("event"));

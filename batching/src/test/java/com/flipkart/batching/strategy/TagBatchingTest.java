@@ -30,13 +30,15 @@ import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.flipkart.Utils;
-import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
-import com.flipkart.batching.data.Tag;
-import com.flipkart.batching.data.TagData;
+import com.flipkart.batchingcore.Batch;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.batch.SizeBatch;
+import com.flipkart.batchingcore.batch.TagBatch;
+import com.flipkart.batchingcore.data.Tag;
+import com.flipkart.batchingcore.data.TagData;
 import com.flipkart.batching.persistence.InMemoryPersistenceStrategy;
 import com.flipkart.batching.persistence.SQLPersistenceStrategy;
 import com.flipkart.batching.persistence.TagBasedPersistenceStrategy;
@@ -193,7 +195,7 @@ public class TagBatchingTest {
         tagBatchingStrategy.flush(true);
 
         //verify that onReady is called, as flush force is true
-        verify(onBatchReadyListener, times(2)).onReady(eq(tagBatchingStrategy), any(TagBatchingStrategy.TagBatch.class));
+        verify(onBatchReadyListener, times(2)).onReady(eq(tagBatchingStrategy), any(TagBatch.class));
     }
 
     /**
@@ -227,7 +229,7 @@ public class TagBatchingTest {
         when(inMemoryPersistenceStrategy.getData()).thenReturn(adsTagDataList);
         when(inMemoryPersistenceStrategy.getDataSize()).thenReturn(adsTagDataList.size());
         tagBatchingStrategy.flush(false);
-        verify(onBatchReadyListener, times(1)).onReady(eq(tagBatchingStrategy), any(TagBatchingStrategy.TagBatch.class));
+        verify(onBatchReadyListener, times(1)).onReady(eq(tagBatchingStrategy), any(TagBatch.class));
     }
 
     /**
@@ -263,7 +265,7 @@ public class TagBatchingTest {
         tagBatchingStrategy.flush(false);
         shadowLooper.idle(5000);
         //verify it gets called after 5000ms
-        verify(onBatchReadyListener, times(1)).onReady(eq(tagBatchingStrategy), any(TagBatchingStrategy.TagBatch.class));
+        verify(onBatchReadyListener, times(1)).onReady(eq(tagBatchingStrategy), any(TagBatch.class));
     }
 
     /**
@@ -351,8 +353,8 @@ public class TagBatchingTest {
         ArrayList<Data> list1 = Utils.fakeCollection(5);
         ArrayList<Data> list2 = new ArrayList<>(list1);
 
-        TagBatchingStrategy.TagBatch tagBatchInfo = new TagBatchingStrategy.TagBatch(AD_TAG, new SizeBatchingStrategy.SizeBatch<>(list1, 5));
-        TagBatchingStrategy.TagBatch tagBatchInfo1 = new TagBatchingStrategy.TagBatch(AD_TAG, new SizeBatchingStrategy.SizeBatch<>(list2, 5));
+        TagBatch tagBatchInfo = new TagBatch(AD_TAG, new SizeBatch<>(list1, 5));
+        TagBatch tagBatchInfo1 = new TagBatch(AD_TAG, new SizeBatch<>(list2, 5));
 
         Assert.assertNotNull(tagBatchInfo.getTag());
         Assert.assertTrue(tagBatchInfo.equals(tagBatchInfo1));
@@ -366,7 +368,7 @@ public class TagBatchingTest {
     public void testTagBatchCollection() {
         Tag AD_TAG = new Tag("ADS");
         ArrayList<TagData> tagDatas = Utils.fakeTagAdsCollection(4);
-        TagBatchingStrategy.TagBatch tagBatch = new TagBatchingStrategy.TagBatch(AD_TAG, new SizeBatchingStrategy.SizeBatch(tagDatas, 4));
+        TagBatch tagBatch = new TagBatch(AD_TAG, new SizeBatch(tagDatas, 4));
         Assert.assertTrue(tagDatas == tagBatch.getDataCollection());
     }
 }

@@ -30,12 +30,13 @@ import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.flipkart.Utils;
-import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.Data;
 import com.flipkart.batching.listener.PersistedBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
+import com.flipkart.batchingcore.Batch;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.batch.TimeBatch;
 
 import junit.framework.Assert;
 
@@ -139,7 +140,7 @@ public class TimeBatchingTest {
         when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         timeBatchingStrategy.flush(true);
         //verify that it gets called once
-        verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
+        verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatch.class));
 
         data.clear();
         data = Utils.fakeCollection(5);
@@ -149,7 +150,7 @@ public class TimeBatchingTest {
         when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         timeBatchingStrategy.flush(true);
         //verify that it gets called once
-        verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
+        verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatch.class));
     }
 
     /**
@@ -175,7 +176,7 @@ public class TimeBatchingTest {
         timeBatchingStrategy.flush(false);
         shadowLooper.idle(TIME_OUT);
         //verify that it gets called once
-        verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
+        verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatch.class));
 
         reset(onBatchReadyListener);
         data.clear();
@@ -187,7 +188,7 @@ public class TimeBatchingTest {
         timeBatchingStrategy.flush(false);
         shadowLooper.idle(TIME_OUT);
         //verify that it gets called once
-        verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
+        verify(onBatchReadyListener, times(1)).onReady(eq(timeBatchingStrategy), any(TimeBatch.class));
     }
 
     /**
@@ -212,7 +213,7 @@ public class TimeBatchingTest {
         when(persistenceStrategy.getDataSize()).thenReturn(data.size());
         timeBatchingStrategy.flush(false);
         //verify that onReady is NOT called since the data list is empty.
-        verify(onBatchReadyListener, times(0)).onReady(eq(timeBatchingStrategy), any(TimeBatchingStrategy.TimeBatch.class));
+        verify(onBatchReadyListener, times(0)).onReady(eq(timeBatchingStrategy), any(TimeBatch.class));
     }
 
     /**
@@ -222,8 +223,8 @@ public class TimeBatchingTest {
     public void testTimeBatch() {
         ArrayList<Data> list1 = Utils.fakeCollection(2);
         ArrayList<Data> list2 = new ArrayList<>(list1);
-        TimeBatchingStrategy.TimeBatch timeBatchInfo = new TimeBatchingStrategy.TimeBatch<>(list1, 5000);
-        TimeBatchingStrategy.TimeBatch timeBatchInfo1 = new TimeBatchingStrategy.TimeBatch<>(list2, 5000);
+        TimeBatch timeBatchInfo = new TimeBatch<>(list1, 5000);
+        TimeBatch timeBatchInfo1 = new TimeBatch<>(list2, 5000);
 
         Assert.assertTrue(timeBatchInfo.equals(timeBatchInfo1));
         Assert.assertTrue(!timeBatchInfo.equals("a"));

@@ -30,13 +30,14 @@ import android.os.HandlerThread;
 import android.os.Looper;
 
 import com.flipkart.Utils;
-import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchController;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
+import com.flipkart.batchingcore.Batch;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.batch.SizeTimeBatch;
 
 import junit.framework.Assert;
 
@@ -241,8 +242,8 @@ public class SizeTimeBatchingTest {
     public void testComboBatchInfo() {
         ArrayList<Data> list1 = Utils.fakeCollection(5);
         ArrayList<Data> list2 = new ArrayList<>(list1);
-        SizeTimeBatchingStrategy.SizeTimeBatch sizeTimeBatch = new SizeTimeBatchingStrategy.SizeTimeBatch(list1, 5, 5000);
-        SizeTimeBatchingStrategy.SizeTimeBatch sizeTimeBatch1 = new SizeTimeBatchingStrategy.SizeTimeBatch(list2, 5, 5000);
+        SizeTimeBatch sizeTimeBatch = new SizeTimeBatch(list1, 5, 5000);
+        SizeTimeBatch sizeTimeBatch1 = new SizeTimeBatch(list2, 5, 5000);
 
         Assert.assertTrue(sizeTimeBatch.equals(sizeTimeBatch1));
         Assert.assertTrue(!sizeTimeBatch.equals("event"));
