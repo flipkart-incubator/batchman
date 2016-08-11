@@ -22,16 +22,21 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching.persistence;
+package com.flipkart.batching_gson;
 
-import com.flipkart.Utils;
-import com.flipkart.batching.Batch;
-import com.flipkart.batching.BatchImpl;
-import com.flipkart.batching.BatchManager;
-import com.flipkart.batching.Data;
-import com.flipkart.batching.data.EventData;
-import com.flipkart.batching.exception.DeserializeException;
-import com.flipkart.batching.exception.SerializeException;
+import com.flipkart.batching_gson.utils.GsonSerializationStrategy;
+import com.flipkart.batchingcore.Batch;
+import com.flipkart.batchingcore.BatchImpl;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.SerializationStrategy;
+import com.flipkart.batchingcore.batch.SizeBatch;
+import com.flipkart.batchingcore.batch.SizeTimeBatch;
+import com.flipkart.batchingcore.batch.TagBatch;
+import com.flipkart.batchingcore.batch.TimeBatch;
+import com.flipkart.batchingcore.data.EventData;
+import com.flipkart.batchingcore.data.TagData;
+import com.flipkart.batchingcore.exception.DeserializeException;
+import com.flipkart.batchingcore.exception.SerializeException;
 import com.google.gson.JsonSyntaxException;
 
 import junit.framework.Assert;
@@ -48,7 +53,6 @@ import java.util.HashMap;
  */
 public class GsonSerializationTest {
 
-
     /**
      * Test the working of {@link GsonSerializationStrategy#serializeBatch(Batch)}
      * and {@link GsonSerializationStrategy#deserializeBatch(byte[])}
@@ -57,7 +61,7 @@ public class GsonSerializationTest {
     public void testGSONSerialization() {
         GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy;
         serializationStrategy = new GsonSerializationStrategy<>();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
+        registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         ArrayList<Data> dataCollection = Utils.fakeCollection(4);
 
@@ -85,7 +89,7 @@ public class GsonSerializationTest {
         GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy;
         ArrayList<Data> dataCollection = Utils.fakeCollection(4);
         serializationStrategy = new GsonSerializationStrategy<>();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
+        registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         Batch<Data> batch = new BatchImpl<>(dataCollection);
 
@@ -109,7 +113,7 @@ public class GsonSerializationTest {
         GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy;
         ArrayList<Data> dataCollection = Utils.fakeCollection(4);
         serializationStrategy = new GsonSerializationStrategy<>();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
+        registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         Collection<Data> fakeCollection = Utils.fakeCollection(4);
 
@@ -133,7 +137,7 @@ public class GsonSerializationTest {
         GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy;
         ArrayList<Data> dataCollection = Utils.fakeCollection(4);
         serializationStrategy = new GsonSerializationStrategy<>();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
+        registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         Batch<Data> batch = new BatchImpl<>(dataCollection);
 
@@ -157,7 +161,7 @@ public class GsonSerializationTest {
         //test to serialize hashmap
         GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         serializationStrategy.registerDataType(Data.class);
-        BatchManager.registerBuiltInTypes(serializationStrategy);
+        registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
 
         HashMap<String, Object> hashMap = new HashMap<>();
@@ -175,5 +179,15 @@ public class GsonSerializationTest {
         serializedData = serializationStrategy.serializeData(eventData);
         data = serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(eventData, data);
+    }
+
+    private void registerBuiltInTypes(SerializationStrategy serializationStrategy) {
+        serializationStrategy.registerDataType(TagData.class);
+        serializationStrategy.registerBatch(BatchImpl.class);
+        serializationStrategy.registerDataType(EventData.class);
+        serializationStrategy.registerBatch(SizeBatch.class);
+        serializationStrategy.registerBatch(TimeBatch.class);
+        serializationStrategy.registerBatch(TagBatch.class);
+        serializationStrategy.registerBatch(SizeTimeBatch.class);
     }
 }
