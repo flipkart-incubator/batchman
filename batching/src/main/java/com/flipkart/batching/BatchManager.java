@@ -28,13 +28,20 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-import com.flipkart.batching.data.EventData;
-import com.flipkart.batching.data.TagData;
-import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.SizeTimeBatchingStrategy;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
 import com.flipkart.batching.strategy.TimeBatchingStrategy;
+import com.flipkart.batchingcore.Batch;
+import com.flipkart.batchingcore.BatchImpl;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.SerializationStrategy;
+import com.flipkart.batchingcore.batch.SizeBatch;
+import com.flipkart.batchingcore.batch.SizeTimeBatch;
+import com.flipkart.batchingcore.batch.TagBatch;
+import com.flipkart.batchingcore.batch.TimeBatch;
+import com.flipkart.batchingcore.data.EventData;
+import com.flipkart.batchingcore.data.TagData;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,10 +100,10 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
         serializationStrategy.registerDataType(TagData.class);
         serializationStrategy.registerBatch(BatchImpl.class);
         serializationStrategy.registerDataType(EventData.class);
-        serializationStrategy.registerBatch(SizeBatchingStrategy.SizeBatch.class);
-        serializationStrategy.registerBatch(TimeBatchingStrategy.TimeBatch.class);
-        serializationStrategy.registerBatch(TagBatchingStrategy.TagBatch.class);
-        serializationStrategy.registerBatch(SizeTimeBatchingStrategy.SizeTimeBatch.class);
+        serializationStrategy.registerBatch(SizeBatch.class);
+        serializationStrategy.registerBatch(TimeBatch.class);
+        serializationStrategy.registerBatch(TagBatch.class);
+        serializationStrategy.registerBatch(SizeTimeBatch.class);
     }
 
     private void registerSuppliedTypes(Builder<E, T> builder, SerializationStrategy serializationStrategy) {

@@ -28,16 +28,20 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-import com.flipkart.batching.data.EventData;
-import com.flipkart.batching.data.Tag;
-import com.flipkart.batching.data.TagData;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.TagBatchReadyListener;
-import com.flipkart.batching.persistence.SerializationStrategy;
-import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.flipkart.batching.strategy.SizeTimeBatchingStrategy;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
-import com.flipkart.batching.strategy.TimeBatchingStrategy;
+import com.flipkart.batchingcore.Batch;
+import com.flipkart.batchingcore.BatchImpl;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.SerializationStrategy;
+import com.flipkart.batchingcore.batch.SizeBatch;
+import com.flipkart.batchingcore.batch.SizeTimeBatch;
+import com.flipkart.batchingcore.batch.TagBatch;
+import com.flipkart.batchingcore.batch.TimeBatch;
+import com.flipkart.batchingcore.data.EventData;
+import com.flipkart.batchingcore.data.Tag;
+import com.flipkart.batchingcore.data.TagData;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -93,10 +97,10 @@ public class TagBatchManager<E extends Data, T extends Batch<E>> implements Batc
         serializationStrategy.registerDataType(TagData.class);
         serializationStrategy.registerBatch(BatchImpl.class);
         serializationStrategy.registerDataType(EventData.class);
-        serializationStrategy.registerBatch(SizeBatchingStrategy.SizeBatch.class);
-        serializationStrategy.registerBatch(TimeBatchingStrategy.TimeBatch.class);
-        serializationStrategy.registerBatch(TagBatchingStrategy.TagBatch.class);
-        serializationStrategy.registerBatch(SizeTimeBatchingStrategy.SizeTimeBatch.class);
+        serializationStrategy.registerBatch(SizeBatch.class);
+        serializationStrategy.registerBatch(TimeBatch.class);
+        serializationStrategy.registerBatch(TagBatch.class);
+        serializationStrategy.registerBatch(SizeTimeBatch.class);
     }
 
     private void initialize(TagBatchManager<E, T> tagBatchManager, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler) {
@@ -135,7 +139,6 @@ public class TagBatchManager<E extends Data, T extends Batch<E>> implements Batc
             data.setEventId(System.currentTimeMillis() + System.nanoTime() + i);
         }
     }
-
 
     @Override
     public Handler getHandler() {

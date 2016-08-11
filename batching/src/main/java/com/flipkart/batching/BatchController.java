@@ -26,7 +26,9 @@ package com.flipkart.batching;
 
 import android.os.Handler;
 
-import com.flipkart.batching.persistence.SerializationStrategy;
+import com.flipkart.batchingcore.Batch;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.SerializationStrategy;
 
 import java.util.Collection;
 
