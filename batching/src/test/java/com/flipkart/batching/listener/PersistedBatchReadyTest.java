@@ -30,13 +30,16 @@ import android.os.Looper;
 
 import com.flipkart.Utils;
 import com.flipkart.batching.BaseTestClass;
-import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.Data;
-import com.flipkart.batching.exception.SerializeException;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.tape.QueueFile;
+import com.flipkart.batching_gson.utils.GsonSerializationStrategy;
+import com.flipkart.batchingcore.Batch;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.SerializationStrategy;
+import com.flipkart.batchingcore.batch.SizeBatch;
+import com.flipkart.batchingcore.exception.SerializeException;
 
 import junit.framework.Assert;
 
@@ -78,13 +81,13 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         Handler handler = new Handler(looper);
 
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
-        SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SizeBatch<Data> sizeBatchInfo = new SizeBatch<>(Utils.fakeCollection(5), 5);
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
 
-        PersistedBatchReadyListener<Data, Batch<Data>> persistedBatchReadyListener = new PersistedBatchReadyListener<>(createRandomString(), serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener<Data, Batch<Data>> persistedBatchReadyListener = new PersistedBatchReadyListener<>(createRandomFile().getPath(), serializationStrategy, handler, persistedBatchCallback);
         persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
         shadowLooper.runToEndOfTasks();
         //should be initialized first time
@@ -104,13 +107,13 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         ShadowLooper shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
-        SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SizeBatch<Data> sizeBatchInfo = new SizeBatch<>(Utils.fakeCollection(5), 5);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
 
-        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomString(), serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomFile().getPath(), serializationStrategy, handler, persistedBatchCallback);
         persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
         shadowLooper.runToEndOfTasks();
 
@@ -134,13 +137,13 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         ShadowLooper shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
-        SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SizeBatch<Data> sizeBatchInfo = new SizeBatch<>(Utils.fakeCollection(5), 5);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
 
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
-        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomString(), serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomFile().getPath(), serializationStrategy, handler, persistedBatchCallback);
         ArrayList<Data> arrayList = Utils.fakeCollection(4);
 
         when(queueFile.peek()).thenReturn(serializationStrategy.serializeCollection(arrayList));
@@ -178,15 +181,15 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
-        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomString(), serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomFile().getPath(), serializationStrategy, handler, persistedBatchCallback);
 
-        SizeBatchingStrategy.SizeBatch<Data> firstBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SizeBatch<Data> firstBatch = new SizeBatch<>(Utils.fakeCollection(5), 5);
         persistedBatchReadyListener.onReady(strategy, firstBatch);
-        SizeBatchingStrategy.SizeBatch<Data> secondBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SizeBatch<Data> secondBatch = new SizeBatch<>(Utils.fakeCollection(5), 5);
         persistedBatchReadyListener.onReady(strategy, secondBatch);
-        SizeBatchingStrategy.SizeBatch<Data> thirdBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SizeBatch<Data> thirdBatch = new SizeBatch<>(Utils.fakeCollection(5), 5);
         persistedBatchReadyListener.onReady(strategy, thirdBatch);
-        SizeBatchingStrategy.SizeBatch<Data> fourthBatch = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SizeBatch<Data> fourthBatch = new SizeBatch<>(Utils.fakeCollection(5), 5);
         persistedBatchReadyListener.onReady(strategy, fourthBatch);
 
         shadowLooper.runToEndOfTasks();
@@ -208,7 +211,7 @@ public class PersistedBatchReadyTest extends BaseTestClass {
     /**
      * Test to verify that finish throws an {@link IllegalStateException} when it gets called with a different batch.
      * Ignoring this test because we are catching this exception and logging it now.
-     *
+     * <p>
      * UPDATE : not throwing this exception anymore, thus ignore.
      *
      * @throws SerializeException
@@ -225,20 +228,20 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         ShadowLooper shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
-        SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SizeBatch<Data> sizeBatchInfo = new SizeBatch<>(Utils.fakeCollection(5), 5);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
 
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
-        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomString(), serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomFile().getPath(), serializationStrategy, handler, persistedBatchCallback);
         byte[] peeked = serializationStrategy.serializeBatch(sizeBatchInfo);
 
         when(queueFile.peek()).thenReturn(peeked);
         persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
         shadowLooper.runToEndOfTasks();
 
-        SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo1 = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeAdsCollection(4), 5);
+        SizeBatch<Data> sizeBatchInfo1 = new SizeBatch<>(Utils.fakeAdsCollection(4), 5);
         try {
             persistedBatchReadyListener.finish(sizeBatchInfo1);
         } catch (Exception e) {
@@ -263,12 +266,12 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         ShadowLooper shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
-        SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SizeBatch<Data> sizeBatchInfo = new SizeBatch<>(Utils.fakeCollection(5), 5);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
-        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomString(), serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomFile().getPath(), serializationStrategy, handler, persistedBatchCallback);
 
         byte[] data = serializationStrategy.serializeCollection(Utils.fakeAdsCollection(4));
         doThrow(new IOException()).when(queueFile).add(data);
@@ -288,21 +291,19 @@ public class PersistedBatchReadyTest extends BaseTestClass {
         ShadowLooper shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
-        SizeBatchingStrategy.SizeBatch<Data> sizeBatchInfo = new SizeBatchingStrategy.SizeBatch<>(Utils.fakeCollection(5), 5);
+        SizeBatch<Data> sizeBatchInfo = new SizeBatch<>(Utils.fakeCollection(5), 5);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
         BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         PersistedBatchCallback persistedBatchCallback = mock(PersistedBatchCallback.class);
-        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomString(), serializationStrategy, handler, persistedBatchCallback);
+        PersistedBatchReadyListener persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomFile().getPath(), serializationStrategy, handler, persistedBatchCallback);
         persistedBatchReadyListener.onReady(strategy, sizeBatchInfo);
 
         Assert.assertTrue(persistedBatchReadyListener.getListener() != null);
 
-        persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomString(), serializationStrategy, handler, null);
+        persistedBatchReadyListener = new PersistedBatchReadyListener(createRandomFile().getPath(), serializationStrategy, handler, null);
         persistedBatchReadyListener.setListener(persistedBatchCallback);
         Assert.assertTrue(persistedBatchReadyListener.getListener() != null);
-
-
     }
 
 
