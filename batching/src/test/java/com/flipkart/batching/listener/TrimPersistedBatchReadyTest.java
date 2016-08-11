@@ -35,7 +35,6 @@ import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.Data;
 import com.flipkart.batching.exception.SerializeException;
-import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 
 import org.junit.After;
