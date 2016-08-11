@@ -24,9 +24,9 @@
 
 package com.flipkart.batching.persistence;
 
-import com.flipkart.batching.Data;
-import com.flipkart.batching.data.Tag;
-import com.flipkart.batching.data.TagData;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.data.Tag;
+import com.flipkart.batchingcore.data.TagData;
 
 import java.util.Collection;
 import java.util.Iterator;
