@@ -23,8 +23,8 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: "net.ltgt.errorprone"
 apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: "net.ltgt.errorprone"
 
 android {
     compileSdkVersion 24
