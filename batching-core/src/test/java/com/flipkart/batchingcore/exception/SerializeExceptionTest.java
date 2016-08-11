@@ -22,7 +22,7 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching.exception;
+package com.flipkart.batchingcore.exception;
 
 import junit.framework.Assert;
 
@@ -31,16 +31,16 @@ import org.junit.Test;
 import java.io.IOException;
 
 /**
- * Test for {@link DeserializeException}
+ * Test for {@link SerializeException}
  */
-public class DeserializeExceptionTest {
+public class SerializeExceptionTest {
 
     /**
-     * Test to verify {@link DeserializeException}
+     * Test to verify {@link SerializeException#getRealException()} returns error
      */
     @Test
-    public void testDeserializeException() {
-        DeserializeException deserializeException = new DeserializeException(new IOException());
-        Assert.assertNotNull(deserializeException.getRealException());
+    public void testSerializeException() {
+        SerializeException serializeException = new SerializeException(new IOException());
+        Assert.assertNotNull(serializeException.getRealException());
     }
 }

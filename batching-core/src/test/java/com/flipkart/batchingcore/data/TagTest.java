@@ -22,40 +22,46 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching.data;
-
-import com.flipkart.Utils;
-import com.flipkart.batching.Batch;
-import com.flipkart.batching.BatchImpl;
-import com.flipkart.batching.Data;
+package com.flipkart.batchingcore.data;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-
-public class BatchTest {
+public class TagTest {
 
     /**
-     * Test to verify the {@link Batch#getDataCollection()} method.
+     * Test to verify {@link Tag#getId()}
      */
     @Test
-    public void testBatch() {
-        ArrayList<Data> dataArrayList = Utils.fakeCollection(4);
-        Batch<Data> batch = new BatchImpl<>(dataArrayList);
-        Assert.assertEquals(batch.getDataCollection(), dataArrayList);
+    public void setTag() {
+        Tag tag = new Tag("Ads");
+        Assert.assertTrue(tag.getId().equals("Ads"));
+
+        Tag tag1 = new Tag("Ads");
+        tag1.setId("Business");
+        Assert.assertTrue(tag1.getId().equals("Business"));
     }
 
     /**
-     * Test to verify that {@link Batch#equals(Object)} method.
+     * Test to verify {@link Tag#equals(Object)}
      */
     @Test
-    public void testBatchEquals() {
-        ArrayList<Data> arrayList = Utils.fakeCollection(4);
-        ArrayList<Data> arrayList1 = Utils.fakeCollection(5);
-        Batch<Data> batch = new BatchImpl<>(arrayList);
-        Batch<Data> batch1 = new BatchImpl<>(arrayList1);
-        Assert.assertTrue(!batch.equals(batch1));
+    public void testEquals() {
+        Tag tag = new Tag("Ads");
+        Tag tag1 = new Tag("Business");
+
+        String string = "123";
+        Assert.assertTrue(!tag.equals(tag1));
+        Assert.assertTrue(!tag.equals(string));
+    }
+
+    /**
+     * Test to verify {@link Tag#hashCode()}
+     */
+    @Test
+    public void testHashCode() {
+        Tag tag = new Tag("Ads");
+        Assert.assertTrue(tag.hashCode() == tag.getId().hashCode());
     }
 }

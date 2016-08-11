@@ -22,46 +22,41 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching.data;
+package com.flipkart.batchingcore.data;
 
-import com.flipkart.batching.Data;
+
+import com.flipkart.batchingcore.Batch;
+import com.flipkart.batchingcore.BatchImpl;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.Utils;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
-public class DataTest {
+import java.util.ArrayList;
 
+public class BatchTest {
 
     /**
-     * Test to verify {@link Data#equals(Object)}
+     * Test to verify the {@link Batch#getDataCollection()} method.
      */
     @Test
-    public void testEqualsData() {
-        Data data = new EventData();
-        Assert.assertTrue(!data.equals("e"));
+    public void testBatch() {
+        ArrayList<Data> dataArrayList = Utils.fakeCollection(4);
+        Batch<Data> batch = new BatchImpl<>(dataArrayList);
+        Assert.assertEquals(batch.getDataCollection(), dataArrayList);
     }
 
     /**
-     * Test to verify {@link TagData}
+     * Test to verify that {@link Batch#equals(Object)} method.
      */
     @Test
-    public void testTagData() {
-        Tag AD_TAG = new Tag("ADS");
-        TagData tagData = new TagData(AD_TAG);
-        Assert.assertTrue(tagData.getTag() == AD_TAG);
-    }
-
-    /**
-     * Test to verify the equals method in {@link TagData}
-     */
-    @Test
-    public void testTagEqualsData() {
-        Tag AD_TAG = new Tag("ADS");
-        Tag DEBUG_TAG = new Tag("DEBUG");
-        TagData adsTagData = new TagData(AD_TAG);
-        TagData debugTagData = new TagData(DEBUG_TAG);
-        Assert.assertTrue(!adsTagData.equals(debugTagData));
-        Assert.assertTrue(!adsTagData.equals(""));
+    public void testBatchEquals() {
+        ArrayList<Data> arrayList = Utils.fakeCollection(4);
+        ArrayList<Data> arrayList1 = Utils.fakeCollection(5);
+        Batch<Data> batch = new BatchImpl<>(arrayList);
+        Batch<Data> batch1 = new BatchImpl<>(arrayList1);
+        Assert.assertTrue(!batch.equals(batch1));
     }
 }
