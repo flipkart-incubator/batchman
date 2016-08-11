@@ -23,7 +23,7 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'android-maven'
 apply plugin: "net.ltgt.errorprone"
 
 android {
