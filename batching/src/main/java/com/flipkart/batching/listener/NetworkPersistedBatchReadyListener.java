@@ -33,10 +33,10 @@ import android.net.NetworkInfo;
 import android.os.Handler;
 import android.webkit.ValueCallback;
 
-import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
-import com.flipkart.batching.Data;
-import com.flipkart.batching.persistence.SerializationStrategy;
+import com.flipkart.batchingcore.Batch;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.SerializationStrategy;
 
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +81,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             unregisterReceiver();
         }
     };
+
     public NetworkPersistedBatchReadyListener(final Context context, String filePath,
                                               SerializationStrategy<E, T> serializationStrategy,
                                               final Handler handler, NetworkBatchListener<E, T> listener,
