@@ -27,14 +27,13 @@ package com.flipkart.batching.strategy;
 import android.content.Context;
 import android.os.Handler;
 
-import com.flipkart.batching.Batch;
-import com.flipkart.batching.BatchImpl;
 import com.flipkart.batching.BatchingStrategy;
-import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
-import com.flipkart.batching.data.Tag;
-import com.flipkart.batching.data.TagData;
-import com.google.gson.annotations.SerializedName;
+import com.flipkart.batchingcore.Batch;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.batch.TagBatch;
+import com.flipkart.batchingcore.data.Tag;
+import com.flipkart.batchingcore.data.TagData;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -53,7 +52,7 @@ import java.util.Map;
  * @see TimeBatchingStrategy
  * @see TagBatchingStrategy
  */
-public class TagBatchingStrategy<E extends TagData> implements BatchingStrategy<E, TagBatchingStrategy.TagBatch<E>> {
+public class TagBatchingStrategy<E extends TagData> implements BatchingStrategy<E, TagBatch<E>> {
     private Map<Tag, BatchingStrategy<E, Batch<E>>> batchingStrategyMap = new HashMap<>();
     private boolean initialized = false;
 
@@ -118,33 +117,5 @@ public class TagBatchingStrategy<E extends TagData> implements BatchingStrategy<
      */
     public void addTagStrategy(Tag tag, BatchingStrategy<E, Batch<E>> strategy) {
         batchingStrategyMap.put(tag, strategy);
-    }
-
-
-    public static class TagBatch<T extends TagData> extends BatchImpl<T> {
-        @SerializedName("tag")
-        private Tag tag;
-
-        public TagBatch(Tag tag, Batch<T> batch) {
-            super(batch.getDataCollection());
-            this.tag = tag;
-        }
-
-        public Tag getTag() {
-            return tag;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof TagBatch) {
-                return ((TagBatch) o).getTag().equals(tag) && super.equals(o);
-            }
-            return super.equals(o);
-        }
-
-        @Override
-        public int hashCode() {
-            return 31 * super.hashCode() + (getTag() == null ? 0 : getTag().hashCode());
-        }
     }
 }

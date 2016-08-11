@@ -27,13 +27,11 @@ package com.flipkart.batching.strategy;
 import android.content.Context;
 import android.os.Handler;
 
-import com.flipkart.batching.Batch;
-import com.flipkart.batching.BatchImpl;
 import com.flipkart.batching.BatchingStrategy;
-import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
-import com.google.gson.annotations.SerializedName;
+import com.flipkart.batchingcore.Data;
+import com.flipkart.batchingcore.batch.TimeBatch;
 
 import java.util.Collection;
 
@@ -44,7 +42,7 @@ import java.util.Collection;
  * {@link PersistenceStrategy}, starts/reset the timer whenever {@link Data} objects are pushed
  * and calls {@link #onReadyListener} when timeOut happens.
  */
-public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E, TimeBatchingStrategy.TimeBatch<E>> {
+public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E, TimeBatch<E>> {
     private long timeOut;
     private Handler handler;
     private Runnable runnable = new Runnable() {
@@ -111,33 +109,6 @@ public class TimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
      */
     private void stopTimer() {
         handler.removeCallbacks(runnable);
-    }
-
-    public static class TimeBatch<D extends Data> extends BatchImpl<D> {
-        @SerializedName("timeOut")
-        private long timeOut;
-
-        public TimeBatch(Collection<D> dataCollection, long timeOut) {
-            super(dataCollection);
-            this.timeOut = timeOut;
-        }
-
-        public long getTimeOut() {
-            return timeOut;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof TimeBatch) {
-                return ((TimeBatch) o).getTimeOut() == timeOut && super.equals(o);
-            }
-            return super.equals(o);
-        }
-
-        @Override
-        public int hashCode() {
-            return 31 * super.hashCode() + Long.valueOf(timeOut).hashCode();
-        }
     }
 }
 
