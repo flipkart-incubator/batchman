@@ -130,10 +130,10 @@ import java.util.Map;
  * }</pre>
  */
 public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
-    private final Class<?> baseType;
-    private final String typeFieldName;
+    final Class<?> baseType;
+    final String typeFieldName;
     private final Map<String, Class<?>> labelToSubtype = new LinkedHashMap<String, Class<?>>();
-    private final Map<Class<?>, String> subtypeToLabel = new LinkedHashMap<Class<?>, String>();
+    final Map<Class<?>, String> subtypeToLabel = new LinkedHashMap<Class<?>, String>();
 
     private RuntimeTypeAdapterFactory(Class<?> baseType, String typeFieldName) {
         if (typeFieldName == null || baseType == null) {
