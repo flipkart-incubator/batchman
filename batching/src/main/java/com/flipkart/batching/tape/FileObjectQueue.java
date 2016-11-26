@@ -50,7 +50,7 @@ public class FileObjectQueue<T> implements ObjectQueue<T> {
      * Keep file around for error reporting.
      */
     private final File file;
-    private final Converter<T> converter;
+    final Converter<T> converter;
     private Listener<T> listener;
 
     public FileObjectQueue(File file, QueueFile queueFile, Converter<T> converter) throws IOException {

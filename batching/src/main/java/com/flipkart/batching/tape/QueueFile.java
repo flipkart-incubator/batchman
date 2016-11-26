@@ -218,7 +218,7 @@ public class QueueFile implements Closeable {
     /**
      * Wraps the position if it exceeds the end of the file.
      */
-    private int wrapPosition(int position) {
+    int wrapPosition(int position) {
         return position < fileLength ? position
                 : HEADER_LENGTH + position - fileLength;
     }
@@ -263,7 +263,7 @@ public class QueueFile implements Closeable {
      * @param buffer   to read into
      * @param count    # of bytes to read
      */
-    private void ringRead(int position, byte[] buffer, int offset, int count) throws IOException {
+    void ringRead(int position, byte[] buffer, int offset, int count) throws IOException {
         position = wrapPosition(position);
         if (position + count <= fileLength) {
             raf.seek(position);
