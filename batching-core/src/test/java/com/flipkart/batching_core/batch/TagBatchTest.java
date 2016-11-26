@@ -1,6 +1,6 @@
-package com.flipkart.batching_core.batch;
+package com.flipkart.batching.core.batch;
 
-import com.flipkart.batching_core.data.Tag;
+import com.flipkart.batching.core.data.Tag;
 
 import junit.framework.Assert;
 

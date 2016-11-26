@@ -22,54 +22,37 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching_core;
+package com.flipkart.batching.core;
 
-
-import com.flipkart.batching_core.data.Tag;
-
-import java.io.Serializable;
+import java.util.Collection;
 
 /**
- * This is an abstract base class for storing data which implements {@link Serializable}.
- * <p>
- * A custom data class must extend this class and call the super in the constructor with
- * {@link Tag} and {@link Object} as parameters.
- *
- * @see Tag
- * @see Object
+ * A simple implementation of Batch interface
  */
 
-public abstract class Data implements Serializable {
-    private long eventId;
+public class BatchImpl<T extends Data> implements Batch<T> {
 
-    /**
-     * Constructor for Data object. This constructor takes {@link Tag} and {@link Object} as
-     * parameter and generates an eventId = (System.currentTimeMillis() + System.nanoTime())
-     */
+    private DataCollection<T> dataCollection;
 
-    public Data() {
-        this.eventId = System.currentTimeMillis() + System.nanoTime();
+    public BatchImpl(Collection<T> dataCollection) {
+        this.dataCollection = new DataCollection<>(dataCollection);
     }
 
-    public long getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(long eventId) {
-        this.eventId = eventId;
+    @Override
+    public Collection<T> getDataCollection() {
+        return dataCollection.dataCollection;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Data) {
-            return ((Data) o).getEventId() == getEventId();
-        } else {
-            return super.equals(o);
+        if (o instanceof Batch) {
+            return dataCollection.equals(((BatchImpl) o).dataCollection);
         }
+        return super.equals(o);
     }
 
     @Override
     public int hashCode() {
-        return Long.valueOf(eventId).hashCode();
+        return dataCollection == null ? 0 : dataCollection.hashCode();
     }
 }

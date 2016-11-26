@@ -1,4 +1,4 @@
-package com.flipkart.batching_core;
+package com.flipkart.batching.core;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.flipkart.batching_core.test", appContext.getPackageName());
+        assertEquals("com.flipkart.batching.core.test", appContext.getPackageName());
     }
 }

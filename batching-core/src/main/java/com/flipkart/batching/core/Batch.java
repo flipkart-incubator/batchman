@@ -22,24 +22,10 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching_core.exception;
+package com.flipkart.batching.core;
 
-import java.io.IOException;
+import java.util.Collection;
 
-/**
- * DeserializationException class that extends {@link IOException}.
- * <p/>
- * To get the real exception use {@link #getRealException()}.
- */
-public class DeserializeException extends IOException {
-    private final Exception realException;
-
-    public DeserializeException(Exception realException) {
-        super(realException.getCause());
-        this.realException = realException;
-    }
-
-    public Exception getRealException() {
-        return realException;
-    }
+public interface Batch<T extends Data> {
+    Collection<T> getDataCollection();
 }

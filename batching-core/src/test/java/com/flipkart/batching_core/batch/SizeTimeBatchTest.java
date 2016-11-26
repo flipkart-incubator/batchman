@@ -1,4 +1,4 @@
-package com.flipkart.batching_core.batch;
+package com.flipkart.batching.core.batch;
 
 import junit.framework.Assert;
 

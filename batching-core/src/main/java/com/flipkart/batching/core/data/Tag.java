@@ -22,37 +22,43 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching_core;
+package com.flipkart.batching.core.data;
 
-import java.util.Collection;
+import com.flipkart.batching.core.Data;
+
+import java.io.Serializable;
 
 /**
- * A simple implementation of Batch interface
+ * Tag represents a group of {@link Data} objects to batch together.
+ * It takes a {@link String} type ID as parameter in constructor.
  */
+public class Tag implements Serializable {
 
-public class BatchImpl<T extends Data> implements Batch<T> {
+    private String id;
 
-    private DataCollection<T> dataCollection;
-
-    public BatchImpl(Collection<T> dataCollection) {
-        this.dataCollection = new DataCollection<>(dataCollection);
+    public Tag(String id) {
+        this.id = id;
     }
 
-    @Override
-    public Collection<T> getDataCollection() {
-        return dataCollection.dataCollection;
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Batch) {
-            return dataCollection.equals(((BatchImpl) o).dataCollection);
+        if (o instanceof Tag) {
+            return id.equals(((Tag) o).getId());
+        } else {
+            return super.equals(o);
         }
-        return super.equals(o);
     }
 
     @Override
     public int hashCode() {
-        return dataCollection == null ? 0 : dataCollection.hashCode();
+        return id.hashCode();
     }
 }

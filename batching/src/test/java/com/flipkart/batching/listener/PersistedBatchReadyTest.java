@@ -34,12 +34,12 @@ import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.tape.QueueFile;
-import com.flipkart.batching_gson.GsonSerializationStrategy;
-import com.flipkart.batching_core.Batch;
-import com.flipkart.batching_core.Data;
-import com.flipkart.batching_core.SerializationStrategy;
-import com.flipkart.batching_core.batch.SizeBatch;
-import com.flipkart.batching_core.exception.SerializeException;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.batch.SizeBatch;
+import com.flipkart.batching.core.exception.SerializeException;
 
 import junit.framework.Assert;
 

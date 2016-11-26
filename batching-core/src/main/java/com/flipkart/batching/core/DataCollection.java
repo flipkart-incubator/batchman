@@ -22,43 +22,31 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching_core.data;
+package com.flipkart.batching.core;
 
-import com.flipkart.batching_core.Data;
-
-import java.io.Serializable;
+import java.util.Collection;
 
 /**
- * Tag represents a group of {@link Data} objects to batch together.
- * It takes a {@link String} type ID as parameter in constructor.
+ * DataCollection class
  */
-public class Tag implements Serializable {
 
-    private String id;
+public class DataCollection<T extends Data> {
+    public Collection<T> dataCollection;
 
-    public Tag(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public DataCollection(Collection<T> dataCollection) {
+        this.dataCollection = dataCollection;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Tag) {
-            return id.equals(((Tag) o).getId());
-        } else {
-            return super.equals(o);
+        if (o instanceof DataCollection) {
+            return dataCollection.equals(((DataCollection) o).dataCollection);
         }
+        return super.equals(o);
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return dataCollection == null ? 0 : dataCollection.hashCode();
     }
 }

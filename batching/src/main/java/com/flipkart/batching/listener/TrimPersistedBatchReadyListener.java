@@ -27,9 +27,9 @@ package com.flipkart.batching.listener;
 import android.os.Handler;
 
 import com.flipkart.batching.BatchingStrategy;
-import com.flipkart.batching_core.Batch;
-import com.flipkart.batching_core.Data;
-import com.flipkart.batching_core.SerializationStrategy;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
 
 import org.slf4j.LoggerFactory;
 

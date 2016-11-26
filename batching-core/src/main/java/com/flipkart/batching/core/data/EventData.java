@@ -22,10 +22,20 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching_core;
+package com.flipkart.batching.core.data;
 
-import java.util.Collection;
+import com.flipkart.batching.core.Data;
 
-public interface Batch<T extends Data> {
-    Collection<T> getDataCollection();
+/**
+ * EventData class that extends {@link Data}.
+ */
+public class EventData extends Data {
+    public EventData() {
+        super();
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + ":" + getEventId();
+    }
 }

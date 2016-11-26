@@ -22,31 +22,25 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching_core;
+package com.flipkart.batching.core.exception;
 
-import java.util.Collection;
+import java.io.IOException;
 
 /**
- * DataCollection class
+ * SerializationException class that extends {@link IOException}.
+ * <p/>
+ * To get the real exception use {@link #getRealException()}.
  */
+public class SerializeException extends IOException {
+    private final Exception realException;
 
-public class DataCollection<T extends Data> {
-    public Collection<T> dataCollection;
-
-    public DataCollection(Collection<T> dataCollection) {
-        this.dataCollection = dataCollection;
+    public SerializeException(Exception realException) {
+        super(realException.getCause());
+        this.realException = realException;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof DataCollection) {
-            return dataCollection.equals(((DataCollection) o).dataCollection);
-        }
-        return super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return dataCollection == null ? 0 : dataCollection.hashCode();
+    public Exception getRealException() {
+        return realException;
     }
 }
+

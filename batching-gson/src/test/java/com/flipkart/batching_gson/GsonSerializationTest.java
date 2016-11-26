@@ -22,21 +22,21 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching_gson;
+package com.flipkart.batching.gson;
 
-import com.flipkart.batching_gson.GsonSerializationStrategy;
-import com.flipkart.batching_core.Batch;
-import com.flipkart.batching_core.BatchImpl;
-import com.flipkart.batching_core.Data;
-import com.flipkart.batching_core.SerializationStrategy;
-import com.flipkart.batching_core.batch.SizeBatch;
-import com.flipkart.batching_core.batch.SizeTimeBatch;
-import com.flipkart.batching_core.batch.TagBatch;
-import com.flipkart.batching_core.batch.TimeBatch;
-import com.flipkart.batching_core.data.EventData;
-import com.flipkart.batching_core.data.TagData;
-import com.flipkart.batching_core.exception.DeserializeException;
-import com.flipkart.batching_core.exception.SerializeException;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.BatchImpl;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.batch.SizeBatch;
+import com.flipkart.batching.core.batch.SizeTimeBatch;
+import com.flipkart.batching.core.batch.TagBatch;
+import com.flipkart.batching.core.batch.TimeBatch;
+import com.flipkart.batching.core.data.EventData;
+import com.flipkart.batching.core.data.TagData;
+import com.flipkart.batching.core.exception.DeserializeException;
+import com.flipkart.batching.core.exception.SerializeException;
 import com.google.gson.JsonSyntaxException;
 
 import junit.framework.Assert;

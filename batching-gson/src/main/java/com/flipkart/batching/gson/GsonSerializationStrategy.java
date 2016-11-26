@@ -22,16 +22,16 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching_gson;
+package com.flipkart.batching.gson;
 
-import com.flipkart.batching_gson.utils.Deserializer;
-import com.flipkart.batching_gson.utils.Serializer;
-import com.flipkart.batching_core.Batch;
-import com.flipkart.batching_core.Data;
-import com.flipkart.batching_core.DataCollection;
-import com.flipkart.batching_core.SerializationStrategy;
-import com.flipkart.batching_core.exception.DeserializeException;
-import com.flipkart.batching_core.exception.SerializeException;
+import com.flipkart.batching.gson.utils.Deserializer;
+import com.flipkart.batching.gson.utils.Serializer;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.DataCollection;
+import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.exception.DeserializeException;
+import com.flipkart.batching.core.exception.SerializeException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;

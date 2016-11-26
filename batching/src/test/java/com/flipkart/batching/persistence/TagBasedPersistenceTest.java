@@ -29,11 +29,11 @@ import android.content.Context;
 import com.flipkart.Utils;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching_gson.GsonSerializationStrategy;
-import com.flipkart.batching_core.Batch;
-import com.flipkart.batching_core.SerializationStrategy;
-import com.flipkart.batching_core.data.Tag;
-import com.flipkart.batching_core.data.TagData;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.data.Tag;
+import com.flipkart.batching.core.data.TagData;
 
 import org.junit.Assert;
 import org.junit.Test;

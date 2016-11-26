@@ -26,11 +26,11 @@ package com.flipkart.batching.persistence;
 
 import android.content.Context;
 
-import com.flipkart.batching_core.Batch;
-import com.flipkart.batching_core.Data;
-import com.flipkart.batching_core.SerializationStrategy;
-import com.flipkart.batching_core.exception.DeserializeException;
-import com.flipkart.batching_core.exception.SerializeException;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.exception.DeserializeException;
+import com.flipkart.batching.core.exception.SerializeException;
 
 import org.slf4j.LoggerFactory;
 

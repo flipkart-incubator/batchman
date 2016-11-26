@@ -22,7 +22,7 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching_core.exception;
+package com.flipkart.batching.core.exception;
 
 import junit.framework.Assert;
 

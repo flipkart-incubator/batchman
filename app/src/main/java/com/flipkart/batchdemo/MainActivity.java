@@ -47,12 +47,12 @@ import com.flipkart.batching.listener.PersistedBatchCallback;
 import com.flipkart.batching.listener.TrimmedBatchCallback;
 import com.flipkart.batching.persistence.TapePersistenceStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.flipkart.batching_core.Batch;
-import com.flipkart.batching_core.SerializationStrategy;
-import com.flipkart.batching_core.batch.TagBatch;
-import com.flipkart.batching_core.data.Tag;
-import com.flipkart.batching_core.data.TagData;
-import com.flipkart.batching_gson.GsonSerializationStrategy;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.batch.TagBatch;
+import com.flipkart.batching.core.data.Tag;
+import com.flipkart.batching.core.data.TagData;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
 
 import java.util.ArrayList;
 import java.util.Collections;

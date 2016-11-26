@@ -22,11 +22,12 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching_core;
+package com.flipkart.batching.core;
 
-import com.flipkart.batching_core.data.EventData;
-import com.flipkart.batching_core.data.Tag;
-import com.flipkart.batching_core.data.TagData;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.data.EventData;
+import com.flipkart.batching.core.data.Tag;
+import com.flipkart.batching.core.data.TagData;
 
 import java.util.ArrayList;
 

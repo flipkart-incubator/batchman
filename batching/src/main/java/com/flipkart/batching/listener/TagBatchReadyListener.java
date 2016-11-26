@@ -26,9 +26,9 @@ package com.flipkart.batching.listener;
 
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.OnBatchReadyListener;
-import com.flipkart.batching_core.batch.TagBatch;
-import com.flipkart.batching_core.data.Tag;
-import com.flipkart.batching_core.data.TagData;
+import com.flipkart.batching.core.batch.TagBatch;
+import com.flipkart.batching.core.data.Tag;
+import com.flipkart.batching.core.data.TagData;
 
 import java.util.HashMap;
 import java.util.Map;

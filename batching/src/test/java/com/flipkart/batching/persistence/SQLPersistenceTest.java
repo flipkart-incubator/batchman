@@ -30,9 +30,9 @@ import com.flipkart.Utils;
 import com.flipkart.batching.BaseTestClass;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching_gson.GsonSerializationStrategy;
-import com.flipkart.batching_core.Data;
-import com.flipkart.batching_core.SerializationStrategy;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
 
 import junit.framework.Assert;
 

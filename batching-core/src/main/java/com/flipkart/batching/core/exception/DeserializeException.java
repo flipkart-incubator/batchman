@@ -22,38 +22,24 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching_core.data;
+package com.flipkart.batching.core.exception;
 
-import com.flipkart.batching_core.Data;
+import java.io.IOException;
 
 /**
- * TagData Class that extends {@link Data}.
- * It takes {@link Tag} as a parameter in constructor.
+ * DeserializationException class that extends {@link IOException}.
+ * <p/>
+ * To get the real exception use {@link #getRealException()}.
  */
-public class TagData extends Data {
+public class DeserializeException extends IOException {
+    private final Exception realException;
 
-    private final Tag tag;
-
-    public TagData(Tag tag) {
-        super();
-        this.tag = tag;
+    public DeserializeException(Exception realException) {
+        super(realException.getCause());
+        this.realException = realException;
     }
 
-    public Tag getTag() {
-        return tag;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof TagData) {
-            return ((TagData) o).getTag().equals(tag) && super.equals(o);
-        } else {
-            return super.equals(o);
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        return 31 * super.hashCode() + (getTag() == null ? 0 : getTag().hashCode());
+    public Exception getRealException() {
+        return realException;
     }
 }

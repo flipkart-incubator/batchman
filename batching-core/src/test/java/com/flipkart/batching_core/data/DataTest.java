@@ -22,9 +22,9 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching_core.data;
+package com.flipkart.batching.core.data;
 
-import com.flipkart.batching_core.Data;
+import com.flipkart.batching.core.Data;
 
 import junit.framework.Assert;
 

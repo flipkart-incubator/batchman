@@ -31,9 +31,9 @@ import com.flipkart.batching.persistence.SQLPersistenceStrategy;
 import com.flipkart.batching.persistence.TagBasedPersistenceStrategy;
 import com.flipkart.batching.persistence.TapePersistenceStrategy;
 import com.flipkart.batching.strategy.SizeTimeBatchingStrategy;
-import com.flipkart.batching_core.Data;
-import com.flipkart.batching_core.SerializationStrategy;
-import com.flipkart.batching_core.data.Tag;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.data.Tag;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

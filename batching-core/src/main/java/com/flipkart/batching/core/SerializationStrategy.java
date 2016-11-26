@@ -22,10 +22,10 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching_core;
+package com.flipkart.batching.core;
 
-import com.flipkart.batching_core.exception.DeserializeException;
-import com.flipkart.batching_core.exception.SerializeException;
+import com.flipkart.batching.core.exception.DeserializeException;
+import com.flipkart.batching.core.exception.SerializeException;
 
 import java.util.Collection;
 

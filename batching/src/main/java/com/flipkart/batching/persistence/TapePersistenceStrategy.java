@@ -29,9 +29,9 @@ import com.flipkart.batching.tape.InMemoryObjectQueue;
 import com.flipkart.batching.tape.ObjectQueue;
 import com.flipkart.batching.toolbox.LenientFileObjectQueue;
 import com.flipkart.batching.toolbox.LenientQueueFile;
-import com.flipkart.batching_core.Batch;
-import com.flipkart.batching_core.Data;
-import com.flipkart.batching_core.SerializationStrategy;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
 
 import org.slf4j.LoggerFactory;
 

@@ -1,7 +1,7 @@
-package com.flipkart.batching_core.batch;
+package com.flipkart.batching.core.batch;
 
-import com.flipkart.batching_core.BatchImpl;
-import com.flipkart.batching_core.Data;
+import com.flipkart.batching.core.BatchImpl;
+import com.flipkart.batching.core.Data;
 
 import java.util.Collection;
 

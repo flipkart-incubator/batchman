@@ -31,9 +31,9 @@ import com.flipkart.Utils;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.listener.PersistedBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
-import com.flipkart.batching_core.Batch;
-import com.flipkart.batching_core.Data;
-import com.flipkart.batching_core.batch.SizeBatch;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.batch.SizeBatch;
 
 import junit.framework.Assert;
 
