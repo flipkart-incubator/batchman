@@ -1,5 +1,25 @@
 apply plugin: 'com.android.library'
-apply plugin: 'android-maven'
+apply plugin: 'com.github.dcendents.android-maven'
+
+buildscript {
+    repositories {
+        maven { url 'http://repo1.maven.org/maven2' }
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.2'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.google.code.gson:gson:2.4'
+    compile 'com.android.support:appcompat-v7:25.0.1'
+    compile 'com.github.flipkart-incubator.batchman:batching-core:1.1.8'
+    testCompile 'junit:junit:4.12'
+}
 
 android {
     compileSdkVersion 24
@@ -20,24 +40,4 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-}
-
-buildscript {
-    repositories {
-        maven { url 'http://repo1.maven.org/maven2' }
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0-beta1'
-        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.3'
-    }
-}
-
-dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.google.code.gson:gson:2.4'
-    compile 'com.android.support:appcompat-v7:24.1.1'
-    compile project(':batching-core')
-    testCompile 'junit:junit:4.12'
 }
