@@ -29,11 +29,11 @@ import android.os.Handler;
 
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.OnBatchReadyListener;
-import com.flipkart.batchingcore.Batch;
-import com.flipkart.batchingcore.Data;
-import com.flipkart.batchingcore.batch.TagBatch;
-import com.flipkart.batchingcore.data.Tag;
-import com.flipkart.batchingcore.data.TagData;
+import com.flipkart.batching_core.Batch;
+import com.flipkart.batching_core.Data;
+import com.flipkart.batching_core.batch.TagBatch;
+import com.flipkart.batching_core.data.Tag;
+import com.flipkart.batching_core.data.TagData;
 
 import java.util.Collection;
 import java.util.Collections;

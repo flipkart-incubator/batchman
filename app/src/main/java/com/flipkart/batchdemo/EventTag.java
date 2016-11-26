@@ -24,7 +24,7 @@
 
 package com.flipkart.batchdemo;
 
-import com.flipkart.batchingcore.data.Tag;
+import com.flipkart.batching_core.data.Tag;
 import com.google.gson.annotations.SerializedName;
 
 public class EventTag extends Tag {

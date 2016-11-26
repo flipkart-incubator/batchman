@@ -24,7 +24,7 @@
 
 package com.flipkart.batching.listener;
 
-import com.flipkart.batchingcore.Batch;
+import com.flipkart.batching_core.Batch;
 
 /**
  * Persisted Batch Callback

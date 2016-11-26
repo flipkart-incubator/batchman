@@ -24,10 +24,10 @@
 
 package com.flipkart;
 
-import com.flipkart.batchingcore.Data;
-import com.flipkart.batchingcore.data.EventData;
-import com.flipkart.batchingcore.data.Tag;
-import com.flipkart.batchingcore.data.TagData;
+import com.flipkart.batching_core.Data;
+import com.flipkart.batching_core.data.EventData;
+import com.flipkart.batching_core.data.Tag;
+import com.flipkart.batching_core.data.TagData;
 
 import java.util.ArrayList;
 

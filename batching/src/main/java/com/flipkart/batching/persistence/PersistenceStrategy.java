@@ -24,7 +24,7 @@
 
 package com.flipkart.batching.persistence;
 
-import com.flipkart.batchingcore.Data;
+import com.flipkart.batching_core.Data;
 
 import java.util.Collection;
 

@@ -25,9 +25,9 @@
 package com.flipkart.batching.persistence;
 
 import com.flipkart.batching.tape.FileObjectQueue;
-import com.flipkart.batchingcore.Batch;
-import com.flipkart.batchingcore.Data;
-import com.flipkart.batchingcore.SerializationStrategy;
+import com.flipkart.batching_core.Batch;
+import com.flipkart.batching_core.Data;
+import com.flipkart.batching_core.SerializationStrategy;
 
 import java.io.IOException;
 import java.io.OutputStream;

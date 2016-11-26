@@ -29,8 +29,8 @@ import android.os.Handler;
 
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
-import com.flipkart.batchingcore.Data;
-import com.flipkart.batchingcore.batch.SizeTimeBatch;
+import com.flipkart.batching_core.Data;
+import com.flipkart.batching_core.batch.SizeTimeBatch;
 
 import java.util.Collection;
 

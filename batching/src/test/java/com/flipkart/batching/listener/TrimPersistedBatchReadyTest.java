@@ -33,11 +33,11 @@ import com.flipkart.batching.BaseTestClass;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.flipkart.batching_gson.utils.GsonSerializationStrategy;
-import com.flipkart.batchingcore.Batch;
-import com.flipkart.batchingcore.Data;
-import com.flipkart.batchingcore.batch.SizeBatch;
-import com.flipkart.batchingcore.exception.SerializeException;
+import com.flipkart.batching_gson.GsonSerializationStrategy;
+import com.flipkart.batching_core.Batch;
+import com.flipkart.batching_core.Data;
+import com.flipkart.batching_core.batch.SizeBatch;
+import com.flipkart.batching_core.exception.SerializeException;
 
 import org.junit.After;
 import org.junit.Test;

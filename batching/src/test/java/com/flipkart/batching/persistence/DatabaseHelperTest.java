@@ -30,12 +30,12 @@ import android.database.sqlite.SQLiteDatabase;
 import com.flipkart.Utils;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching_gson.utils.GsonSerializationStrategy;
-import com.flipkart.batchingcore.Batch;
-import com.flipkart.batchingcore.Data;
-import com.flipkart.batchingcore.data.EventData;
-import com.flipkart.batchingcore.exception.DeserializeException;
-import com.flipkart.batchingcore.exception.SerializeException;
+import com.flipkart.batching_gson.GsonSerializationStrategy;
+import com.flipkart.batching_core.Batch;
+import com.flipkart.batching_core.Data;
+import com.flipkart.batching_core.data.EventData;
+import com.flipkart.batching_core.exception.DeserializeException;
+import com.flipkart.batching_core.exception.SerializeException;
 
 import junit.framework.Assert;
 

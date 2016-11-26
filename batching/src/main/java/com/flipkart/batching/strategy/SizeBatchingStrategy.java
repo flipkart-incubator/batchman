@@ -30,8 +30,8 @@ import android.os.Handler;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
-import com.flipkart.batchingcore.Data;
-import com.flipkart.batchingcore.batch.SizeBatch;
+import com.flipkart.batching_core.Data;
+import com.flipkart.batching_core.batch.SizeBatch;
 
 import java.util.Collection;
 

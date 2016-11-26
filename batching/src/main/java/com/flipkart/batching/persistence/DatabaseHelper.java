@@ -31,11 +31,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 
-import com.flipkart.batchingcore.Batch;
-import com.flipkart.batchingcore.Data;
-import com.flipkart.batchingcore.SerializationStrategy;
-import com.flipkart.batchingcore.exception.DeserializeException;
-import com.flipkart.batchingcore.exception.SerializeException;
+import com.flipkart.batching_core.Batch;
+import com.flipkart.batching_core.Data;
+import com.flipkart.batching_core.SerializationStrategy;
+import com.flipkart.batching_core.exception.DeserializeException;
+import com.flipkart.batching_core.exception.SerializeException;
 
 import java.util.ArrayList;
 import java.util.Collection;

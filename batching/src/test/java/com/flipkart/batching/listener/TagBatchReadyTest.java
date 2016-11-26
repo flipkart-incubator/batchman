@@ -28,10 +28,10 @@ import com.flipkart.Utils;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.OnBatchReadyListener;
-import com.flipkart.batchingcore.batch.SizeBatch;
-import com.flipkart.batchingcore.batch.TagBatch;
-import com.flipkart.batchingcore.data.Tag;
-import com.flipkart.batchingcore.data.TagData;
+import com.flipkart.batching_core.batch.SizeBatch;
+import com.flipkart.batching_core.batch.TagBatch;
+import com.flipkart.batching_core.data.Tag;
+import com.flipkart.batching_core.data.TagData;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
 
