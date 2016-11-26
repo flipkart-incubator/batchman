@@ -22,7 +22,7 @@
  *  THE SOFTWARE.
  */
 
-package com.flipkart.batching_gson.utils;
+package com.flipkart.batching_gson;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;

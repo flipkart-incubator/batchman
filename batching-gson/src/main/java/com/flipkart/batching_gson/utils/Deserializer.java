@@ -1,7 +1,7 @@
-package com.flipkart.batching_gson.utils.utils;
+package com.flipkart.batching_gson.utils;
 
-import com.flipkart.batchingcore.Data;
-import com.flipkart.batchingcore.DataCollection;
+import com.flipkart.batching_core.Data;
+import com.flipkart.batching_core.DataCollection;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
