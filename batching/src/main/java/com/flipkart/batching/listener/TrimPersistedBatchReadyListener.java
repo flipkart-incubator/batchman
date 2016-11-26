@@ -45,7 +45,7 @@ public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>>
     protected final Handler handler;
     private final TrimmedBatchCallback trimListener;
     private int trimSize, maxQueueSize;
-    private int mode;
+    int mode;
 
     public TrimPersistedBatchReadyListener(String filePath, SerializationStrategy<E, T> serializationStrategy, Handler handler, int maxQueueSize, int trimSize, int mode, PersistedBatchCallback<T> persistedBatchCallback, TrimmedBatchCallback trimmedBatchCallback) {
         super(filePath, serializationStrategy, handler, persistedBatchCallback);
@@ -80,7 +80,7 @@ public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>>
         });
     }
 
-    private void trimQueue() {
+    void trimQueue() {
         int oldSize = getSize();
         if (oldSize >= maxQueueSize && remove(trimSize)) {
             callTrimListener(oldSize, getSize());

@@ -44,22 +44,22 @@ import org.slf4j.LoggerFactory;
  * Network Persisted Batch Ready Listener
  */
 public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends TrimPersistedBatchReadyListener<E, T> {
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(NetworkPersistedBatchReadyListener.class);
+    static final org.slf4j.Logger log = LoggerFactory.getLogger(NetworkPersistedBatchReadyListener.class);
     private static final int HTTP_SERVER_ERROR_CODE_RANGE_START = 500;
     private static final int HTTP_SERVER_ERROR_CODE_RANGE_END = 599;
     public int defaultTimeoutMs = 2500;
     public float defaultBackoffMultiplier = 1f;
+    T lastBatch;
+    int retryCount = 0;
+    int mCurrentTimeoutMs = 0;
+    int maxRetryCount;
+    boolean needsResumeOnReady = false;
+    boolean waitingForCallback = false;
+    boolean receiverRegistered;
+    boolean callFinishAfterMaxRetry = false;
     private NetworkBatchListener<E, T> networkBatchListener;
     private Context context;
-    private T lastBatch;
-    private int retryCount = 0;
-    private int mCurrentTimeoutMs = 0;
-    private int maxRetryCount;
     private NetworkBroadcastReceiver networkBroadcastReceiver = new NetworkBroadcastReceiver();
-    private boolean needsResumeOnReady = false;
-    private boolean waitingForCallback = false;
-    private boolean receiverRegistered;
-    private boolean callFinishAfterMaxRetry = false;
     private PersistedBatchCallback<T> persistedBatchCallback = new PersistedBatchCallback<T>() {
         @Override
         public void onPersistFailure(T batch, Exception e) {
@@ -81,6 +81,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
             unregisterReceiver();
         }
     };
+
     public NetworkPersistedBatchReadyListener(final Context context, String filePath,
                                               SerializationStrategy<E, T> serializationStrategy,
                                               final Handler handler, NetworkBatchListener<E, T> listener,
@@ -120,7 +121,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         this.defaultBackoffMultiplier = defaultBackoffMultiplier;
     }
 
-    private void unregisterReceiver() {
+    void unregisterReceiver() {
         if (receiverRegistered) {
             context.unregisterReceiver(networkBroadcastReceiver);
             receiverRegistered = false;
@@ -130,7 +131,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         }
     }
 
-    private void registerReceiverIfRequired() {
+    void registerReceiverIfRequired() {
         if (!receiverRegistered) {
             //Register the broadcast receiver
             IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -152,11 +153,11 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     }
 
 
-    private boolean isConnectedToNetwork() {
+    boolean isConnectedToNetwork() {
         return networkBatchListener.isNetworkConnected(context);
     }
 
-    private void makeNetworkRequest(final T batch, boolean isRetry) {
+    void makeNetworkRequest(final T batch, boolean isRetry) {
         if (isConnectedToNetwork()) {
             if (log.isDebugEnabled()) {
                 log.debug("Performing network request for batch : {}, listener {}", batch, this);
@@ -230,7 +231,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
      *
      * @return new timeOut
      */
-    private int exponentialBackOff() {
+    int exponentialBackOff() {
         int timeOut = mCurrentTimeoutMs;
         mCurrentTimeoutMs += (mCurrentTimeoutMs * defaultBackoffMultiplier);
         return timeOut;
@@ -243,7 +244,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
         super.finish(batch);
     }
 
-    private void resume() {
+    void resume() {
         handler.post(new Runnable() {
             @Override
             public void run() {

@@ -51,15 +51,15 @@ import java.util.Queue;
  */
 public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T>, LenientQueueFile.QueueFileErrorCallback {
     private static final int MAX_ITEMS_CACHED = 2000;
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(PersistedBatchReadyListener.class);
-    protected final Handler handler;
-    protected final String filePath;
-    private final Queue<T> cachedQueue;
-    private PersistedBatchCallback<T> listener;
-    private ObjectQueue<T> queueFile;
-    private BatchObjectConverter<E, T> converter;
-    private boolean isWaitingToFinish;
-    private T peekedBatch;
+    static final org.slf4j.Logger log = LoggerFactory.getLogger(PersistedBatchReadyListener.class);
+    final Handler handler;
+    final String filePath;
+    final Queue<T> cachedQueue;
+    PersistedBatchCallback<T> listener;
+    ObjectQueue<T> queueFile;
+    BatchObjectConverter<E, T> converter;
+    boolean isWaitingToFinish;
+    T peekedBatch;
 
 
     public PersistedBatchReadyListener(String filePath, SerializationStrategy<E, T> serializationStrategy, Handler handler, @Nullable PersistedBatchCallback<T> listener) {
@@ -138,7 +138,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
         return result;
     }
 
-    private void callPersistFailure(T batch, Exception e) {
+    void callPersistFailure(T batch, Exception e) {
         if (listener != null) {
             listener.onPersistFailure(batch, e);
         }
@@ -151,7 +151,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
 
     }
 
-    private void initializeIfRequired() {
+    void initializeIfRequired() {
         if (!isInitialized()) {
             tryCreatingQueueFile();
             onInitialized();
@@ -231,7 +231,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
         });
     }
 
-    private void checkPendingAndContinue() {
+    void checkPendingAndContinue() {
         initializeIfRequired();
         if (queueFile.size() > 0) {
             try {

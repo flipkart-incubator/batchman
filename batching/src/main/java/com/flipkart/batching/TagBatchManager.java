@@ -51,10 +51,10 @@ import java.util.Set;
  */
 
 public class TagBatchManager<E extends Data, T extends Batch<E>> implements BatchController<E, T> {
-    private Handler handler;
-    private SerializationStrategy<E, T> serializationStrategy;
-    private TagBatchingStrategy<TagData> tagBatchingStrategy;
-    private TagBatchReadyListener<TagData> tagBatchReadyListener;
+    Handler handler;
+    SerializationStrategy<E, T> serializationStrategy;
+    TagBatchingStrategy<TagData> tagBatchingStrategy;
+    TagBatchReadyListener<TagData> tagBatchReadyListener;
     private ArrayList<TagInfo> tagParametersList = new ArrayList<>();
 
     protected TagBatchManager(Builder builder, final Context context) {
@@ -99,7 +99,7 @@ public class TagBatchManager<E extends Data, T extends Batch<E>> implements Batc
         serializationStrategy.registerBatch(SizeTimeBatchingStrategy.SizeTimeBatch.class);
     }
 
-    private void initialize(TagBatchManager<E, T> tagBatchManager, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler) {
+    void initialize(TagBatchManager<E, T> tagBatchManager, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler) {
         tagBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
     }
 
@@ -128,7 +128,7 @@ public class TagBatchManager<E extends Data, T extends Batch<E>> implements Batc
         });
     }
 
-    private void assignEventIds(Collection<E> dataCollection) {
+    void assignEventIds(Collection<E> dataCollection) {
         int i = 0;
         for (E data : dataCollection) {
             i++;
@@ -158,10 +158,10 @@ public class TagBatchManager<E extends Data, T extends Batch<E>> implements Batc
     }
 
     public static class Builder<E extends Data, T extends Batch<E>> {
+        Set<Class<E>> dataTypes = new HashSet<>();
+        Set<Class<T>> batchInfoTypes = new HashSet<>();
         private Handler handler;
         private SerializationStrategy serializationStrategy;
-        private Set<Class<E>> dataTypes = new HashSet<>();
-        private Set<Class<T>> batchInfoTypes = new HashSet<>();
         private ArrayList<TagInfo> tagInfoList = new ArrayList<>();
 
         public ArrayList<TagInfo> getTagInfoList() {
