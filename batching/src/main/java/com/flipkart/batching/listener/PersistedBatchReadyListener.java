@@ -26,16 +26,16 @@ package com.flipkart.batching.listener;
 
 import android.os.Handler;
 
-import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
-import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.BatchObjectConverter;
-import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.tape.InMemoryObjectQueue;
 import com.flipkart.batching.tape.ObjectQueue;
 import com.flipkart.batching.toolbox.LenientFileObjectQueue;
 import com.flipkart.batching.toolbox.LenientQueueFile;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
 
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;

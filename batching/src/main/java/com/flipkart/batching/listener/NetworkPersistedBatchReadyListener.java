@@ -33,10 +33,10 @@ import android.net.NetworkInfo;
 import android.os.Handler;
 import android.webkit.ValueCallback;
 
-import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchingStrategy;
-import com.flipkart.batching.Data;
-import com.flipkart.batching.persistence.SerializationStrategy;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
 
 import org.slf4j.LoggerFactory;
 

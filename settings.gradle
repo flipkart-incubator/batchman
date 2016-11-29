@@ -22,4 +22,4 @@
  *  THE SOFTWARE.
  */
 
-include ':app', ':batching'
+include ':app', ':batching', ':batching-core', ':batching-gson'

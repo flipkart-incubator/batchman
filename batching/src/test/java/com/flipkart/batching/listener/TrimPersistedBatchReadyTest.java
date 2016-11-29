@@ -30,13 +30,14 @@ import android.os.Looper;
 
 import com.flipkart.Utils;
 import com.flipkart.batching.BaseTestClass;
-import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.Data;
-import com.flipkart.batching.exception.SerializeException;
-import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.batch.SizeBatch;
+import com.flipkart.batching.core.exception.SerializeException;
 
 import org.junit.After;
 import org.junit.Test;
@@ -88,9 +89,9 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
 
         TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
         SizeBatchingStrategy sizeBatchingStrategy = mock(SizeBatchingStrategy.class);
-        SizeBatchingStrategy.SizeBatch<Data> sizeBatch = new SizeBatchingStrategy.SizeBatch<>(dataList, 3);
+        SizeBatch<Data> sizeBatch = new SizeBatch<>(dataList, 3);
 
-        TrimPersistedBatchReadyListener<Data, Batch<Data>> trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(createRandomString(), serializationStrategy,
+        TrimPersistedBatchReadyListener<Data, Batch<Data>> trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(createRandomFile().getPath(), serializationStrategy,
                 handler, MAX_QUEUE_SIZE, TRIM_TO_SIZE, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START | TrimPersistedBatchReadyListener.MODE_TRIM_ON_READY, null, trimmedBatchCallback);
 
         trimPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch);
@@ -126,9 +127,9 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
 
         TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
         SizeBatchingStrategy sizeBatchingStrategy = mock(SizeBatchingStrategy.class);
-        SizeBatchingStrategy.SizeBatch<Data> sizeBatch = new SizeBatchingStrategy.SizeBatch<>(dataList, 3);
+        SizeBatch<Data> sizeBatch = new SizeBatch<>(dataList, 3);
 
-        TrimPersistedBatchReadyListener<Data, Batch<Data>> trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(createRandomString(), serializationStrategy,
+        TrimPersistedBatchReadyListener<Data, Batch<Data>> trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(createRandomFile().getPath(), serializationStrategy,
                 handler, MAX_QUEUE_SIZE, TRIM_TO_SIZE, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START | TrimPersistedBatchReadyListener.MODE_TRIM_ON_READY, null, trimmedBatchCallback);
 
         trimPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch);
@@ -160,11 +161,11 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
         Looper looper = handlerThread.getLooper();
         ShadowLooper shadowLooper = Shadows.shadowOf(looper);
         Handler handler = new Handler(looper);
-        String filePath = createRandomString();
+        String filePath = createRandomFile().getPath();
 
         TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
         SizeBatchingStrategy sizeBatchingStrategy = mock(SizeBatchingStrategy.class);
-        SizeBatchingStrategy.SizeBatch<Data> sizeBatch = new SizeBatchingStrategy.SizeBatch<>(dataList, 3);
+        SizeBatch<Data> sizeBatch = new SizeBatch<>(dataList, 3);
 
         TrimPersistedBatchReadyListener<Data, Batch<Data>> trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(filePath, serializationStrategy,
                 handler, MAX_QUEUE_SIZE, TRIM_TO_SIZE, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null, trimmedBatchCallback);
@@ -178,7 +179,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
 
         trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(filePath, serializationStrategy,
                 handler, MAX_QUEUE_SIZE, TRIM_TO_SIZE, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null, trimmedBatchCallback);
-        SizeBatchingStrategy.SizeBatch<Data> sizeBatch2 = new SizeBatchingStrategy.SizeBatch<>(dataList, 1);
+        SizeBatch<Data> sizeBatch2 = new SizeBatch<>(dataList, 1);
         trimPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch2);
         shadowLooper.runToEndOfTasks();
         //verify that onTrimmed gets called
@@ -187,7 +188,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
 
     /**
      * Test to verify that exception is thrown
-     * when {@link TrimPersistedBatchReadyListener#trimSize} > {@link TrimPersistedBatchReadyListener#queueSize}
+     * when {@link TrimPersistedBatchReadyListener#trimSize} > {@link TrimPersistedBatchReadyListener#maxQueueSize}
      */
     @Test(expected = IllegalArgumentException.class)
     public void testThrowException() {
@@ -208,7 +209,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
         TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
 
         //throw exception as TrimToSize is greater than MaxQueueSize
-        TrimPersistedBatchReadyListener<Data, Batch<Data>> trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(createRandomString(), serializationStrategy,
+        TrimPersistedBatchReadyListener<Data, Batch<Data>> trimPersistedBatchReadyListener = new TrimPersistedBatchReadyListener<Data, Batch<Data>>(createRandomFile().getPath(), serializationStrategy,
                 handler, MAX_QUEUE_SIZE, 5, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null, trimmedBatchCallback);
     }
 

@@ -34,14 +34,17 @@ import com.flipkart.Utils;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener.NetworkBatchListener;
 import com.flipkart.batching.listener.TrimPersistedBatchReadyListener;
-import com.flipkart.batching.persistence.GsonSerializationStrategy;
 import com.flipkart.batching.persistence.PersistenceStrategy;
-import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.persistence.TapePersistenceStrategy;
 import com.flipkart.batching.strategy.BaseBatchingStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.SizeTimeBatchingStrategy;
 import com.flipkart.batching.tape.ObjectQueue;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.BatchImpl;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
 
 import junit.framework.Assert;
 
@@ -286,8 +289,8 @@ public class BatchManagerTest extends BaseTestClass {
         ShadowLooper shadowLooper = Shadows.shadowOf(Looper.getMainLooper());
         Handler handler = new Handler();
 
-        String filePath = createRandomString();
-        String filePath1 = createRandomString();
+        String filePath = createRandomFile().getPath();
+        String filePath1 = createRandomFile().getPath();
         SerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         TapePersistenceStrategy<Data> persistenceStrategy = new TapePersistenceStrategy<>(filePath1, serializationStrategy);
         Context context = RuntimeEnvironment.application;
@@ -360,4 +363,6 @@ public class BatchManagerTest extends BaseTestClass {
         Assert.assertTrue(outputData.size() == 6);
 
     }
+
+
 }

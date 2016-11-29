@@ -27,12 +27,11 @@ package com.flipkart.batching.strategy;
 import android.content.Context;
 import android.os.Handler;
 
-import com.flipkart.batching.BatchImpl;
 import com.flipkart.batching.BatchingStrategy;
-import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
-import com.google.gson.annotations.SerializedName;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.batch.SizeBatch;
 
 import java.util.Collection;
 
@@ -43,7 +42,7 @@ import java.util.Collection;
  * {@link PersistenceStrategy} and calls {@link #onReadyListener} when the batch reaches the
  * maxBatchSize limit.
  */
-public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E, SizeBatchingStrategy.SizeBatch<E>> {
+public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E, SizeBatch<E>> {
     private int currentBatchSize;
     private int maxBatchSize;
 
@@ -75,8 +74,7 @@ public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
     }
 
     @Override
-    public void onInitialized(Context context,
-                              OnBatchReadyListener<E, SizeBatch<E>> onBatchReadyListener, Handler handler) {
+    public void onInitialized(Context context, OnBatchReadyListener<E, SizeBatch<E>> onBatchReadyListener, Handler handler) {
         super.onInitialized(context, onBatchReadyListener, handler);
     }
 
@@ -87,32 +85,5 @@ public class SizeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E
      */
     protected boolean isBatchReady() {
         return currentBatchSize >= maxBatchSize;
-    }
-
-    public static class SizeBatch<T extends Data> extends BatchImpl<T> {
-        @SerializedName("maxBatchSize")
-        private int maxBatchSize;
-
-        public SizeBatch(Collection dataCollection, int maxBatchSize) {
-            super(dataCollection);
-            this.maxBatchSize = maxBatchSize;
-        }
-
-        public int getMaxBatchSize() {
-            return maxBatchSize;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof SizeBatch) {
-                return ((SizeBatch) o).getMaxBatchSize() == maxBatchSize && super.equals(o);
-            }
-            return super.equals(o);
-        }
-
-        @Override
-        public int hashCode() {
-            return 31 * super.hashCode() + maxBatchSize;
-        }
     }
 }

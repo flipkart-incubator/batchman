@@ -27,11 +27,13 @@ package com.flipkart.batching.persistence;
 import android.content.Context;
 
 import com.flipkart.Utils;
-import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.data.Tag;
-import com.flipkart.batching.data.TagData;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.data.Tag;
+import com.flipkart.batching.core.data.TagData;
 
 import org.junit.Assert;
 import org.junit.Test;

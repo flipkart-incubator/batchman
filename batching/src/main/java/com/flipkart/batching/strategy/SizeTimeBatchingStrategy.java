@@ -27,12 +27,10 @@ package com.flipkart.batching.strategy;
 import android.content.Context;
 import android.os.Handler;
 
-import com.flipkart.batching.Batch;
-import com.flipkart.batching.BatchImpl;
-import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
-import com.google.gson.annotations.SerializedName;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.batch.SizeTimeBatch;
 
 import java.util.Collection;
 
@@ -40,7 +38,7 @@ import java.util.Collection;
  * Created by kushal.sharma on 18/04/16.
  * Time Size Batching Strategy
  */
-public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E, SizeTimeBatchingStrategy.SizeTimeBatch<E>> {
+public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrategy<E, SizeTimeBatch<E>> {
     private int currentBatchSize;
     private int maxBatchSize;
     private long timeOut;
@@ -117,45 +115,5 @@ public class SizeTimeBatchingStrategy<E extends Data> extends BaseBatchingStrate
      */
     private void stopTimer() {
         handler.removeCallbacks(runnable);
-    }
-
-    public static class SizeTimeBatch<T extends Data> extends BatchImpl<T> {
-        @SerializedName("maxBatchSize")
-        private int maxBatchSize;
-        @SerializedName("timeOut")
-        private long timeOut;
-
-        public SizeTimeBatch(Collection dataCollection, int maxBatchSize, long timeOut) {
-            super(dataCollection);
-            this.maxBatchSize = maxBatchSize;
-            this.timeOut = timeOut;
-        }
-
-        public int getMaxBatchSize() {
-            return maxBatchSize;
-        }
-
-        public long getTimeOut() {
-            return timeOut;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof SizeTimeBatch) {
-                return (((SizeTimeBatch) o).getMaxBatchSize() == maxBatchSize
-                        && ((SizeTimeBatch) o).getTimeOut() == timeOut
-                        && super.equals(o));
-
-            }
-            return super.equals(o);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + maxBatchSize;
-            result = 31 * result + Long.valueOf(timeOut).hashCode();
-            return result;
-        }
     }
 }

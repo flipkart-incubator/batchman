@@ -41,18 +41,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.ValueCallback;
 
-import com.flipkart.batching.Batch;
 import com.flipkart.batching.TagBatchManager;
-import com.flipkart.batching.data.Tag;
-import com.flipkart.batching.data.TagData;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.PersistedBatchCallback;
 import com.flipkart.batching.listener.TrimmedBatchCallback;
-import com.flipkart.batching.persistence.GsonSerializationStrategy;
-import com.flipkart.batching.persistence.SerializationStrategy;
 import com.flipkart.batching.persistence.TapePersistenceStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.flipkart.batching.strategy.TagBatchingStrategy;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.batch.TagBatch;
+import com.flipkart.batching.core.data.Tag;
+import com.flipkart.batching.core.data.TagData;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -133,14 +133,14 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        debugListener.setListener(new PersistedBatchCallback<TagBatchingStrategy.TagBatch<TagData>>() {
+        debugListener.setListener(new PersistedBatchCallback<TagBatch<TagData>>() {
             @Override
-            public void onPersistFailure(TagBatchingStrategy.TagBatch<TagData> batch, Exception e) {
+            public void onPersistFailure(TagBatch<TagData> batch, Exception e) {
 
             }
 
             @Override
-            public void onPersistSuccess(TagBatchingStrategy.TagBatch<TagData> batch) {
+            public void onPersistSuccess(TagBatch<TagData> batch) {
                 // SystemClock.sleep(2000);
                 debugListener.finish(batch);
                 Log.e("Debug", "Finish Called");
@@ -165,14 +165,14 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        dgListener.setListener(new PersistedBatchCallback<TagBatchingStrategy.TagBatch<TagData>>() {
+        dgListener.setListener(new PersistedBatchCallback<TagBatch<TagData>>() {
             @Override
-            public void onPersistFailure(TagBatchingStrategy.TagBatch<TagData> batch, Exception e) {
+            public void onPersistFailure(TagBatch<TagData> batch, Exception e) {
 
             }
 
             @Override
-            public void onPersistSuccess(TagBatchingStrategy.TagBatch<TagData> batch) {
+            public void onPersistSuccess(TagBatch<TagData> batch) {
                 //SystemClock.sleep(2000);
                 dgListener.finish(batch);
                 Log.e("Dg", "Finish Called");

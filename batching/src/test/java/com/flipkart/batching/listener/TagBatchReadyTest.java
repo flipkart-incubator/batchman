@@ -28,8 +28,10 @@ import com.flipkart.Utils;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.OnBatchReadyListener;
-import com.flipkart.batching.data.Tag;
-import com.flipkart.batching.data.TagData;
+import com.flipkart.batching.core.batch.SizeBatch;
+import com.flipkart.batching.core.batch.TagBatch;
+import com.flipkart.batching.core.data.Tag;
+import com.flipkart.batching.core.data.TagData;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
 
@@ -63,7 +65,7 @@ public class TagBatchReadyTest {
         Tag BUSINESS = new Tag("BUSINESS");
         Tag DEBUG = new Tag("DEBUG");
 
-        OnBatchReadyListener<TagData, TagBatchingStrategy.TagBatch<TagData>> onBatchReadyListener = mock(OnBatchReadyListener.class);
+        OnBatchReadyListener<TagData, TagBatch<TagData>> onBatchReadyListener = mock(OnBatchReadyListener.class);
         tagBatchReadyListener = new TagBatchReadyListener<>();
         tagBatchReadyListener.addListenerForTag(AD, onBatchReadyListener);
         tagBatchReadyListener.addListenerForTag(DEBUG, onBatchReadyListener);
@@ -75,7 +77,7 @@ public class TagBatchReadyTest {
 
 
     /**
-     * Test to verify {@link TagBatchReadyListener#onReady(BatchingStrategy, TagBatchingStrategy.TagBatch)}
+     * Test to verify {@link TagBatchReadyListener#onReady(BatchingStrategy, TagBatch)}
      */
     @Test
     public void testOnReady() {
@@ -84,14 +86,14 @@ public class TagBatchReadyTest {
         Tag BUSINESS = new Tag("BUSINESS");
         Tag DEBUG = new Tag("DEBUG");
 
-        OnBatchReadyListener<TagData, TagBatchingStrategy.TagBatch<TagData>> onBatchReadyListener = mock(OnBatchReadyListener.class);
+        OnBatchReadyListener<TagData, TagBatch<TagData>> onBatchReadyListener = mock(OnBatchReadyListener.class);
         tagBatchReadyListener = new TagBatchReadyListener<>();
         tagBatchReadyListener.addListenerForTag(AD, onBatchReadyListener);
         tagBatchReadyListener.addListenerForTag(DEBUG, onBatchReadyListener);
         tagBatchReadyListener.addListenerForTag(BUSINESS, onBatchReadyListener);
 
-        tagBatchReadyListener.onReady(new TagBatchingStrategy<>(), new TagBatchingStrategy.TagBatch<>(new Tag("ADS"), new SizeBatchingStrategy.SizeBatch<TagData>(Utils.fakeCollection(2), 4)));
+        tagBatchReadyListener.onReady(new TagBatchingStrategy<>(), new TagBatch<>(new Tag("ADS"), new SizeBatch<TagData>(Utils.fakeCollection(2), 4)));
         //verify that it gets called once , when tagBatchReadyListener's onReady gets called
-        verify(onBatchReadyListener, times(1)).onReady(any(BatchingStrategy.class), any(TagBatchingStrategy.TagBatch.class));
+        verify(onBatchReadyListener, times(1)).onReady(any(BatchingStrategy.class), any(TagBatch.class));
     }
 }

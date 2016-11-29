@@ -28,13 +28,13 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.flipkart.Utils;
-import com.flipkart.batching.Batch;
 import com.flipkart.batching.BatchController;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.Data;
 import com.flipkart.batching.OnBatchReadyListener;
 import com.flipkart.batching.persistence.PersistenceStrategy;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.Data;
 
 import junit.framework.Assert;
 
