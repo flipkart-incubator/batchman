@@ -16,7 +16,7 @@ The library has been written in a more flexible way, so that the client can plug
 Get BatchMan
 ------------
 
-Add it in your root build.gradle at the end of repositories:
+Add it in your root build.gradle at the end of repositories :
 
 	allprojects {
 		repositories {
@@ -25,12 +25,24 @@ Add it in your root build.gradle at the end of repositories:
 		}
 	}
 
-Add the dependency:
+Add the dependencies :
+
+* <b>Library</b> :
+
+````java
+	dependencies {
+	        compile 'com.github.flipkart-incubator:batchman:1.2.0'
+	}
+````
+
+* <b>GSON Serialization</b> :
+
+````java
 
 	dependencies {
-	        compile 'com.github.flipkart-incubator:batchman:1.1.7'
+	        compile 'com.github.flipkart-incubator:batchman-gson:1.2.0'
 	}
-
+````
 
 How to use
 ----------
@@ -61,7 +73,7 @@ SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(MAX_BATCH_S
 
 ###Step 3 :
 
-Initialize serialization strategy and background handler thread.
+Initialize serialization strategy and background handler thread. To include GsonSerializationStrategy, you must have its dependency in your gradle file. To get dependency, look into the Getting Started section.
 
 ````java
 
@@ -110,7 +122,6 @@ Getting Started
 ---------------
 
 ###[Wiki](https://github.com/Flipkart/fk-android-batchnetworking/wiki)
-
 
 
 Dependencies
