@@ -19,6 +19,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.0.1'
     compile project(':batching-core')
     testCompile 'junit:junit:4.12'
+    testCompile 'org.robolectric:robolectric:3.1.1'
 }
 
 android {
