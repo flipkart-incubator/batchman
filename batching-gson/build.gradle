@@ -17,7 +17,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.android.support:appcompat-v7:25.0.1'
-    compile project(':batching-core')
+    compile 'com.github.flipkart-incubator.batchman:batching-core:1.2.2'
     testCompile 'junit:junit:4.12'
 }
 
