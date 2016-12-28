@@ -178,7 +178,7 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
         batchingStrategy.onInitialized(context, onBatchReadyListener, handler);
     }
 
-    static class Builder<E extends Data, T extends Batch<E>> {
+    public static class Builder<E extends Data, T extends Batch<E>> {
         Set<Class<E>> dataTypes = new HashSet<>();
         Set<Class<T>> batchInfoTypes = new HashSet<>();
         private Handler handler;
