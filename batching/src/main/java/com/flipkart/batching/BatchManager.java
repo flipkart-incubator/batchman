@@ -173,7 +173,7 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
      * @param handler              instance of {@link Handler}
      */
 
-    void initialize(BatchController<E, T> batchController, Context context,
+    public void initialize(BatchController<E, T> batchController, Context context,
                     OnBatchReadyListener<E, T> onBatchReadyListener, Handler handler) {
         batchingStrategy.onInitialized(context, onBatchReadyListener, handler);
     }
@@ -212,11 +212,11 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
             return this;
         }
 
-        BatchingStrategy getBatchingStrategy() {
+        public BatchingStrategy getBatchingStrategy() {
             return batchingStrategy;
         }
 
-        Builder setBatchingStrategy(BatchingStrategy batchingStrategy) {
+        public Builder setBatchingStrategy(BatchingStrategy batchingStrategy) {
             if (batchingStrategy != null) {
                 this.batchingStrategy = batchingStrategy;
             } else {
@@ -234,12 +234,12 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
             return this;
         }
 
-        Builder registerDataType(Class<E> subClass) {
+        public Builder registerDataType(Class<E> subClass) {
             dataTypes.add(subClass);
             return this;
         }
 
-        Builder registerBatchInfoType(Class<T> subClass) {
+        public Builder registerBatchInfoType(Class<T> subClass) {
             batchInfoTypes.add(subClass);
             return this;
         }
