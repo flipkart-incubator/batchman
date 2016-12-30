@@ -24,7 +24,6 @@
 
 package com.flipkart.batching.gson;
 
-import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.BatchImpl;
 import com.flipkart.batching.core.Data;
@@ -41,17 +40,49 @@ import com.google.gson.JsonSyntaxException;
 
 import junit.framework.Assert;
 
+import org.json.JSONObject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 
 /**
  * Test for {@link GsonSerializationStrategy}
  */
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class GsonSerializationTest {
+
+    @Test
+    public void testGSONSerializationForDataCollection() throws Exception {
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy;
+        serializationStrategy = new GsonSerializationStrategy<>();
+        registerBuiltInTypes(serializationStrategy);
+        serializationStrategy.build();
+
+        String inputStream = "{\"data\":[{\"listingId\":\"1\",\"productId\":\"dfg\",\"requestId\":\"fgh\",\"timestamp\":1480826105537},{\"listingId\":\"1\",\"productId\":\"dfg\",\"requestId\":\"fgh\",\"timestamp\":1480826105537},{\"listingId\":\"1\",\"productId\":\"dfg\",\"requestId\":\"fgh\",\"timestamp\":1480826105537},{\"listingId\":\"1\",\"productId\":\"dfg\",\"requestId\":\"fgh\",\"timestamp\":1480826105537},{\"listingId\":\"1\",\"productId\":\"dfg\",\"requestId\":\"fgh\",\"timestamp\":1480826105537}]}";
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", "Anirudh");
+        Batch<Data> originalBatch = new BatchImpl(Collections.singleton(jsonObject.toString()));
+
+        byte[] bytes = serializationStrategy.serializeBatch(originalBatch);
+        Batch<Data> deserializedBatch = serializationStrategy.deserializeBatch(bytes);
+
+        for (Object data : originalBatch.getDataCollection()) {
+            System.out.println(data);
+        }
+        for (Object data : deserializedBatch.getDataCollection()) {
+            System.out.println(data);
+        }
+        Assert.assertEquals(deserializedBatch.getDataCollection().size(), originalBatch.getDataCollection().size());
+    }
 
     /**
      * Test the working of {@link GsonSerializationStrategy#serializeBatch(Batch)}
