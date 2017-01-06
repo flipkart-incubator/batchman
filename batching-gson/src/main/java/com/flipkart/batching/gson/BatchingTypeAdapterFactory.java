@@ -51,45 +51,45 @@ public class BatchingTypeAdapterFactory implements TypeAdapterFactory {
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         Class<? super T> clazz = type.getRawType();
 
-        if (clazz == DataCollection.class) {
+        if (clazz.isAssignableFrom(DataCollection.class)) {
             java.lang.reflect.Type parameters = type.getType();
             return (TypeAdapter<T>) new DataCollectionTypeAdapter<>(getParameterizedTypeAdapter(gson, parameters));
         }
 
-        if (clazz == SizeBatch.class) {
+        if (clazz.isAssignableFrom(SizeBatch.class)) {
             java.lang.reflect.Type parameters = type.getType();
             return (TypeAdapter<T>) new SizeBatchTypeAdapter(getParameterizedTypeAdapter(gson, parameters));
         }
 
-        if (clazz == SizeTimeBatch.class) {
+        if (clazz.isAssignableFrom(SizeTimeBatch.class)) {
             java.lang.reflect.Type parameters = type.getType();
             return (TypeAdapter<T>) new SizeTimeBatchTypeAdapter(getParameterizedTypeAdapter(gson, parameters));
         }
 
-        if (clazz == TimeBatch.class) {
+        if (clazz.isAssignableFrom(TimeBatch.class)) {
             java.lang.reflect.Type parameters = type.getType();
             return (TypeAdapter<T>) new TimeBatchTypeAdapter(getParameterizedTypeAdapter(gson, parameters));
         }
 
-        if (clazz == TagBatch.class) {
+        if (clazz.isAssignableFrom(TagBatch.class)) {
             java.lang.reflect.Type parameters = type.getType();
             return (TypeAdapter<T>) new TagBatchTypeAdapter(this, getParameterizedTypeAdapter(gson, parameters));
         }
 
-        if (clazz == BatchImpl.class) {
+        if (clazz.isAssignableFrom(BatchImpl.class)) {
             java.lang.reflect.Type parameters = type.getType();
             return (TypeAdapter<T>) new BatchImplTypeAdapter(getParameterizedTypeAdapter(gson, parameters));
         }
 
-        if (clazz == Tag.class) {
+        if (clazz.isAssignableFrom(Tag.class)) {
             return (TypeAdapter<T>) getTagTypeAdapter();
         }
 
-        if (clazz == TagData.class) {
+        if (clazz.isAssignableFrom(TagData.class)) {
             return (TypeAdapter<T>) new TagDataTypeAdapter(this);
         }
 
-        if (clazz == EventData.class) {
+        if (clazz.isAssignableFrom(EventData.class)) {
             return (TypeAdapter<T>) new EventDataTypeAdapter();
         }
 
