@@ -12,10 +12,10 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 
 public final class SizeTimeBatchTypeAdapter<T extends Data> extends TypeAdapter<SizeTimeBatch<T>> {
-    private final TypeAdapter<DataCollection<T>> mTypeAdapter0;
+    private final TypeAdapter<DataCollection<T>> typeAdapter;
 
     public SizeTimeBatchTypeAdapter(TypeAdapter<T> typeAdapter0) {
-        mTypeAdapter0 = new DataCollectionTypeAdapter<>(typeAdapter0);
+        typeAdapter = new DataCollectionTypeAdapter<>(typeAdapter0);
     }
 
     @Override
@@ -31,7 +31,7 @@ public final class SizeTimeBatchTypeAdapter<T extends Data> extends TypeAdapter<
 
         if (object.dataCollection != null) {
             writer.name("dataCollection");
-            mTypeAdapter0.write(writer, object.dataCollection);
+            typeAdapter.write(writer, object.dataCollection);
         }
 
         writer.name("timeOut");
@@ -65,7 +65,7 @@ public final class SizeTimeBatchTypeAdapter<T extends Data> extends TypeAdapter<
                     object.maxBatchSize = KnownTypeAdapters.INTEGER.read(reader);
                     break;
                 case "dataCollection":
-                    object.dataCollection = mTypeAdapter0.read(reader);
+                    object.dataCollection = typeAdapter.read(reader);
                     break;
                 case "timeOut":
                     object.timeOut = KnownTypeAdapters.LONG.read(reader);

@@ -2,7 +2,7 @@ package com.flipkart.batching.gson.adapters.batch;
 
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.DataCollection;
-import com.flipkart.batching.core.batch.SizeBatch;
+import com.flipkart.batching.core.batch.TimeBatch;
 import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
 import com.flipkart.batching.gson.adapters.KnownTypeAdapters;
 import com.google.gson.TypeAdapter;
@@ -11,23 +11,23 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 
-public final class SizeBatchTypeAdapter<T extends Data> extends TypeAdapter<SizeBatch<T>> {
-    private final TypeAdapter<DataCollection<T>> typeAdapter;
+public final class TimeBatchTypeAdapter<D extends Data> extends TypeAdapter<TimeBatch<D>> {
+    private final TypeAdapter<DataCollection<D>> typeAdapter;
 
-    public SizeBatchTypeAdapter(TypeAdapter<T> typeAdapter0) {
-        typeAdapter = new DataCollectionTypeAdapter<T>(typeAdapter0);
+    public TimeBatchTypeAdapter(TypeAdapter<D> typeAdapter0) {
+        typeAdapter = new DataCollectionTypeAdapter<>(typeAdapter0);
     }
 
     @Override
-    public void write(JsonWriter writer, SizeBatch<T> object) throws IOException {
+    public void write(JsonWriter writer, TimeBatch<D> object) throws IOException {
         writer.beginObject();
         if (object == null) {
             writer.endObject();
             return;
         }
 
-        writer.name("maxBatchSize");
-        writer.value(object.maxBatchSize);
+        writer.name("timeOut");
+        writer.value(object.timeOut);
 
         if (object.dataCollection != null) {
             writer.name("dataCollection");
@@ -38,7 +38,7 @@ public final class SizeBatchTypeAdapter<T extends Data> extends TypeAdapter<Size
     }
 
     @Override
-    public SizeBatch<T> read(JsonReader reader) throws IOException {
+    public TimeBatch<D> read(JsonReader reader) throws IOException {
         if (reader.peek() == com.google.gson.stream.JsonToken.NULL) {
             reader.nextNull();
             return null;
@@ -49,7 +49,7 @@ public final class SizeBatchTypeAdapter<T extends Data> extends TypeAdapter<Size
         }
         reader.beginObject();
 
-        SizeBatch<T> object = new SizeBatch<T>();
+        TimeBatch<D> object = new TimeBatch<D>();
         while (reader.hasNext()) {
             String name = reader.nextName();
             com.google.gson.stream.JsonToken jsonToken = reader.peek();
@@ -58,8 +58,8 @@ public final class SizeBatchTypeAdapter<T extends Data> extends TypeAdapter<Size
                 continue;
             }
             switch (name) {
-                case "maxBatchSize":
-                    object.maxBatchSize = KnownTypeAdapters.INTEGER.read(reader);
+                case "timeOut":
+                    object.timeOut = KnownTypeAdapters.LONG.read(reader);
                     break;
                 case "dataCollection":
                     object.dataCollection = typeAdapter.read(reader);

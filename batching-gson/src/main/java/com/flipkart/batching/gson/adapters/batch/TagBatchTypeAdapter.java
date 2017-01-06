@@ -1,33 +1,38 @@
 package com.flipkart.batching.gson.adapters.batch;
 
-import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.DataCollection;
-import com.flipkart.batching.core.batch.SizeBatch;
+import com.flipkart.batching.core.batch.TagBatch;
+import com.flipkart.batching.core.data.TagData;
+import com.flipkart.batching.gson.BatchingTypeAdapterFactory;
 import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
-import com.flipkart.batching.gson.adapters.KnownTypeAdapters;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 
-public final class SizeBatchTypeAdapter<T extends Data> extends TypeAdapter<SizeBatch<T>> {
+public final class TagBatchTypeAdapter<T extends TagData> extends TypeAdapter<TagBatch<T>> {
     private final TypeAdapter<DataCollection<T>> typeAdapter;
 
-    public SizeBatchTypeAdapter(TypeAdapter<T> typeAdapter0) {
-        typeAdapter = new DataCollectionTypeAdapter<T>(typeAdapter0);
+    private final BatchingTypeAdapterFactory batchingTypeAdapterFactory;
+
+    public TagBatchTypeAdapter(BatchingTypeAdapterFactory batchingTypeAdapterFactory, TypeAdapter<T> typeAdapter0) {
+        this.typeAdapter = new DataCollectionTypeAdapter<>(typeAdapter0);
+        this.batchingTypeAdapterFactory = batchingTypeAdapterFactory;
     }
 
     @Override
-    public void write(JsonWriter writer, SizeBatch<T> object) throws IOException {
+    public void write(JsonWriter writer, TagBatch<T> object) throws IOException {
         writer.beginObject();
         if (object == null) {
             writer.endObject();
             return;
         }
 
-        writer.name("maxBatchSize");
-        writer.value(object.maxBatchSize);
+        if (object.tag != null) {
+            writer.name("tag");
+            batchingTypeAdapterFactory.getTagTypeAdapter().write(writer, object.tag);
+        }
 
         if (object.dataCollection != null) {
             writer.name("dataCollection");
@@ -38,7 +43,7 @@ public final class SizeBatchTypeAdapter<T extends Data> extends TypeAdapter<Size
     }
 
     @Override
-    public SizeBatch<T> read(JsonReader reader) throws IOException {
+    public TagBatch<T> read(JsonReader reader) throws IOException {
         if (reader.peek() == com.google.gson.stream.JsonToken.NULL) {
             reader.nextNull();
             return null;
@@ -49,7 +54,7 @@ public final class SizeBatchTypeAdapter<T extends Data> extends TypeAdapter<Size
         }
         reader.beginObject();
 
-        SizeBatch<T> object = new SizeBatch<T>();
+        TagBatch<T> object = new TagBatch<T>();
         while (reader.hasNext()) {
             String name = reader.nextName();
             com.google.gson.stream.JsonToken jsonToken = reader.peek();
@@ -58,8 +63,8 @@ public final class SizeBatchTypeAdapter<T extends Data> extends TypeAdapter<Size
                 continue;
             }
             switch (name) {
-                case "maxBatchSize":
-                    object.maxBatchSize = KnownTypeAdapters.INTEGER.read(reader);
+                case "tag":
+                    object.tag = batchingTypeAdapterFactory.getTagTypeAdapter().read(reader);
                     break;
                 case "dataCollection":
                     object.dataCollection = typeAdapter.read(reader);
