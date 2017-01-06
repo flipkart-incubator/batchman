@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flipkart.batching.gson.utils;
+package com.flipkart.batching.gson.adapters;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.ObjectConstructor;

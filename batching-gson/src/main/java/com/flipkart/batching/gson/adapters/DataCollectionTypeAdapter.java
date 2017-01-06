@@ -1,4 +1,4 @@
-package com.flipkart.batching.gson.utils;
+package com.flipkart.batching.gson.adapters;
 
 import android.support.annotation.NonNull;
 

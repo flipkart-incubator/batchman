@@ -24,11 +24,8 @@
 
 package com.flipkart.batching.gson;
 
-import com.flipkart.batching.gson.utils.Deserializer;
-import com.flipkart.batching.gson.utils.Serializer;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
-import com.flipkart.batching.core.DataCollection;
 import com.flipkart.batching.core.SerializationStrategy;
 import com.flipkart.batching.core.exception.DeserializeException;
 import com.flipkart.batching.core.exception.SerializeException;
@@ -252,8 +249,8 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapterFactory(dataAdapter);
         gsonBuilder.registerTypeAdapterFactory(batchInfoAdapter);
-        gsonBuilder.registerTypeAdapter(DataCollection.class, new Serializer());
-        gsonBuilder.registerTypeAdapter(DataCollection.class, new Deserializer());
+        gsonBuilder.registerTypeAdapterFactory(new BatchingTypeAdapterFactory());
+
         gsonBuilder.registerTypeAdapter(JSONObject.class, new JSONObjectDeSerializer());
         gsonBuilder.registerTypeAdapter(JSONObject.class, new JSONObjectSerializer());
         gsonBuilder.registerTypeAdapter(JSONArray.class, new JSONArrayDeSerializer());
