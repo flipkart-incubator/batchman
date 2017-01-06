@@ -15,6 +15,7 @@
  */
 package com.flipkart.batching.gson.adapters;
 
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.stream.JsonReader;
@@ -29,6 +30,38 @@ import java.util.List;
 import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
 
 public class KnownTypeAdapters {
+
+    public static final TypeAdapter<Integer> INTEGER = new TypeAdapter<Integer>() {
+        @Override
+        public Integer read(JsonReader in) throws IOException {
+            try {
+                return in.nextInt();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        @Override
+        public void write(JsonWriter out, Integer value) throws IOException {
+            out.value(value);
+        }
+    }.nullSafe();
+
+    public static final TypeAdapter<Long> LONG = new TypeAdapter<Long>() {
+        @Override
+        public Long read(JsonReader in) throws IOException {
+            try {
+                return in.nextLong();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        @Override
+        public void write(JsonWriter out, Long value) throws IOException {
+            out.value(value);
+        }
+    }.nullSafe();
 
     /**
      * Default Instantiater for List, by default it will create the Map of {@link ArrayList} type

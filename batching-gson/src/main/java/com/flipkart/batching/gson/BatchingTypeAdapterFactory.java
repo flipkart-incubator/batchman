@@ -1,7 +1,11 @@
 package com.flipkart.batching.gson;
 
 import com.flipkart.batching.core.DataCollection;
+import com.flipkart.batching.core.batch.SizeBatch;
+import com.flipkart.batching.core.batch.SizeTimeBatch;
 import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
+import com.flipkart.batching.gson.adapters.batch.SizeBatchTypeAdapter;
+import com.flipkart.batching.gson.adapters.batch.SizeTimeBatchTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -24,6 +28,30 @@ public class BatchingTypeAdapterFactory implements TypeAdapterFactory {
                 typeAdapter = gson.getAdapter(objectToken);
             }
             return (TypeAdapter<T>) new DataCollectionTypeAdapter<>(typeAdapter);
+        } else if (clazz == SizeBatch.class) {
+            java.lang.reflect.Type parameters = type.getType();
+            TypeAdapter typeAdapter;
+            if (parameters instanceof java.lang.reflect.ParameterizedType) {
+                java.lang.reflect.ParameterizedType parameterizedType = (java.lang.reflect.ParameterizedType) parameters;
+                java.lang.reflect.Type[] parametersType = parameterizedType.getActualTypeArguments();
+                typeAdapter = gson.getAdapter(TypeToken.get(parametersType[0]));
+            } else {
+                TypeToken objectToken = TypeToken.get(Object.class);
+                typeAdapter = gson.getAdapter(objectToken);
+            }
+            return (TypeAdapter<T>) new SizeBatchTypeAdapter(typeAdapter);
+        } else if (clazz == SizeTimeBatch.class) {
+            java.lang.reflect.Type parameters = type.getType();
+            TypeAdapter typeAdapter;
+            if (parameters instanceof java.lang.reflect.ParameterizedType) {
+                java.lang.reflect.ParameterizedType parameterizedType = (java.lang.reflect.ParameterizedType) parameters;
+                java.lang.reflect.Type[] parametersType = parameterizedType.getActualTypeArguments();
+                typeAdapter = gson.getAdapter(TypeToken.get(parametersType[0]));
+            } else {
+                TypeToken objectToken = TypeToken.get(Object.class);
+                typeAdapter = gson.getAdapter(objectToken);
+            }
+            return (TypeAdapter<T>) new SizeTimeBatchTypeAdapter(typeAdapter);
         }
 
         return null;

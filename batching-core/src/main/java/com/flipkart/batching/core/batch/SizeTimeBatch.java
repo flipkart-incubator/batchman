@@ -4,15 +4,20 @@ import com.flipkart.batching.core.BatchImpl;
 import com.flipkart.batching.core.Data;
 
 import java.util.Collection;
+import java.util.Collections;
 
 public class SizeTimeBatch<T extends Data> extends BatchImpl<T> {
-    private int maxBatchSize;
-    private long timeOut;
+    public int maxBatchSize;
+    public long timeOut;
 
     public SizeTimeBatch(Collection dataCollection, int maxBatchSize, long timeOut) {
         super(dataCollection);
         this.maxBatchSize = maxBatchSize;
         this.timeOut = timeOut;
+    }
+
+    public SizeTimeBatch() {
+        super(Collections.EMPTY_LIST);
     }
 
     public int getMaxBatchSize() {
