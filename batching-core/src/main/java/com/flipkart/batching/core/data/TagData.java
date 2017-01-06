@@ -32,7 +32,10 @@ import com.flipkart.batching.core.Data;
  */
 public class TagData extends Data {
 
-    private final Tag tag;
+    public Tag tag;
+
+    public TagData() {
+    }
 
     public TagData(Tag tag) {
         super();

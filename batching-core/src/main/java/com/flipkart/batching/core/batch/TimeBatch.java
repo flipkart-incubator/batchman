@@ -4,9 +4,14 @@ import com.flipkart.batching.core.BatchImpl;
 import com.flipkart.batching.core.Data;
 
 import java.util.Collection;
+import java.util.Collections;
 
 public class TimeBatch<D extends Data> extends BatchImpl<D> {
-    private long timeOut;
+    public long timeOut;
+
+    public TimeBatch() {
+        super(Collections.EMPTY_LIST);
+    }
 
     public TimeBatch(Collection<D> dataCollection, long timeOut) {
         super(dataCollection);
