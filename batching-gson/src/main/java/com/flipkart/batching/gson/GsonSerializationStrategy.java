@@ -67,6 +67,9 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     private static final String IS_JSON_OBJECT = "_com.flipkart.batching.isJsonObject";
     private static final String JSON_ARRAY_OBJECT = "_com.flipkart.batching.jsonArray";
     private Gson gson;
+    private TypeAdapter<E> dataTypeAdapter;
+    private TypeAdapter<T> batchTypeAdapter;
+    private TypeAdapter<Collection<E>> collectionTypeAdapter;
     private List<TypeAdapterFactory> typeAdapterFactories = new ArrayList<>(1);
 
     public static JsonElement serializeJSONArray(JSONArray src, JsonSerializationContext context) {
@@ -222,17 +225,26 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     }
 
     private TypeAdapter<Collection<E>> getCollectionTypeAdapter() {
-        return new KnownTypeAdapters.ListTypeAdapter<>(getDataTypeAdapter(), new KnownTypeAdapters.CollectionInstantiater<E>());
+        if (collectionTypeAdapter == null) {
+            collectionTypeAdapter = new KnownTypeAdapters.ListTypeAdapter<>(getDataTypeAdapter(), new KnownTypeAdapters.CollectionInstantiater<E>());
+        }
+        return collectionTypeAdapter;
     }
 
     private TypeAdapter<E> getDataTypeAdapter() {
-        return gson.getAdapter(new TypeToken<E>() {
-        });
+        if (dataTypeAdapter == null) {
+            dataTypeAdapter = gson.getAdapter(new TypeToken<E>() {
+            });
+        }
+        return dataTypeAdapter;
     }
 
     private TypeAdapter<T> getBatchTypeAdapter() {
-        return gson.getAdapter(new TypeToken<T>() {
-        });
+        if (batchTypeAdapter == null) {
+            batchTypeAdapter = gson.getAdapter(new TypeToken<T>() {
+            });
+        }
+        return batchTypeAdapter;
     }
 
     /**
