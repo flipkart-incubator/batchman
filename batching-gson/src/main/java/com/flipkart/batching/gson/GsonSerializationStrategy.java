@@ -42,6 +42,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.LinkedTreeMap;
 
 import org.json.JSONArray;
@@ -53,6 +54,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -67,6 +69,7 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     private TypeAdapter<E> dataTypeAdapter;
     private TypeAdapter<T> batchTypeAdapter;
     private TypeAdapter<Collection<E>> collectionTypeAdapter;
+    private List<TypeAdapterFactory> typeAdapterFactories = new ArrayList<>(1);
 
     public static JsonElement serializeJSONArray(JSONArray src, JsonSerializationContext context) {
         JsonObject result = null;
@@ -241,10 +244,23 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         return batchTypeAdapter;
     }
 
+    /**
+     * Client can use this method to register his type adapters with gson
+     *
+     * @param typeAdapterFactory {@link TypeAdapterFactory}
+     */
+    public void registerTypeAdapterFactory(TypeAdapterFactory typeAdapterFactory) {
+        typeAdapterFactories.add(typeAdapterFactory);
+    }
+
     @Override
     public void build() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapterFactory(new BatchingTypeAdapterFactory());
+
+        for (TypeAdapterFactory typeAdapterFactory : typeAdapterFactories) {
+            gsonBuilder.registerTypeAdapterFactory(typeAdapterFactory);
+        }
 
         gsonBuilder.registerTypeAdapter(JSONObject.class, new JSONObjectDeSerializer());
         gsonBuilder.registerTypeAdapter(JSONObject.class, new JSONObjectSerializer());
