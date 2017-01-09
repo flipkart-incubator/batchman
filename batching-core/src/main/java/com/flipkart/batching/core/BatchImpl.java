@@ -32,7 +32,10 @@ import java.util.Collection;
 
 public class BatchImpl<T extends Data> implements Batch<T> {
 
-    private DataCollection<T> dataCollection;
+    public DataCollection<T> dataCollection;
+
+    public BatchImpl() {
+    }
 
     public BatchImpl(Collection<T> dataCollection) {
         this.dataCollection = new DataCollection<>(dataCollection);
