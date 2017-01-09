@@ -44,6 +44,7 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,9 +67,6 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     private static final String IS_JSON_OBJECT = "_com.flipkart.batching.isJsonObject";
     private static final String JSON_ARRAY_OBJECT = "_com.flipkart.batching.jsonArray";
     private Gson gson;
-    private TypeAdapter<E> dataTypeAdapter;
-    private TypeAdapter<T> batchTypeAdapter;
-    private TypeAdapter<Collection<E>> collectionTypeAdapter;
     private List<TypeAdapterFactory> typeAdapterFactories = new ArrayList<>(1);
 
     public static JsonElement serializeJSONArray(JSONArray src, JsonSerializationContext context) {
@@ -224,24 +222,17 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     }
 
     private TypeAdapter<Collection<E>> getCollectionTypeAdapter() {
-        if (collectionTypeAdapter == null) {
-            collectionTypeAdapter = new KnownTypeAdapters.ListTypeAdapter<E, Collection<E>>(getDataTypeAdapter(), new KnownTypeAdapters.CollectionInstantiater<E>());
-        }
-        return collectionTypeAdapter;
+        return new KnownTypeAdapters.ListTypeAdapter<>(getDataTypeAdapter(), new KnownTypeAdapters.CollectionInstantiater<E>());
     }
 
     private TypeAdapter<E> getDataTypeAdapter() {
-        if (dataTypeAdapter == null) {
-            dataTypeAdapter = (TypeAdapter<E>) gson.getAdapter(Data.class);
-        }
-        return dataTypeAdapter;
+        return gson.getAdapter(new TypeToken<E>() {
+        });
     }
 
     private TypeAdapter<T> getBatchTypeAdapter() {
-        if (batchTypeAdapter == null) {
-            batchTypeAdapter = (TypeAdapter<T>) gson.getAdapter(Batch.class);
-        }
-        return batchTypeAdapter;
+        return gson.getAdapter(new TypeToken<T>() {
+        });
     }
 
     /**
