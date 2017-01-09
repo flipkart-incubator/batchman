@@ -32,6 +32,9 @@ public class EventTag extends Tag {
     @SerializedName("url")
     public String url;
 
+    public EventTag() {
+    }
+
     public EventTag(String id, String url) {
         super(id);
         this.url = url;

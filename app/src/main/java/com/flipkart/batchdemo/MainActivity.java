@@ -41,18 +41,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.ValueCallback;
 
+import com.flipkart.batchdemo.adapter.AdapterFactory;
 import com.flipkart.batching.TagBatchManager;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.batch.TagBatch;
+import com.flipkart.batching.core.data.Tag;
+import com.flipkart.batching.core.data.TagData;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.PersistedBatchCallback;
 import com.flipkart.batching.listener.TrimmedBatchCallback;
 import com.flipkart.batching.persistence.TapePersistenceStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.flipkart.batching.core.Batch;
-import com.flipkart.batching.core.SerializationStrategy;
-import com.flipkart.batching.core.batch.TagBatch;
-import com.flipkart.batching.core.data.Tag;
-import com.flipkart.batching.core.data.TagData;
-import com.flipkart.batching.gson.GsonSerializationStrategy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,8 +76,8 @@ public class MainActivity extends AppCompatActivity
         handlerThread.start();
         Handler backgroundHandler = new Handler(handlerThread.getLooper());
 
-        SerializationStrategy serializationStrategy = new GsonSerializationStrategy<>();
-        serializationStrategy.registerDataType(CustomTagData.class);
+        GsonSerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        serializationStrategy.registerTypeAdapterFactory(new AdapterFactory());
 
         debugTag = new Tag(DEBUG_LOGGER_GROUPID);
         perfTag = new Tag(PERF_LOGGER_GROUPID);
@@ -191,6 +191,7 @@ public class MainActivity extends AppCompatActivity
                 .addTag(debugTag, new SizeBatchingStrategy(3, new TapePersistenceStrategy(getCacheDir() + "/debug1", serializationStrategy)), debugListener)
                 .addTag(dgTag, new SizeBatchingStrategy(3, new TapePersistenceStrategy(getCacheDir() + "/dg1", serializationStrategy)), dgListener)
                 .build(getApplicationContext());
+        batchManager.flush(true);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -217,7 +218,6 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
-
 
     @Override
     public void onBackPressed() {
