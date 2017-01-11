@@ -33,6 +33,9 @@ import java.util.Collection;
 public class DataCollection<T extends Data> {
     public Collection<T> dataCollection;
 
+    public DataCollection() {
+    }
+
     public DataCollection(Collection<T> dataCollection) {
         this.dataCollection = dataCollection;
     }

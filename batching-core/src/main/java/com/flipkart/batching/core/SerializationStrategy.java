@@ -36,16 +36,6 @@ import java.util.Collection;
 public interface SerializationStrategy<E extends Data, T extends Batch> {
 
     /**
-     * Register sub classes of {@link Data}
-     *
-     * @param subClass The sub class of {@link Data}
-     */
-    void registerDataType(Class<E> subClass);
-
-    void registerBatch(Class<T> subClass);
-
-    /**
-     * After registering subtypes using {@link #registerDataType(Class)}} & {@link #registerBatch(Class)}, this method has to be called.
      * After build is called, no more register calls can happen.
      */
     void build();
