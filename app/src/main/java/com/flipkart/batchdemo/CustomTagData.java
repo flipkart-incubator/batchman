@@ -32,7 +32,10 @@ import org.json.JSONObject;
 
 public class CustomTagData extends TagData {
     @SerializedName("event")
-    private final JSONObject event;
+    public JSONObject event;
+
+    public CustomTagData() {
+    }
 
     public CustomTagData(Tag tag, JSONObject event) {
         super(tag);
