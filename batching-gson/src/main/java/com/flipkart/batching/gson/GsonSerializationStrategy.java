@@ -24,14 +24,30 @@
 
 package com.flipkart.batching.gson;
 
-import com.flipkart.batching.gson.utils.Deserializer;
-import com.flipkart.batching.gson.utils.Serializer;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.BatchImpl;
 import com.flipkart.batching.core.Data;
-import com.flipkart.batching.core.DataCollection;
 import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.batch.SizeBatch;
+import com.flipkart.batching.core.batch.SizeTimeBatch;
+import com.flipkart.batching.core.batch.TagBatch;
+import com.flipkart.batching.core.batch.TimeBatch;
+import com.flipkart.batching.core.data.EventData;
+import com.flipkart.batching.core.data.TagData;
 import com.flipkart.batching.core.exception.DeserializeException;
 import com.flipkart.batching.core.exception.SerializeException;
+import com.flipkart.batching.gson.adapters.BatchImplTypeAdapter;
+import com.flipkart.batching.gson.adapters.KnownTypeAdapters;
+import com.flipkart.batching.gson.adapters.batch.SizeBatchTypeAdapter;
+import com.flipkart.batching.gson.adapters.batch.SizeTimeBatchTypeAdapter;
+import com.flipkart.batching.gson.adapters.batch.TagBatchTypeAdapter;
+import com.flipkart.batching.gson.adapters.batch.TimeBatchTypeAdapter;
+import com.flipkart.batching.gson.adapters.data.DataTypeAdapter;
+import com.flipkart.batching.gson.adapters.data.EventDataTypeAdapter;
+import com.flipkart.batching.gson.adapters.data.TagDataTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -43,20 +59,20 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.TypeAdapter;
 import com.google.gson.internal.LinkedTreeMap;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.internal.ObjectConstructor;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Implementation of {@link SerializationStrategy}.
@@ -66,10 +82,27 @@ import java.util.Set;
 public class GsonSerializationStrategy<E extends Data, T extends Batch> implements SerializationStrategy<E, T> {
     private static final String IS_JSON_OBJECT = "_com.flipkart.batching.isJsonObject";
     private static final String JSON_ARRAY_OBJECT = "_com.flipkart.batching.jsonArray";
-
-    Set<Class<E>> dataTypes = new HashSet<>();
-    Set<Class<T>> batchInfoTypes = new HashSet<>();
     private Gson gson;
+    @Nullable
+    private TypeAdapter<E> dataTypeAdapter;
+    @Nullable
+    private TypeAdapter<T> batchTypeAdapter;
+    @Nullable
+    private TypeAdapter<Collection<E>> collectionTypeAdapter;
+    @Nullable
+    private RuntimeTypeAdapterFactory<Data> runTimeDataTypeAdapter;
+    @Nullable
+    private RuntimeTypeAdapterFactory<Batch> runTimeBatchTypeAdapter;
+
+    public GsonSerializationStrategy(@NonNull TypeAdapter<E> dataTypeAdapter, @NonNull TypeAdapter<T> batchTypeAdapter) {
+        this.dataTypeAdapter = dataTypeAdapter;
+        this.batchTypeAdapter = batchTypeAdapter;
+    }
+
+    public GsonSerializationStrategy() {
+        this.dataTypeAdapter = null;
+        this.batchTypeAdapter = null;
+    }
 
     public static JsonElement serializeJSONArray(JSONArray src, JsonSerializationContext context) {
         JsonObject result = null;
@@ -153,7 +186,6 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         return result;
     }
 
-
     private static Object getObjectFromJsonElement(JsonElement value, JsonDeserializationContext context) {
         Object result = null;
         if (value.isJsonObject()) {
@@ -224,41 +256,67 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         return element;
     }
 
-    @Override
-    public void registerDataType(Class<E> subClass) {
-        dataTypes.add(subClass);
+    private TypeAdapter<Collection<E>> getCollectionTypeAdapter() {
+        if (collectionTypeAdapter == null) {
+            collectionTypeAdapter = new KnownTypeAdapters.ListTypeAdapter<>(getDataTypeAdapter(), new ObjectConstructor<Collection<E>>() {
+                @Override
+                public Collection<E> construct() {
+                    return new ArrayList<>();
+                }
+            });
+        }
+        return collectionTypeAdapter;
     }
 
-    @Override
-    public void registerBatch(Class<T> subClass) {
-        batchInfoTypes.add(subClass);
+    private TypeAdapter<T> getBatchTypeAdapter() {
+        if (batchTypeAdapter == null) {
+            batchTypeAdapter = (TypeAdapter<T>) gson.getAdapter(Batch.class);
+        }
+        return batchTypeAdapter;
+    }
+
+    private TypeAdapter<E> getDataTypeAdapter() {
+        if (dataTypeAdapter == null) {
+            dataTypeAdapter = (TypeAdapter<E>) gson.getAdapter(Data.class);
+        }
+        return dataTypeAdapter;
+    }
+
+    public void registerDataSubTypeAdapters(Class<? extends Data> subClass, TypeAdapter<? extends Data> typeAdapter) {
+        getDataRuntimeTypeAdapter().registerSubtype(subClass, typeAdapter);
+    }
+
+    public void registerBatchSubTypeAdapters(Class<? extends Batch> subClass, TypeAdapter<? extends Batch> typeAdapter) {
+        getBatchRuntimeTypeAdapter().registerSubtype(subClass, typeAdapter);
+    }
+
+    private RuntimeTypeAdapterFactory<Data> getDataRuntimeTypeAdapter() {
+        if (runTimeDataTypeAdapter == null) {
+            runTimeDataTypeAdapter = RuntimeTypeAdapterFactory.of(Data.class);
+        }
+        return runTimeDataTypeAdapter;
+    }
+
+    private RuntimeTypeAdapterFactory<Batch> getBatchRuntimeTypeAdapter() {
+        if (runTimeBatchTypeAdapter == null) {
+            runTimeBatchTypeAdapter = RuntimeTypeAdapterFactory.of(Batch.class);
+        }
+        return runTimeBatchTypeAdapter;
     }
 
     @Override
     public void build() {
-        RuntimeTypeAdapterFactory<E> dataAdapter = (RuntimeTypeAdapterFactory<E>) RuntimeTypeAdapterFactory.of(Data.class);
-        for (Class<E> dataType : dataTypes) {
-            dataAdapter.registerSubtype(dataType);
-        }
-
-        RuntimeTypeAdapterFactory<T> batchInfoAdapter = (RuntimeTypeAdapterFactory<T>) RuntimeTypeAdapterFactory.of(Batch.class);
-        for (Class<T> batchInfoType : batchInfoTypes) {
-            batchInfoAdapter.registerSubtype(batchInfoType);
-        }
-
-        RuntimeTypeAdapterFactory<Collection> collectionAdapter = RuntimeTypeAdapterFactory.of(Collection.class);
-        collectionAdapter.registerSubtype(ArrayList.class);
-
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapterFactory(dataAdapter);
-        gsonBuilder.registerTypeAdapterFactory(batchInfoAdapter);
-        gsonBuilder.registerTypeAdapter(DataCollection.class, new Serializer());
-        gsonBuilder.registerTypeAdapter(DataCollection.class, new Deserializer());
+        gsonBuilder.registerTypeAdapterFactory(getDataRuntimeTypeAdapter());
+        gsonBuilder.registerTypeAdapterFactory(getBatchRuntimeTypeAdapter());
+
         gsonBuilder.registerTypeAdapter(JSONObject.class, new JSONObjectDeSerializer());
         gsonBuilder.registerTypeAdapter(JSONObject.class, new JSONObjectSerializer());
         gsonBuilder.registerTypeAdapter(JSONArray.class, new JSONArrayDeSerializer());
         gsonBuilder.registerTypeAdapter(JSONArray.class, new JSONArraySerializer());
         gson = gsonBuilder.create();
+
+        registerBuiltInTypes(gson);
     }
 
     private void checkIfBuildCalled() {
@@ -271,7 +329,7 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     public byte[] serializeData(E data) throws SerializeException {
         checkIfBuildCalled();
         try {
-            return gson.toJson(data, Data.class).getBytes();
+            return getDataTypeAdapter().toJson(data).getBytes();
         } catch (JsonParseException e) {
             throw new SerializeException(e);
         }
@@ -280,10 +338,8 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     @Override
     public byte[] serializeCollection(Collection<E> data) throws SerializeException {
         checkIfBuildCalled();
-        Type type = new TypeToken<Collection<Data>>() {
-        }.getType();
         try {
-            return gson.toJson(data, type).getBytes();
+            return getCollectionTypeAdapter().toJson(data).getBytes();
         } catch (JsonParseException e) {
             throw new SerializeException(e);
         }
@@ -293,7 +349,7 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     public byte[] serializeBatch(T batch) throws SerializeException {
         checkIfBuildCalled();
         try {
-            return gson.toJson(batch, Batch.class).getBytes();
+            return getBatchTypeAdapter().toJson(batch).getBytes();
         } catch (JsonParseException e) {
             throw new SerializeException(e);
         }
@@ -303,8 +359,8 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     public E deserializeData(byte[] data) throws DeserializeException {
         checkIfBuildCalled();
         try {
-            return (E) gson.fromJson(new String(data), Data.class);
-        } catch (JsonParseException e) {
+            return getDataTypeAdapter().fromJson(new String(data));
+        } catch (IOException e) {
             throw new DeserializeException(e);
         }
     }
@@ -312,11 +368,9 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     @Override
     public Collection<E> deserializeCollection(byte[] data) throws DeserializeException {
         checkIfBuildCalled();
-        Type type = new TypeToken<Collection<Data>>() {
-        }.getType();
         try {
-            return gson.fromJson(new String(data), type);
-        } catch (JsonParseException e) {
+            return getCollectionTypeAdapter().fromJson(new String(data));
+        } catch (IOException e) {
             throw new DeserializeException(e);
         }
     }
@@ -325,10 +379,22 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     public T deserializeBatch(byte[] data) throws DeserializeException {
         checkIfBuildCalled();
         try {
-            return (T) gson.fromJson(new String(data), Batch.class);
-        } catch (JsonParseException e) {
+            return getBatchTypeAdapter().fromJson(new String(data));
+        } catch (IOException e) {
             throw new DeserializeException(e);
         }
+    }
+
+    private void registerBuiltInTypes(Gson gson) {
+        registerDataSubTypeAdapters(EventData.class, new EventDataTypeAdapter());
+        registerDataSubTypeAdapters(Data.class, new DataTypeAdapter());
+        registerDataSubTypeAdapters(TagData.class, new TagDataTypeAdapter());
+
+        registerBatchSubTypeAdapters(SizeBatch.class, new SizeBatchTypeAdapter<>(gson));
+        registerBatchSubTypeAdapters(BatchImpl.class, new BatchImplTypeAdapter<>(gson));
+        registerBatchSubTypeAdapters(SizeTimeBatch.class, new SizeTimeBatchTypeAdapter<>(gson));
+        registerBatchSubTypeAdapters(TagBatch.class, new TagBatchTypeAdapter<>(gson));
+        registerBatchSubTypeAdapters(TimeBatch.class, new TimeBatchTypeAdapter<>(gson));
     }
 
     public static class JSONObjectSerializer implements JsonSerializer<JSONObject> {
@@ -337,7 +403,6 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
             return serializeJSONObject(src, context);
         }
     }
-
 
     public static class JSONObjectDeSerializer implements JsonDeserializer<JSONObject> {
         @Override
