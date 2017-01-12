@@ -2,7 +2,7 @@ package com.flipkart.batching.gson.adapters.data;
 
 import com.flipkart.batching.core.data.Tag;
 import com.flipkart.batching.core.data.TagData;
-import com.flipkart.batching.gson.adapters.KnownTypeAdapters;
+import com.flipkart.batching.gson.adapters.BatchingTypeAdapters;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -61,7 +61,7 @@ public final class TagDataTypeAdapter extends TypeAdapter<TagData> {
                     object.tag = tagTypeAdapter.read(reader);
                     break;
                 case "eventId":
-                    object.eventId = KnownTypeAdapters.LONG.read(reader);
+                    object.eventId = BatchingTypeAdapters.LONG.read(reader);
                     break;
                 default:
                     reader.skipValue();

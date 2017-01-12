@@ -4,7 +4,7 @@ import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.DataCollection;
 import com.flipkart.batching.core.batch.SizeTimeBatch;
 import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
-import com.flipkart.batching.gson.adapters.KnownTypeAdapters;
+import com.flipkart.batching.gson.adapters.BatchingTypeAdapters;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
@@ -63,13 +63,13 @@ public final class SizeTimeBatchTypeAdapter<T extends Data> extends TypeAdapter<
             }
             switch (name) {
                 case "maxBatchSize":
-                    object.maxBatchSize = KnownTypeAdapters.INTEGER.read(reader);
+                    object.maxBatchSize = BatchingTypeAdapters.INTEGER.read(reader);
                     break;
                 case "dataCollection":
                     object.dataCollection = typeAdapter.read(reader);
                     break;
                 case "timeOut":
-                    object.timeOut = KnownTypeAdapters.LONG.read(reader);
+                    object.timeOut = BatchingTypeAdapters.LONG.read(reader);
                     break;
                 default:
                     reader.skipValue();

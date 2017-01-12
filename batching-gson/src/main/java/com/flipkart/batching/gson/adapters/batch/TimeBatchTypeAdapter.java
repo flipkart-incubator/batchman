@@ -4,7 +4,7 @@ import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.DataCollection;
 import com.flipkart.batching.core.batch.TimeBatch;
 import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
-import com.flipkart.batching.gson.adapters.KnownTypeAdapters;
+import com.flipkart.batching.gson.adapters.BatchingTypeAdapters;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
@@ -60,7 +60,7 @@ public final class TimeBatchTypeAdapter<D extends Data> extends TypeAdapter<Time
             }
             switch (name) {
                 case "timeOut":
-                    object.timeOut = KnownTypeAdapters.LONG.read(reader);
+                    object.timeOut = BatchingTypeAdapters.LONG.read(reader);
                     break;
                 case "dataCollection":
                     object.dataCollection = typeAdapter.read(reader);

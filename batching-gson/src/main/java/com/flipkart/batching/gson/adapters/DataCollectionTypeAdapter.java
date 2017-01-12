@@ -21,7 +21,7 @@ public class DataCollectionTypeAdapter<T extends Data> extends TypeAdapter<DataC
     private TypeAdapter<Collection<T>> collectionTypeAdapter;
 
     public DataCollectionTypeAdapter(@NonNull Gson gson) {
-        collectionTypeAdapter = new KnownTypeAdapters.ListTypeAdapter<>(gson.getAdapter(new TypeToken<T>() {
+        collectionTypeAdapter = new BatchingTypeAdapters.ListTypeAdapter<>(gson.getAdapter(new TypeToken<T>() {
         }), new ObjectConstructor<Collection<T>>() {
             @Override
             public Collection<T> construct() {

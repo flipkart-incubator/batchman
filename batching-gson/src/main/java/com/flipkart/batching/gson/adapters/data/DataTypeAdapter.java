@@ -2,7 +2,7 @@ package com.flipkart.batching.gson.adapters.data;
 
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.data.EventData;
-import com.flipkart.batching.gson.adapters.KnownTypeAdapters;
+import com.flipkart.batching.gson.adapters.BatchingTypeAdapters;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -47,7 +47,7 @@ public final class DataTypeAdapter extends TypeAdapter<Data> {
             }
             switch (name) {
                 case "eventId":
-                    object.eventId = KnownTypeAdapters.LONG.read(reader);
+                    object.eventId = BatchingTypeAdapters.LONG.read(reader);
                     break;
                 default:
                     reader.skipValue();
