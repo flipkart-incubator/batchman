@@ -28,20 +28,14 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.data.Tag;
+import com.flipkart.batching.core.data.TagData;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.TagBatchReadyListener;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
-import com.flipkart.batching.core.Batch;
-import com.flipkart.batching.core.BatchImpl;
-import com.flipkart.batching.core.Data;
-import com.flipkart.batching.core.SerializationStrategy;
-import com.flipkart.batching.core.batch.SizeBatch;
-import com.flipkart.batching.core.batch.SizeTimeBatch;
-import com.flipkart.batching.core.batch.TagBatch;
-import com.flipkart.batching.core.batch.TimeBatch;
-import com.flipkart.batching.core.data.EventData;
-import com.flipkart.batching.core.data.Tag;
-import com.flipkart.batching.core.data.TagData;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -81,9 +75,6 @@ public class TagBatchManager<E extends Data, T extends Batch<E>> implements Batc
             this.handler = new Handler(handlerThread.getLooper());
         }
 
-        registerBuiltInTypes(serializationStrategy);
-        registerSuppliedTypes(builder, serializationStrategy);
-
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -93,27 +84,8 @@ public class TagBatchManager<E extends Data, T extends Batch<E>> implements Batc
         });
     }
 
-    public static void registerBuiltInTypes(SerializationStrategy serializationStrategy) {
-        serializationStrategy.registerDataType(TagData.class);
-        serializationStrategy.registerBatch(BatchImpl.class);
-        serializationStrategy.registerDataType(EventData.class);
-        serializationStrategy.registerBatch(SizeBatch.class);
-        serializationStrategy.registerBatch(TimeBatch.class);
-        serializationStrategy.registerBatch(TagBatch.class);
-        serializationStrategy.registerBatch(SizeTimeBatch.class);
-    }
-
     void initialize(TagBatchManager<E, T> tagBatchManager, Context context, OnBatchReadyListener onBatchReadyListener, Handler handler) {
         tagBatchingStrategy.onInitialized(context, onBatchReadyListener, handler);
-    }
-
-    private void registerSuppliedTypes(Builder<E, T> builder, SerializationStrategy serializationStrategy) {
-        for (Class<E> dataType : builder.dataTypes) {
-            serializationStrategy.registerDataType(dataType);
-        }
-        for (Class<T> batchInfoType : builder.batchInfoTypes) {
-            serializationStrategy.registerBatch(batchInfoType);
-        }
     }
 
     @Override
