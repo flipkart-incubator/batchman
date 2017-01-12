@@ -27,13 +27,12 @@ package com.flipkart.batching.persistence;
 import android.content.Context;
 
 import com.flipkart.Utils;
-import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.SerializationStrategy;
 import com.flipkart.batching.core.data.Tag;
 import com.flipkart.batching.core.data.TagData;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -121,7 +120,6 @@ public class TagBasedPersistenceTest {
         Context context = RuntimeEnvironment.application;
         inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         sqlPersistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, "test", context);
         sqlPersistenceStrategy.onInitialized();
@@ -151,7 +149,6 @@ public class TagBasedPersistenceTest {
         Context context = RuntimeEnvironment.application;
         inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
 
         sqlPersistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, "test", context);
@@ -181,7 +178,6 @@ public class TagBasedPersistenceTest {
         Context context = RuntimeEnvironment.application;
         inMemoryPersistenceStrategy = new InMemoryPersistenceStrategy<>();
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
 
         sqlPersistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, "test", context);

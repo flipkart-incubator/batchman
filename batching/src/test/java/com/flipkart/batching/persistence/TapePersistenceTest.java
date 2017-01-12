@@ -106,7 +106,6 @@ public class TapePersistenceTest extends BaseTestClass {
     private PersistenceStrategy<Data> initializeTapePersistence() {
         File file = createRandomFile();
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         TapePersistenceStrategy<Data> persistenceStrategy = new TapePersistenceStrategy<>(createRandomFile().getPath(), serializationStrategy);
         persistenceStrategy.onInitialized();

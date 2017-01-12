@@ -97,7 +97,6 @@ public class SQLPersistenceTest extends BaseTestClass {
         Context context;
         context = RuntimeEnvironment.application;
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         persistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, createRandomString(), context);
         persistenceStrategy.onInitialized();
