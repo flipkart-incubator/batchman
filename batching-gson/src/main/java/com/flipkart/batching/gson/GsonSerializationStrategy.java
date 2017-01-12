@@ -46,7 +46,6 @@ import com.flipkart.batching.gson.adapters.batch.SizeBatchTypeAdapter;
 import com.flipkart.batching.gson.adapters.batch.SizeTimeBatchTypeAdapter;
 import com.flipkart.batching.gson.adapters.batch.TagBatchTypeAdapter;
 import com.flipkart.batching.gson.adapters.batch.TimeBatchTypeAdapter;
-import com.flipkart.batching.gson.adapters.data.DataTypeAdapter;
 import com.flipkart.batching.gson.adapters.data.EventDataTypeAdapter;
 import com.flipkart.batching.gson.adapters.data.TagDataTypeAdapter;
 import com.google.gson.Gson;
@@ -214,7 +213,6 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
 
     private void registerBuiltInTypes(Gson gson) {
         registerDataSubTypeAdapters(EventData.class, new EventDataTypeAdapter());
-        registerDataSubTypeAdapters(Data.class, new DataTypeAdapter());
         registerDataSubTypeAdapters(TagData.class, new TagDataTypeAdapter());
 
         registerBatchSubTypeAdapters(SizeBatch.class, new SizeBatchTypeAdapter<>(gson));
