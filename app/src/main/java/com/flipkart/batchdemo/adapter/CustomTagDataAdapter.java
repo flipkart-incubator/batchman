@@ -2,31 +2,20 @@ package com.flipkart.batchdemo.adapter;
 
 import com.flipkart.batchdemo.CustomTagData;
 import com.flipkart.batching.core.data.Tag;
-import com.flipkart.batching.gson.adapters.KnownTypeAdapters;
+import com.flipkart.batching.gson.adapters.BatchingTypeAdapters;
 import com.flipkart.batching.gson.adapters.data.TagTypeAdapter;
-import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
-import org.json.JSONObject;
-
 import java.io.IOException;
-
-/**
- * Created by anirudh.r on 11/01/17.
- */
 
 public class CustomTagDataAdapter extends TypeAdapter<CustomTagData> {
 
     private TypeAdapter<Tag> tagTypeAdapter;
-    private TypeAdapter<JSONObject> jsonObjectTypeAdapter;
 
     public CustomTagDataAdapter() {
         this.tagTypeAdapter = new TagTypeAdapter();
-        this.jsonObjectTypeAdapter = new Gson().getAdapter(new TypeToken<JSONObject>() {
-        });
     }
 
     @Override
@@ -44,7 +33,7 @@ public class CustomTagDataAdapter extends TypeAdapter<CustomTagData> {
 
         if (object.event != null) {
             writer.name("event");
-            jsonObjectTypeAdapter.write(writer, object.event);
+            BatchingTypeAdapters.JSON_OBJECT_TYPE_ADAPTER.write(writer, object.event);
         }
 
         writer.name("eventId");
@@ -78,10 +67,10 @@ public class CustomTagDataAdapter extends TypeAdapter<CustomTagData> {
                     object.tag = tagTypeAdapter.read(reader);
                     break;
                 case "eventId":
-                    object.eventId = KnownTypeAdapters.LONG.read(reader);
+                    object.eventId = BatchingTypeAdapters.LONG.read(reader);
                     break;
                 case "event":
-                    object.event = jsonObjectTypeAdapter.read(reader);
+                    object.event = BatchingTypeAdapters.JSON_OBJECT_TYPE_ADAPTER.read(reader);
                     break;
                 default:
                     reader.skipValue();
