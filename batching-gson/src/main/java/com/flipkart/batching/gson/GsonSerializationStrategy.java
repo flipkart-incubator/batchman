@@ -63,7 +63,7 @@ import java.util.Collection;
  *
  * @see SerializationStrategy
  */
-public class GsonSerializationStrategy<E extends Data, T extends Batch> implements BaseGsonSerializationStrategy<E, T> {
+public class GsonSerializationStrategy<E extends Data, T extends Batch> implements SerializationStrategy<E, T> {
 
     private Gson gson;
     @Nullable
@@ -113,12 +113,10 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         return dataTypeAdapter;
     }
 
-    @Override
     public void registerDataSubTypeAdapters(Class<? extends Data> subClass, TypeAdapter<? extends Data> typeAdapter) {
         getDataRuntimeTypeAdapter().registerSubtype(subClass, typeAdapter);
     }
 
-    @Override
     public void registerBatchSubTypeAdapters(Class<? extends Batch> subClass, TypeAdapter<? extends Batch> typeAdapter) {
         getBatchRuntimeTypeAdapter().registerSubtype(subClass, typeAdapter);
     }
