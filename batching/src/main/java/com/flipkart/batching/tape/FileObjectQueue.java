@@ -38,6 +38,7 @@ import static java.util.Collections.unmodifiableList;
  * @param <T> The type of elements in the queue.
  */
 public class FileObjectQueue<T> implements ObjectQueue<T> {
+    final Converter<T> converter;
     /**
      * Backing storage implementation.
      */
@@ -50,7 +51,6 @@ public class FileObjectQueue<T> implements ObjectQueue<T> {
      * Keep file around for error reporting.
      */
     private final File file;
-    final Converter<T> converter;
     private Listener<T> listener;
 
     public FileObjectQueue(File file, QueueFile queueFile, Converter<T> converter) throws IOException {

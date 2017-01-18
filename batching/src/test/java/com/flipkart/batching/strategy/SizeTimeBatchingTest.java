@@ -34,10 +34,10 @@ import com.flipkart.batching.BatchController;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.OnBatchReadyListener;
-import com.flipkart.batching.persistence.PersistenceStrategy;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.batch.SizeTimeBatch;
+import com.flipkart.batching.persistence.PersistenceStrategy;
 
 import junit.framework.Assert;
 

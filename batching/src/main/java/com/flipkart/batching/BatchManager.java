@@ -136,7 +136,7 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
      */
 
     public void initialize(BatchController<E, T> batchController, Context context,
-                    OnBatchReadyListener<E, T> onBatchReadyListener, Handler handler) {
+                           OnBatchReadyListener<E, T> onBatchReadyListener, Handler handler) {
         batchingStrategy.onInitialized(context, onBatchReadyListener, handler);
     }
 

@@ -28,14 +28,13 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.flipkart.Utils;
-import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.data.EventData;
 import com.flipkart.batching.core.exception.DeserializeException;
 import com.flipkart.batching.core.exception.SerializeException;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
 
 import junit.framework.Assert;
 
@@ -70,7 +69,7 @@ public class DatabaseHelperTest {
         Context context;
         GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
 
-        gsonSerializationStrategy = new GsonSerializationStrategy<>( );
+        gsonSerializationStrategy = new GsonSerializationStrategy<>();
         gsonSerializationStrategy.build();
         context = RuntimeEnvironment.application;
         databaseHelper = new DatabaseHelper<>(gsonSerializationStrategy, "test", context);
@@ -93,7 +92,7 @@ public class DatabaseHelperTest {
         Context context;
         GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
 
-        gsonSerializationStrategy = new GsonSerializationStrategy<>( );
+        gsonSerializationStrategy = new GsonSerializationStrategy<>();
         gsonSerializationStrategy.build();
 
         context = RuntimeEnvironment.application;
@@ -117,7 +116,7 @@ public class DatabaseHelperTest {
         Context context;
         GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
 
-        gsonSerializationStrategy = new GsonSerializationStrategy<>( );
+        gsonSerializationStrategy = new GsonSerializationStrategy<>();
         gsonSerializationStrategy.build();
         context = RuntimeEnvironment.application;
         databaseHelper = new DatabaseHelper<>(gsonSerializationStrategy, "test", context);
@@ -143,7 +142,7 @@ public class DatabaseHelperTest {
         Context context;
         GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
 
-        gsonSerializationStrategy = new GsonSerializationStrategy<>( );
+        gsonSerializationStrategy = new GsonSerializationStrategy<>();
         gsonSerializationStrategy.build();
         context = RuntimeEnvironment.application;
         databaseHelper = new DatabaseHelper<>(gsonSerializationStrategy, "test", context);
@@ -168,7 +167,7 @@ public class DatabaseHelperTest {
         Context context;
         GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
 
-        gsonSerializationStrategy = new GsonSerializationStrategy<>( );
+        gsonSerializationStrategy = new GsonSerializationStrategy<>();
         gsonSerializationStrategy.build();
         context = RuntimeEnvironment.application;
         databaseHelper = new DatabaseHelper<>(gsonSerializationStrategy, "test", context);
@@ -189,7 +188,7 @@ public class DatabaseHelperTest {
         Context context;
         GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
 
-        gsonSerializationStrategy = new GsonSerializationStrategy<>( );
+        gsonSerializationStrategy = new GsonSerializationStrategy<>();
         gsonSerializationStrategy.build();
         context = RuntimeEnvironment.application;
         DatabaseHelper databaseHelper = new DatabaseHelper<>(gsonSerializationStrategy, "test", context);

@@ -41,8 +41,8 @@ public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>>
     public final static int MODE_TRIM_ON_READY = 1 << 1;
     protected final Handler handler;
     private final TrimmedBatchCallback trimListener;
-    private int trimSize, maxQueueSize;
     int mode;
+    private int trimSize, maxQueueSize;
 
     public TrimPersistedBatchReadyListener(String filePath, SerializationStrategy<E, T> serializationStrategy, Handler handler, int maxQueueSize, int trimSize, int mode, PersistedBatchCallback<T> persistedBatchCallback, TrimmedBatchCallback trimmedBatchCallback) {
         super(filePath, serializationStrategy, handler, persistedBatchCallback);

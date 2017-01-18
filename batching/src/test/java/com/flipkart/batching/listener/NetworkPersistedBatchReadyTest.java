@@ -34,14 +34,13 @@ import android.webkit.ValueCallback;
 
 import com.flipkart.Utils;
 import com.flipkart.batching.BaseTestClass;
-import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.SerializationStrategy;
 import com.flipkart.batching.core.batch.SizeBatch;
 import com.flipkart.batching.core.exception.SerializeException;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.tape.ObjectQueue;
 
@@ -526,11 +525,11 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         shadowLooper.idle(100); //this will start waiting for finish callback
         final ArrayList<Data> dataList2 = Utils.fakeAdsCollection(10);
         SizeBatch<Data> sizeBatch2 = new SizeBatch<>(dataList2, 3);
-        networkPersistedBatchReadyListener.onReady(sizeBatchingStrategy,sizeBatch2);
+        networkPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch2);
         shadowLooper.idle(100); // this will initiate a trim since size is 2
         final ArrayList<Data> dataList3 = Utils.fakeAdsCollection(10);
         SizeBatch<Data> sizeBatch3 = new SizeBatch<>(dataList2, 3);
-        networkPersistedBatchReadyListener.onReady(sizeBatchingStrategy,sizeBatch2);
+        networkPersistedBatchReadyListener.onReady(sizeBatchingStrategy, sizeBatch2);
         shadowLooper.idle(100); // this will fire onReady once more
 
         shadowLooper.runToEndOfTasks(); //this will invoke the network callback because the idle time is high

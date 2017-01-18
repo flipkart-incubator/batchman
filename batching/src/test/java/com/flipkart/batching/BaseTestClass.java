@@ -42,7 +42,7 @@ public class BaseTestClass {
      */
     public String createRandomString() {
         double random = Math.random();
-        return  "Random" + random + TEST_FILE_SUFFIX;
+        return "Random" + random + TEST_FILE_SUFFIX;
     }
 
     /**

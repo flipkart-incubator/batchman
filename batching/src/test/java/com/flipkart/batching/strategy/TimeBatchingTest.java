@@ -32,11 +32,11 @@ import android.os.Looper;
 import com.flipkart.Utils;
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.listener.PersistedBatchReadyListener;
-import com.flipkart.batching.persistence.PersistenceStrategy;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.batch.TimeBatch;
+import com.flipkart.batching.listener.PersistedBatchReadyListener;
+import com.flipkart.batching.persistence.PersistenceStrategy;
 
 import junit.framework.Assert;
 

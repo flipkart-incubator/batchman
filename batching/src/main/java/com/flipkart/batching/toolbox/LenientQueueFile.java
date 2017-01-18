@@ -32,7 +32,7 @@ import java.io.IOException;
 /**
  * A queue file made to ignore ArrayIndexOutOfBounds which causes OOM errors which happen once in a while due to disk corruption
  * Similar issue https://github.com/segmentio/analytics-android/pull/434
- *
+ * <p>
  * Use {@link QueueFileErrorCallback} to create a new queuefile and delete this one.
  */
 @SuppressWarnings("FunctionalInterfaceClash")
