@@ -37,7 +37,7 @@ Add the dependencies :
 
 ````java
 	dependencies {
-	        compile 'com.github.flipkart-incubator:batchman:1.3.0'
+	        compile 'com.github.flipkart-incubator:batchman:1.3.1'
 	}
 ````
 
@@ -46,7 +46,7 @@ Add the dependencies :
 ````java
 
 	dependencies {
-	        compile 'com.github.flipkart-incubator:batchman-gson:1.3.0'
+	        compile 'com.github.flipkart-incubator:batchman-gson:1.3.1'
 	}
 ````
 
