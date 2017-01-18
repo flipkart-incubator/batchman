@@ -300,6 +300,5 @@ public class SizeBatchingTest {
         SizeBatch sizeBatchInfo1 = new SizeBatch<>(list2, 5);
 
         Assert.assertTrue(sizeBatchInfo.equals(sizeBatchInfo1));
-        Assert.assertTrue(!sizeBatchInfo.equals("event"));
     }
 }

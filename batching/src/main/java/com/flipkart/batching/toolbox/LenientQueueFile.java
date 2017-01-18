@@ -35,7 +35,7 @@ import java.io.IOException;
  *
  * Use {@link QueueFileErrorCallback} to create a new queuefile and delete this one.
  */
-
+@SuppressWarnings("FunctionalInterfaceClash")
 public class LenientQueueFile extends QueueFile {
 
     private final QueueFileErrorCallback mCallback;

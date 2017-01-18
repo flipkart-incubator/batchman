@@ -246,6 +246,5 @@ public class SizeTimeBatchingTest {
         SizeTimeBatch sizeTimeBatch1 = new SizeTimeBatch(list2, 5, 5000);
 
         Assert.assertTrue(sizeTimeBatch.equals(sizeTimeBatch1));
-        Assert.assertTrue(!sizeTimeBatch.equals("event"));
     }
 }

@@ -31,9 +31,7 @@ import android.os.HandlerThread;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.SerializationStrategy;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.flipkart.batching.toolbox.LogUtil;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -61,7 +59,6 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
     Handler handler;
     BatchingStrategy<E, T> batchingStrategy;
     SerializationStrategy<E, T> serializationStrategy;
-    private Logger logger = LoggerFactory.getLogger(BatchManager.class);
 
     protected BatchManager(Builder builder, final Context context) {
         final OnBatchReadyListener onBatchReadyListener = builder.getOnBatchReadyListener();
@@ -89,7 +86,6 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
             @Override
             public void run() {
                 assignEventIds(dataCollection);
-                logEvents(dataCollection);
                 if (batchingStrategy.isInitialized()) {
                     batchingStrategy.onDataPushed(dataCollection);
                     batchingStrategy.flush(false);
@@ -98,12 +94,6 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
                 }
             }
         });
-    }
-
-    void logEvents(Collection<E> dataCollection) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Data added {}", dataCollection);
-        }
     }
 
     void assignEventIds(Collection<E> dataCollection) {
@@ -213,6 +203,11 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
 
         public Builder registerBatchInfoType(Class<T> subClass) {
             batchInfoTypes.add(subClass);
+            return this;
+        }
+
+        public Builder enableLogging() {
+            LogUtil.isLoggingEnabled = true;
             return this;
         }
 

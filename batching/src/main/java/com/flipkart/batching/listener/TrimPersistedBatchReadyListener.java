@@ -31,8 +31,6 @@ import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.SerializationStrategy;
 
-import org.slf4j.LoggerFactory;
-
 
 /**
  * TrimPersistedBatchReadyListener that extends {@link PersistedBatchReadyListener}
@@ -41,7 +39,6 @@ public class TrimPersistedBatchReadyListener<E extends Data, T extends Batch<E>>
     public final static int MODE_TRIM_NONE = 0;
     public final static int MODE_TRIM_AT_START = 1;
     public final static int MODE_TRIM_ON_READY = 1 << 1;
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(TrimPersistedBatchReadyListener.class);
     protected final Handler handler;
     private final TrimmedBatchCallback trimListener;
     private int trimSize, maxQueueSize;

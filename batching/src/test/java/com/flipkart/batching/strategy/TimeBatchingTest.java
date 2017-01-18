@@ -227,7 +227,6 @@ public class TimeBatchingTest {
         TimeBatch timeBatchInfo1 = new TimeBatch<>(list2, 5000);
 
         Assert.assertTrue(timeBatchInfo.equals(timeBatchInfo1));
-        Assert.assertTrue(!timeBatchInfo.equals("a"));
     }
 
     /**
