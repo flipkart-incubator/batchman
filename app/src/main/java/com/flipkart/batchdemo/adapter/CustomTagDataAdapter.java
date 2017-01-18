@@ -4,6 +4,7 @@ import com.flipkart.batchdemo.CustomTagData;
 import com.flipkart.batching.core.data.Tag;
 import com.flipkart.batching.gson.adapters.BatchingTypeAdapters;
 import com.flipkart.batching.gson.adapters.data.TagTypeAdapter;
+import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -13,6 +14,7 @@ import java.io.IOException;
 public class CustomTagDataAdapter extends TypeAdapter<CustomTagData> {
 
     private TypeAdapter<Tag> tagTypeAdapter;
+    private final Gson gson = new Gson();
 
     public CustomTagDataAdapter() {
         this.tagTypeAdapter = new TagTypeAdapter();
@@ -33,7 +35,7 @@ public class CustomTagDataAdapter extends TypeAdapter<CustomTagData> {
 
         if (object.event != null) {
             writer.name("event");
-            BatchingTypeAdapters.JSON_OBJECT_TYPE_ADAPTER.write(writer, object.event);
+            BatchingTypeAdapters.getJSONObjectTypeAdapter(gson).write(writer, object.event);
         }
 
         writer.name("eventId");
@@ -70,7 +72,7 @@ public class CustomTagDataAdapter extends TypeAdapter<CustomTagData> {
                     object.eventId = BatchingTypeAdapters.LONG.read(reader);
                     break;
                 case "event":
-                    object.event = BatchingTypeAdapters.JSON_OBJECT_TYPE_ADAPTER.read(reader);
+                    object.event = BatchingTypeAdapters.getJSONObjectTypeAdapter(gson).read(reader);
                     break;
                 default:
                     reader.skipValue();
