@@ -3,9 +3,8 @@ package com.flipkart.batching.gson.adapters.batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.DataCollection;
 import com.flipkart.batching.core.batch.TimeBatch;
-import com.flipkart.batching.gson.RuntimeTypeAdapterFactory;
-import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
 import com.flipkart.batching.gson.adapters.BatchingTypeAdapters;
+import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -28,7 +27,7 @@ public final class TimeBatchTypeAdapter<T extends Data> extends TypeAdapter<Time
         }
 
         writer.name("timeOut");
-        writer.value(object.timeOut);
+        writer.value(object.getTimeOut());
 
         if (object.dataCollection != null) {
             writer.name("dataCollection");
@@ -50,7 +49,9 @@ public final class TimeBatchTypeAdapter<T extends Data> extends TypeAdapter<Time
         }
         reader.beginObject();
 
-        TimeBatch<T> object = new TimeBatch<T>();
+        long timeOut = 0L;
+        DataCollection<T> dataCollection = null;
+
         while (reader.hasNext()) {
             String name = reader.nextName();
             com.google.gson.stream.JsonToken jsonToken = reader.peek();
@@ -60,10 +61,10 @@ public final class TimeBatchTypeAdapter<T extends Data> extends TypeAdapter<Time
             }
             switch (name) {
                 case "timeOut":
-                    object.timeOut = BatchingTypeAdapters.LONG.read(reader);
+                    timeOut = BatchingTypeAdapters.LONG.read(reader);
                     break;
                 case "dataCollection":
-                    object.dataCollection = typeAdapter.read(reader);
+                    dataCollection = typeAdapter.read(reader);
                     break;
                 default:
                     reader.skipValue();
@@ -72,6 +73,6 @@ public final class TimeBatchTypeAdapter<T extends Data> extends TypeAdapter<Time
         }
 
         reader.endObject();
-        return object;
+        return dataCollection == null ? null : new TimeBatch<>(dataCollection.dataCollection, timeOut);
     }
 }

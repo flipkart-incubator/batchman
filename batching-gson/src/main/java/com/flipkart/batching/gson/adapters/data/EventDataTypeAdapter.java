@@ -19,7 +19,7 @@ public final class EventDataTypeAdapter extends TypeAdapter<EventData> {
         }
 
         writer.name("eventId");
-        writer.value(object.eventId);
+        writer.value(object.getEventId());
 
         writer.endObject();
     }
@@ -46,7 +46,7 @@ public final class EventDataTypeAdapter extends TypeAdapter<EventData> {
             }
             switch (name) {
                 case "eventId":
-                    object.eventId = BatchingTypeAdapters.LONG.read(reader);
+                    object.setEventId(BatchingTypeAdapters.LONG.read(reader));
                     break;
                 default:
                     reader.skipValue();

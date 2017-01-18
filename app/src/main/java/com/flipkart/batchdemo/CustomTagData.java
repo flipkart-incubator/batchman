@@ -34,9 +34,6 @@ public class CustomTagData extends TagData {
     @SerializedName("event")
     public JSONObject event;
 
-    public CustomTagData() {
-    }
-
     public CustomTagData(Tag tag, JSONObject event) {
         super(tag);
         this.event = event;

@@ -34,9 +34,6 @@ public class BatchImpl<T extends Data> implements Batch<T> {
 
     public DataCollection<T> dataCollection;
 
-    public BatchImpl() {
-    }
-
     public BatchImpl(Collection<T> dataCollection) {
         this.dataCollection = new DataCollection<>(dataCollection);
     }

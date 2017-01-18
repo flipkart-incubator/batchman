@@ -1,10 +1,10 @@
 package com.flipkart.batching.gson.adapters.batch;
 
+import com.flipkart.batching.core.BatchImpl;
 import com.flipkart.batching.core.DataCollection;
 import com.flipkart.batching.core.batch.TagBatch;
 import com.flipkart.batching.core.data.Tag;
 import com.flipkart.batching.core.data.TagData;
-import com.flipkart.batching.gson.RuntimeTypeAdapterFactory;
 import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
 import com.flipkart.batching.gson.adapters.data.TagTypeAdapter;
 import com.google.gson.TypeAdapter;
@@ -30,9 +30,9 @@ public final class TagBatchTypeAdapter<T extends TagData> extends TypeAdapter<Ta
             return;
         }
 
-        if (object.tag != null) {
+        if (object.getTag() != null) {
             writer.name("tag");
-            tagTypeAdapter.write(writer, object.tag);
+            tagTypeAdapter.write(writer, object.getTag());
         }
 
         if (object.dataCollection != null) {
@@ -55,7 +55,9 @@ public final class TagBatchTypeAdapter<T extends TagData> extends TypeAdapter<Ta
         }
         reader.beginObject();
 
-        TagBatch<T> object = new TagBatch<T>();
+        Tag tag = null;
+        DataCollection<T> collection = null;
+
         while (reader.hasNext()) {
             String name = reader.nextName();
             com.google.gson.stream.JsonToken jsonToken = reader.peek();
@@ -65,10 +67,10 @@ public final class TagBatchTypeAdapter<T extends TagData> extends TypeAdapter<Ta
             }
             switch (name) {
                 case "tag":
-                    object.tag = tagTypeAdapter.read(reader);
+                    tag = tagTypeAdapter.read(reader);
                     break;
                 case "dataCollection":
-                    object.dataCollection = typeAdapter.read(reader);
+                    collection = typeAdapter.read(reader);
                     break;
                 default:
                     reader.skipValue();
@@ -77,6 +79,6 @@ public final class TagBatchTypeAdapter<T extends TagData> extends TypeAdapter<Ta
         }
 
         reader.endObject();
-        return object;
+        return collection == null || tag == null ? null : new TagBatch<>(tag, new BatchImpl<>(collection.dataCollection));
     }
 }

@@ -3,10 +3,7 @@ package com.flipkart.batching.gson.adapters;
 import com.flipkart.batching.core.BatchImpl;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.DataCollection;
-import com.flipkart.batching.gson.RuntimeTypeAdapterFactory;
-import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
@@ -47,7 +44,7 @@ public final class BatchImplTypeAdapter<T extends Data> extends TypeAdapter<Batc
         }
         reader.beginObject();
 
-        BatchImpl<T> object = new BatchImpl<T>();
+        DataCollection<T> dataCollection = null;
         while (reader.hasNext()) {
             String name = reader.nextName();
             com.google.gson.stream.JsonToken jsonToken = reader.peek();
@@ -57,7 +54,7 @@ public final class BatchImplTypeAdapter<T extends Data> extends TypeAdapter<Batc
             }
             switch (name) {
                 case "dataCollection":
-                    object.dataCollection = typeAdapter.read(reader);
+                    dataCollection = typeAdapter.read(reader);
                     break;
                 default:
                     reader.skipValue();
@@ -66,6 +63,6 @@ public final class BatchImplTypeAdapter<T extends Data> extends TypeAdapter<Batc
         }
 
         reader.endObject();
-        return object;
+        return dataCollection == null ? null : new BatchImpl<T>(dataCollection.dataCollection);
     }
 }

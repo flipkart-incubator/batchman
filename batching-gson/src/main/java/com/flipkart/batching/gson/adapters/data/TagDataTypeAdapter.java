@@ -25,13 +25,13 @@ public final class TagDataTypeAdapter extends TypeAdapter<TagData> {
             return;
         }
 
-        if (object.tag != null) {
+        if (object.getTag() != null) {
             writer.name("tag");
-            tagTypeAdapter.write(writer, object.tag);
+            tagTypeAdapter.write(writer, object.getTag());
         }
 
         writer.name("eventId");
-        writer.value(object.eventId);
+        writer.value(object.getEventId());
 
         writer.endObject();
     }
@@ -48,7 +48,8 @@ public final class TagDataTypeAdapter extends TypeAdapter<TagData> {
         }
         reader.beginObject();
 
-        TagData object = new TagData();
+        Tag tag = null;
+        long eventId = 0L;
         while (reader.hasNext()) {
             String name = reader.nextName();
             com.google.gson.stream.JsonToken jsonToken = reader.peek();
@@ -58,10 +59,10 @@ public final class TagDataTypeAdapter extends TypeAdapter<TagData> {
             }
             switch (name) {
                 case "tag":
-                    object.tag = tagTypeAdapter.read(reader);
+                    tag = tagTypeAdapter.read(reader);
                     break;
                 case "eventId":
-                    object.eventId = BatchingTypeAdapters.LONG.read(reader);
+                    eventId = BatchingTypeAdapters.LONG.read(reader);
                     break;
                 default:
                     reader.skipValue();
@@ -70,6 +71,8 @@ public final class TagDataTypeAdapter extends TypeAdapter<TagData> {
         }
 
         reader.endObject();
-        return object;
+        TagData tagData = new TagData(tag);
+        tagData.setEventId(eventId);
+        return tagData;
     }
 }

@@ -3,10 +3,8 @@ package com.flipkart.batching.gson.adapters.batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.DataCollection;
 import com.flipkart.batching.core.batch.SizeTimeBatch;
-import com.flipkart.batching.gson.RuntimeTypeAdapterFactory;
-import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
 import com.flipkart.batching.gson.adapters.BatchingTypeAdapters;
-import com.google.gson.Gson;
+import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -29,7 +27,7 @@ public final class SizeTimeBatchTypeAdapter<T extends Data> extends TypeAdapter<
         }
 
         writer.name("maxBatchSize");
-        writer.value(object.maxBatchSize);
+        writer.value(object.getMaxBatchSize());
 
         if (object.dataCollection != null) {
             writer.name("dataCollection");
@@ -37,7 +35,7 @@ public final class SizeTimeBatchTypeAdapter<T extends Data> extends TypeAdapter<
         }
 
         writer.name("timeOut");
-        writer.value(object.timeOut);
+        writer.value(object.getTimeOut());
 
         writer.endObject();
     }
@@ -54,7 +52,10 @@ public final class SizeTimeBatchTypeAdapter<T extends Data> extends TypeAdapter<
         }
         reader.beginObject();
 
-        SizeTimeBatch<T> object = new SizeTimeBatch<T>();
+        int maxBatchSize = 0;
+        DataCollection<T> dataCollection = null;
+        long timeout = 0L;
+
         while (reader.hasNext()) {
             String name = reader.nextName();
             com.google.gson.stream.JsonToken jsonToken = reader.peek();
@@ -64,13 +65,13 @@ public final class SizeTimeBatchTypeAdapter<T extends Data> extends TypeAdapter<
             }
             switch (name) {
                 case "maxBatchSize":
-                    object.maxBatchSize = BatchingTypeAdapters.INTEGER.read(reader);
+                    maxBatchSize = BatchingTypeAdapters.INTEGER.read(reader);
                     break;
                 case "dataCollection":
-                    object.dataCollection = typeAdapter.read(reader);
+                    dataCollection = typeAdapter.read(reader);
                     break;
                 case "timeOut":
-                    object.timeOut = BatchingTypeAdapters.LONG.read(reader);
+                    timeout = BatchingTypeAdapters.LONG.read(reader);
                     break;
                 default:
                     reader.skipValue();
@@ -79,6 +80,6 @@ public final class SizeTimeBatchTypeAdapter<T extends Data> extends TypeAdapter<
         }
 
         reader.endObject();
-        return object;
+        return dataCollection == null ? null : new SizeTimeBatch<>(dataCollection.dataCollection, maxBatchSize, timeout);
     }
 }

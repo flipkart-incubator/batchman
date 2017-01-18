@@ -35,10 +35,7 @@ import java.io.Serializable;
 public class
 Tag implements Serializable {
 
-    public String id;
-
-    public Tag() {
-    }
+    private String id;
 
     public Tag(String id) {
         this.id = id;

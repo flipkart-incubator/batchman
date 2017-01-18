@@ -9,6 +9,8 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 public class CustomTagDataAdapter extends TypeAdapter<CustomTagData> {
@@ -28,9 +30,9 @@ public class CustomTagDataAdapter extends TypeAdapter<CustomTagData> {
             return;
         }
 
-        if (object.tag != null) {
+        if (object.getTag() != null) {
             writer.name("tag");
-            tagTypeAdapter.write(writer, object.tag);
+            tagTypeAdapter.write(writer, object.getTag());
         }
 
         if (object.event != null) {
@@ -39,7 +41,7 @@ public class CustomTagDataAdapter extends TypeAdapter<CustomTagData> {
         }
 
         writer.name("eventId");
-        writer.value(object.eventId);
+        writer.value(object.getEventId());
 
         writer.endObject();
     }
@@ -56,7 +58,9 @@ public class CustomTagDataAdapter extends TypeAdapter<CustomTagData> {
         }
         reader.beginObject();
 
-        CustomTagData object = new CustomTagData();
+        Tag tag = null;
+        Long eventId = 0L;
+        JSONObject event = null;
         while (reader.hasNext()) {
             String name = reader.nextName();
             com.google.gson.stream.JsonToken jsonToken = reader.peek();
@@ -66,13 +70,13 @@ public class CustomTagDataAdapter extends TypeAdapter<CustomTagData> {
             }
             switch (name) {
                 case "tag":
-                    object.tag = tagTypeAdapter.read(reader);
+                    tag = tagTypeAdapter.read(reader);
                     break;
                 case "eventId":
-                    object.eventId = BatchingTypeAdapters.LONG.read(reader);
+                    eventId = BatchingTypeAdapters.LONG.read(reader);
                     break;
                 case "event":
-                    object.event = BatchingTypeAdapters.getJSONObjectTypeAdapter(gson).read(reader);
+                    event = BatchingTypeAdapters.getJSONObjectTypeAdapter(gson).read(reader);
                     break;
                 default:
                     reader.skipValue();
@@ -81,6 +85,8 @@ public class CustomTagDataAdapter extends TypeAdapter<CustomTagData> {
         }
 
         reader.endObject();
-        return object;
+        CustomTagData customTagData = new CustomTagData(tag, event);
+        customTagData.setEventId(eventId);
+        return customTagData;
     }
 }

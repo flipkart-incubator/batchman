@@ -7,12 +7,9 @@ import com.flipkart.batching.core.Data;
 import java.util.Collection;
 
 public class SizeBatch<T extends Data> extends BatchImpl<T> {
-    public int maxBatchSize;
+    private int maxBatchSize;
 
-    public SizeBatch() {
-    }
-
-    public SizeBatch(Collection dataCollection, int maxBatchSize) {
+    public SizeBatch(Collection<T> dataCollection, int maxBatchSize) {
         super(dataCollection);
         this.maxBatchSize = maxBatchSize;
     }

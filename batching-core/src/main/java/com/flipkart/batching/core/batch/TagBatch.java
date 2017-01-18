@@ -6,10 +6,7 @@ import com.flipkart.batching.core.data.Tag;
 import com.flipkart.batching.core.data.TagData;
 
 public class TagBatch<T extends TagData> extends BatchImpl<T> {
-    public Tag tag;
-
-    public TagBatch() {
-    }
+    private Tag tag;
 
     public TagBatch(Tag tag, Batch<T> batch) {
         super(batch.getDataCollection());

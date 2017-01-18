@@ -40,7 +40,7 @@ import java.io.Serializable;
  */
 
 public abstract class Data implements Serializable {
-    public long eventId;
+    private long eventId;
 
     /**
      * Constructor for Data object. This constructor takes {@link Tag} and {@link Object} as

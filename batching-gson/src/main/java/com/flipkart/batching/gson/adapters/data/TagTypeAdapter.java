@@ -19,9 +19,9 @@ public final class TagTypeAdapter extends TypeAdapter<Tag> {
             return;
         }
 
-        if (object.id != null) {
+        if (object.getId() != null) {
             writer.name("id");
-            com.google.gson.internal.bind.TypeAdapters.STRING.write(writer, object.id);
+            com.google.gson.internal.bind.TypeAdapters.STRING.write(writer, object.getId());
         }
 
         writer.endObject();
@@ -39,7 +39,7 @@ public final class TagTypeAdapter extends TypeAdapter<Tag> {
         }
         reader.beginObject();
 
-        Tag object = new Tag();
+        String id = null;
         while (reader.hasNext()) {
             String name = reader.nextName();
             com.google.gson.stream.JsonToken jsonToken = reader.peek();
@@ -49,7 +49,7 @@ public final class TagTypeAdapter extends TypeAdapter<Tag> {
             }
             switch (name) {
                 case "id":
-                    object.id = com.google.gson.internal.bind.TypeAdapters.STRING.read(reader);
+                    id = com.google.gson.internal.bind.TypeAdapters.STRING.read(reader);
                     break;
                 default:
                     reader.skipValue();
@@ -58,6 +58,6 @@ public final class TagTypeAdapter extends TypeAdapter<Tag> {
         }
 
         reader.endObject();
-        return object;
+        return id == null ? null : new Tag(id);
     }
 }

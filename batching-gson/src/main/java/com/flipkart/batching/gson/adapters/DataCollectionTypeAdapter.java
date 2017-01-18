@@ -4,14 +4,12 @@ import android.support.annotation.NonNull;
 
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.DataCollection;
-import com.flipkart.batching.gson.RuntimeTypeAdapterFactory;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 

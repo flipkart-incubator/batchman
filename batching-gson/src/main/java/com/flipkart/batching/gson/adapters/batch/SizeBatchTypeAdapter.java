@@ -3,10 +3,8 @@ package com.flipkart.batching.gson.adapters.batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.DataCollection;
 import com.flipkart.batching.core.batch.SizeBatch;
-import com.flipkart.batching.gson.RuntimeTypeAdapterFactory;
-import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
 import com.flipkart.batching.gson.adapters.BatchingTypeAdapters;
-import com.google.gson.Gson;
+import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -29,7 +27,7 @@ public final class SizeBatchTypeAdapter<T extends Data> extends TypeAdapter<Size
         }
 
         writer.name("maxBatchSize");
-        writer.value(object.maxBatchSize);
+        writer.value(object.getMaxBatchSize());
 
         if (object.dataCollection != null) {
             writer.name("dataCollection");
@@ -51,7 +49,9 @@ public final class SizeBatchTypeAdapter<T extends Data> extends TypeAdapter<Size
         }
         reader.beginObject();
 
-        SizeBatch<T> object = new SizeBatch<T>();
+        int maxBatchSize = 0;
+        DataCollection<T> dataCollection = null;
+
         while (reader.hasNext()) {
             String name = reader.nextName();
             com.google.gson.stream.JsonToken jsonToken = reader.peek();
@@ -59,12 +59,13 @@ public final class SizeBatchTypeAdapter<T extends Data> extends TypeAdapter<Size
                 reader.skipValue();
                 continue;
             }
+
             switch (name) {
                 case "maxBatchSize":
-                    object.maxBatchSize = BatchingTypeAdapters.INTEGER.read(reader);
+                    maxBatchSize = BatchingTypeAdapters.INTEGER.read(reader);
                     break;
                 case "dataCollection":
-                    object.dataCollection = typeAdapter.read(reader);
+                    dataCollection = typeAdapter.read(reader);
                     break;
                 default:
                     reader.skipValue();
@@ -73,6 +74,6 @@ public final class SizeBatchTypeAdapter<T extends Data> extends TypeAdapter<Size
         }
 
         reader.endObject();
-        return object;
+        return dataCollection == null ? null : new SizeBatch<>(dataCollection.dataCollection, maxBatchSize);
     }
 }
