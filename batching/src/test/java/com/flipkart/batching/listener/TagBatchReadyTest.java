@@ -32,7 +32,6 @@ import com.flipkart.batching.core.batch.SizeBatch;
 import com.flipkart.batching.core.batch.TagBatch;
 import com.flipkart.batching.core.data.Tag;
 import com.flipkart.batching.core.data.TagData;
-import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.TagBatchingStrategy;
 
 import junit.framework.Assert;
@@ -92,7 +91,7 @@ public class TagBatchReadyTest {
         tagBatchReadyListener.addListenerForTag(DEBUG, onBatchReadyListener);
         tagBatchReadyListener.addListenerForTag(BUSINESS, onBatchReadyListener);
 
-        tagBatchReadyListener.onReady(new TagBatchingStrategy<>(), new TagBatch<>(new Tag("ADS"), new SizeBatch<TagData>(Utils.fakeCollection(2), 4)));
+        tagBatchReadyListener.onReady(new TagBatchingStrategy<>(), new TagBatch<>(new Tag("ADS"), new SizeBatch(Utils.fakeCollection(2), 4)));
         //verify that it gets called once , when tagBatchReadyListener's onReady gets called
         verify(onBatchReadyListener, times(1)).onReady(any(BatchingStrategy.class), any(TagBatch.class));
     }
