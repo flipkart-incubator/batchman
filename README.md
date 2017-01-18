@@ -31,7 +31,7 @@ Add the dependencies :
 
 ````java
 	dependencies {
-	        compile 'com.github.flipkart-incubator:batchman:1.2.1'
+	        compile 'com.github.flipkart-incubator:batchman:1.3.0'
 	}
 ````
 
@@ -40,7 +40,7 @@ Add the dependencies :
 ````java
 
 	dependencies {
-	        compile 'com.github.flipkart-incubator:batchman-gson:1.2.1'
+	        compile 'com.github.flipkart-incubator:batchman-gson:1.3.0'
 	}
 ````
 
@@ -98,6 +98,8 @@ BatchManager batchManager = new BatchManager.Builder<>()
        .setBatchingStrategy(sizeBatchingStrategy)
        .setSerializationStrategy(gsonSerializationStrategy)
        .setHandler(backgroundHandler)
+       //to enable logging while debug
+       .enableLogging()
        .setOnBatchReadyListener(new OnBatchReadyListener() {
            @Override
            public void onReady(BatchingStrategy causingStrategy, Batch batch) {
@@ -128,7 +130,6 @@ Dependencies
 ------------
 
 * For Testing : [JUnit](http://junit.org/), [Roboelectric](http://robolectric.org/), [Mockito](http://mockito.org/)
-* For logging : [Slf4J](http://www.slf4j.org/)
 * For Persistence : [Tape by Square](https://github.com/square/tape)
 * For Serialization/Deserialization : [GSON](https://github.com/google/gson)
 
