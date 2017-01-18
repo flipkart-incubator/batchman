@@ -25,33 +25,31 @@
 package com.flipkart.batching.listener;
 
 import android.os.Handler;
+import android.support.annotation.Nullable;
 
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.OnBatchReadyListener;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
 import com.flipkart.batching.persistence.BatchObjectConverter;
 import com.flipkart.batching.tape.InMemoryObjectQueue;
 import com.flipkart.batching.tape.ObjectQueue;
 import com.flipkart.batching.toolbox.LenientFileObjectQueue;
 import com.flipkart.batching.toolbox.LenientQueueFile;
-import com.flipkart.batching.core.Batch;
-import com.flipkart.batching.core.Data;
-import com.flipkart.batching.core.SerializationStrategy;
-
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.LoggerFactory;
+import com.flipkart.batching.toolbox.LogUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-
 /**
  * PersistedBatchReadyListener that implements {@link OnBatchReadyListener}.
  */
 public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> implements OnBatchReadyListener<E, T>, LenientQueueFile.QueueFileErrorCallback {
     private static final int MAX_ITEMS_CACHED = 2000;
-    static final org.slf4j.Logger log = LoggerFactory.getLogger(PersistedBatchReadyListener.class);
+    private static final String TAG = "PersistedBatchReadyListener";
     final Handler handler;
     final String filePath;
     final Queue<T> cachedQueue;
@@ -60,7 +58,6 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
     BatchObjectConverter<E, T> converter;
     boolean isWaitingToFinish;
     T peekedBatch;
-
 
     public PersistedBatchReadyListener(String filePath, SerializationStrategy<E, T> serializationStrategy, Handler handler, @Nullable PersistedBatchCallback<T> listener) {
         this.filePath = filePath;
@@ -104,9 +101,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                     cachedQueue.add(batch);
                     checkPendingAndContinue();
                 } catch (Exception e) {
-                    if (log.isErrorEnabled()) {
-                        log.error(e.getLocalizedMessage());
-                    }
+                    LogUtil.log(TAG, e.getLocalizedMessage());
                     callPersistFailure(batch, e);
                 }
             }
@@ -131,9 +126,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
             }
             result = true;
         } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getLocalizedMessage());
-            }
+            LogUtil.log(TAG, e.getLocalizedMessage());
         }
         return result;
     }
@@ -164,17 +157,13 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
             this.queueFile = new LenientFileObjectQueue<>(file, converter, this);
         } catch (IOException e) {
             this.queueFile = new InMemoryObjectQueue<>();
-            if (log.isErrorEnabled()) {
-                log.error(e.getLocalizedMessage());
-            }
+            LogUtil.log(TAG, e.getLocalizedMessage());
         }
     }
 
     @Override
     public void onQueueFileOperationError(Throwable e) {
-        if (log.isErrorEnabled()) {
-            log.error("QueueFile {} is corrupt, gonna recreate it", filePath);
-        }
+        LogUtil.log(TAG, "QueueFile {} is corrupt, gonna recreate it" + filePath);
         File file = new File(filePath);
         file.delete();
         tryCreatingQueueFile();
@@ -185,9 +174,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
             try {
                 queueFile.close();
             } catch (IOException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(e.getLocalizedMessage());
-                }
+                LogUtil.log(TAG, e.getLocalizedMessage());
             }
         }
     }
@@ -210,16 +197,12 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                                 }
                             } else {
                                 // We are currently seeing this very very rarely. We want to get more info here before we throw this exception
-                                if (log.isErrorEnabled()) {
-                                    log.error("Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
-                                }
+                                LogUtil.log(TAG, "Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
                                 // throw new IllegalStateException("Finish was called with a different batch, expected " + peekedBatch + " was " + batch);
                             }
                         }
                     } catch (IOException e) {
-                        if (log.isErrorEnabled()) {
-                            log.error(e.getLocalizedMessage());
-                        }
+                        LogUtil.log(TAG, e.getLocalizedMessage());
                     }
                     peekedBatch = null;
                     isWaitingToFinish = false;
@@ -245,9 +228,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
                     }
                 }
             } catch (IOException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(e.getLocalizedMessage());
-                }
+                LogUtil.log(TAG, e.getLocalizedMessage());
             }
         } else {
             callQueueEnd();

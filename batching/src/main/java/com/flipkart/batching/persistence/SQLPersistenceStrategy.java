@@ -31,8 +31,7 @@ import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.SerializationStrategy;
 import com.flipkart.batching.core.exception.DeserializeException;
 import com.flipkart.batching.core.exception.SerializeException;
-
-import org.slf4j.LoggerFactory;
+import com.flipkart.batching.toolbox.LogUtil;
 
 import java.util.Collection;
 
@@ -44,7 +43,7 @@ import java.util.Collection;
  * InMemory data list.
  */
 public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> {
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(SQLPersistenceStrategy.class);
+    private static final String TAG = "SQLPersistenceStrategy";
     private DatabaseHelper<E, ? extends Batch> databaseHelper;
     private SerializationStrategy<E, ? extends Batch> serializationStrategy;
     private String databaseName;
@@ -63,9 +62,7 @@ public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceS
         try {
             databaseHelper.addData(dataCollection);
         } catch (SerializeException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getLocalizedMessage());
-            }
+            LogUtil.log(TAG, e.getLocalizedMessage());
         }
         return true;
     }
@@ -79,9 +76,7 @@ public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceS
         try {
             super.add(databaseHelper.getAllData());
         } catch (DeserializeException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getLocalizedMessage());
-            }
+            LogUtil.log(TAG, e.getLocalizedMessage());
         }
     }
 

@@ -25,18 +25,17 @@
 package com.flipkart.batching.toolbox;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.data.Tag;
 import com.flipkart.batching.persistence.InMemoryPersistenceStrategy;
 import com.flipkart.batching.persistence.SQLPersistenceStrategy;
 import com.flipkart.batching.persistence.TagBasedPersistenceStrategy;
 import com.flipkart.batching.persistence.TapePersistenceStrategy;
 import com.flipkart.batching.strategy.SizeTimeBatchingStrategy;
-import com.flipkart.batching.core.Data;
-import com.flipkart.batching.core.SerializationStrategy;
-import com.flipkart.batching.core.data.Tag;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
@@ -44,7 +43,7 @@ import java.io.File;
  * SizeTimeStrategyFactory
  */
 public class SizeTimeStrategyFactory {
-    public static SizeTimeBatchingStrategy createDefault(Context context, @NotNull Tag tag,
+    public static SizeTimeBatchingStrategy createDefault(Context context, @NonNull Tag tag,
                                                          SerializationStrategy serializationStrategy) {
         return createWithTapePersistence(context, tag, serializationStrategy, 3, 10000);
     }
@@ -64,7 +63,7 @@ public class SizeTimeStrategyFactory {
 
     public static <E extends Data> SizeTimeBatchingStrategy createWithSQLPersistence(Context context,
                                                                                      @Nullable Tag tag,
-                                                                                     @NotNull SerializationStrategy serializationStrategy,
+                                                                                     @NonNull SerializationStrategy serializationStrategy,
                                                                                      String databaseName,
                                                                                      int size,
                                                                                      long time) {
@@ -79,8 +78,8 @@ public class SizeTimeStrategyFactory {
     }
 
     public static <E extends Data> SizeTimeBatchingStrategy createWithTapePersistence(Context context,
-                                                                                      @NotNull Tag tag,
-                                                                                      @NotNull SerializationStrategy serializationStrategy,
+                                                                                      @NonNull Tag tag,
+                                                                                      @NonNull SerializationStrategy serializationStrategy,
                                                                                       int size,
                                                                                       long time) {
         TapePersistenceStrategy<E> tapePersistenceStrategy = new TapePersistenceStrategy<>(getFilePathForPersistenceStrategy(context, tag.getId()), serializationStrategy);

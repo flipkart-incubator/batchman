@@ -24,16 +24,15 @@
 
 package com.flipkart.batching.persistence;
 
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
 import com.flipkart.batching.tape.FileObjectQueue;
 import com.flipkart.batching.tape.InMemoryObjectQueue;
 import com.flipkart.batching.tape.ObjectQueue;
 import com.flipkart.batching.toolbox.LenientFileObjectQueue;
 import com.flipkart.batching.toolbox.LenientQueueFile;
-import com.flipkart.batching.core.Batch;
-import com.flipkart.batching.core.Data;
-import com.flipkart.batching.core.SerializationStrategy;
-
-import org.slf4j.LoggerFactory;
+import com.flipkart.batching.toolbox.LogUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +44,7 @@ import java.util.Iterator;
  * implementation of {@link PersistenceStrategy}. This strategy is used to persist data to disk.
  */
 public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistenceStrategy<E> implements LenientQueueFile.QueueFileErrorCallback {
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(TapePersistenceStrategy.class);
+    private static final String TAG = "TapePersistenceStrategy";
     private String filePath;
     private ObjectQueue<E> queueFile;
     private FileObjectQueue.Converter<E> converter;
@@ -74,18 +73,14 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
         boolean isAdded = false;
         for (E data : dataCollection) {
             if (null == data) {
-                if (log.isErrorEnabled()) {
-                    log.error("Null not expected in the data collection");
-                }
+                LogUtil.log(TAG, "Null not expected in the data collection");
             } else {
                 try {
                     queueFile.add(data);
                     add(data);
                     isAdded = true;
                 } catch (IOException e) {
-                    if (log.isErrorEnabled()) {
-                        log.error(e.getLocalizedMessage());
-                    }
+                    LogUtil.log(TAG, e.getLocalizedMessage());
                 }
             }
         }
@@ -106,9 +101,7 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
                     queueFile.remove();
                     it.remove();
                 } catch (IOException e) {
-                    if (log.isErrorEnabled()) {
-                        log.error(e.getLocalizedMessage());
-                    }
+                    LogUtil.log(TAG, e.getLocalizedMessage());
                 }
             }
         }
@@ -133,9 +126,7 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
             this.queueFile = new LenientFileObjectQueue(file, converter, this);
         } catch (IOException e) {
             this.queueFile = new InMemoryObjectQueue<E>();
-            if (log.isErrorEnabled()) {
-                log.error(e.getLocalizedMessage());
-            }
+            LogUtil.log(TAG, e.getLocalizedMessage());
         }
     }
 
@@ -148,17 +139,13 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
             Collection<E> data = queueFile.peek(queueFile.size());
             super.add(data);
         } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getLocalizedMessage());
-            }
+            LogUtil.log(TAG, e.getLocalizedMessage());
         }
     }
 
     @Override
     public void onQueueFileOperationError(Throwable e) {
-        if (log.isErrorEnabled()) {
-            log.error("QueueFile {} is corrupt, gonna recreate it", filePath);
-        }
+        LogUtil.log(TAG, "QueueFile {} is corrupt, gonna recreate it" + filePath);
         File file = new File(filePath);
         file.delete();
         tryCreatingQueueFile();

@@ -358,7 +358,6 @@ public class TagBatchingTest {
 
         Assert.assertNotNull(tagBatchInfo.getTag());
         Assert.assertTrue(tagBatchInfo.equals(tagBatchInfo1));
-        Assert.assertTrue(!tagBatchInfo.equals("event1"));
     }
 
     /**

@@ -24,7 +24,6 @@
 
 package com.flipkart.batching.core;
 
-import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.data.EventData;
 import com.flipkart.batching.core.data.Tag;
 import com.flipkart.batching.core.data.TagData;

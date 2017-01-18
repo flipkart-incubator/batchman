@@ -48,6 +48,7 @@ import static java.lang.Math.min;
  *
  * @author Bob Lee (bob@squareup.com)
  */
+@SuppressWarnings("FunctionalInterfaceClash")
 public class QueueFile implements Closeable {
     /**
      * Length of header in bytes.

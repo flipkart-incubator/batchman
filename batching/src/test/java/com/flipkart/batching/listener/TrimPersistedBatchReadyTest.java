@@ -30,14 +30,13 @@ import android.os.Looper;
 
 import com.flipkart.Utils;
 import com.flipkart.batching.BaseTestClass;
-import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.batch.SizeBatch;
 import com.flipkart.batching.core.exception.SerializeException;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
+import com.flipkart.batching.strategy.SizeBatchingStrategy;
 
 import org.junit.After;
 import org.junit.Test;
@@ -76,7 +75,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
         int TRIM_TO_SIZE = 1;
 
         File file = createRandomFile();
-        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>( );
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         serializationStrategy.build();
         final ArrayList<Data> dataList = Utils.fakeAdsCollection(10);
 
@@ -113,7 +112,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
         int TRIM_TO_SIZE = 1;
 
         File file = createRandomFile();
-        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>( );
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         serializationStrategy.build();
         final ArrayList<Data> dataList = Utils.fakeAdsCollection(10);
 
@@ -149,7 +148,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
         int TRIM_TO_SIZE = 1;
 
         File file = createRandomFile();
-        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>( );
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         serializationStrategy.build();
         final ArrayList<Data> dataList = Utils.fakeAdsCollection(10);
 
@@ -192,7 +191,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
         int MAX_QUEUE_SIZE = 3;
 
         File file = createRandomFile();
-        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>( );
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         serializationStrategy.build();
         final ArrayList<Data> dataList = Utils.fakeAdsCollection(10);
 

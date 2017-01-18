@@ -24,10 +24,10 @@
 
 package com.flipkart.batching.persistence;
 
-import com.flipkart.batching.tape.FileObjectQueue;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.tape.FileObjectQueue;
 
 import java.io.IOException;
 import java.io.OutputStream;

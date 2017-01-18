@@ -28,11 +28,10 @@ import android.content.Context;
 
 import com.flipkart.Utils;
 import com.flipkart.batching.BaseTestClass;
-import com.flipkart.batching.BatchManager;
 import com.flipkart.batching.BuildConfig;
-import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
 
 import junit.framework.Assert;
 
