@@ -141,8 +141,19 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         gsonBuilder.registerTypeAdapterFactory(getDataRuntimeTypeAdapter());
         gsonBuilder.registerTypeAdapterFactory(getBatchRuntimeTypeAdapter());
         gsonBuilder.registerTypeAdapterFactory(new BatchingTypeAdapterFactory());
+
+        TagDataTypeAdapter tagDataTypeAdapter = new TagDataTypeAdapter();
+        registerDataSubTypeAdapters(EventData.class, new EventDataTypeAdapter());
+        registerDataSubTypeAdapters(TagData.class, tagDataTypeAdapter);
+        registerBatchSubTypeAdapters(TagBatch.class, new TagBatchTypeAdapter<>(tagDataTypeAdapter));
+
         gson = gsonBuilder.create();
-        registerBuiltInTypes(gson);
+
+        //Register Built in types
+        registerBatchSubTypeAdapters(SizeBatch.class, new SizeBatchTypeAdapter<>(getDataTypeAdapter()));
+        registerBatchSubTypeAdapters(BatchImpl.class, new BatchImplTypeAdapter<>(getDataTypeAdapter()));
+        registerBatchSubTypeAdapters(SizeTimeBatch.class, new SizeTimeBatchTypeAdapter<>(getDataTypeAdapter()));
+        registerBatchSubTypeAdapters(TimeBatch.class, new TimeBatchTypeAdapter<>(getDataTypeAdapter()));
     }
 
     private void checkIfBuildCalled() {
@@ -209,15 +220,5 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
         } catch (IOException e) {
             throw new DeserializeException(e);
         }
-    }
-
-    private void registerBuiltInTypes(Gson gson) {
-        registerDataSubTypeAdapters(EventData.class, new EventDataTypeAdapter());
-        registerDataSubTypeAdapters(TagData.class, new TagDataTypeAdapter());
-        registerBatchSubTypeAdapters(SizeBatch.class, new SizeBatchTypeAdapter<>(gson));
-        registerBatchSubTypeAdapters(BatchImpl.class, new BatchImplTypeAdapter<>(gson));
-        registerBatchSubTypeAdapters(SizeTimeBatch.class, new SizeTimeBatchTypeAdapter<>(gson));
-        registerBatchSubTypeAdapters(TagBatch.class, new TagBatchTypeAdapter<>(gson));
-        registerBatchSubTypeAdapters(TimeBatch.class, new TimeBatchTypeAdapter<>(gson));
     }
 }
