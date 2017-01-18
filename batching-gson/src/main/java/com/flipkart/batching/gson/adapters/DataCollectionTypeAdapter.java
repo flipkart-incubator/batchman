@@ -57,8 +57,7 @@ public class DataCollectionTypeAdapter<T extends Data> extends TypeAdapter<DataC
         }
         reader.beginObject();
 
-        DataCollection<T> dataCollection = new DataCollection<>();
-
+        Collection<T> collection = null;
         while (reader.hasNext()) {
             String name = reader.nextName();
             com.google.gson.stream.JsonToken jsonToken = reader.peek();
@@ -68,7 +67,7 @@ public class DataCollectionTypeAdapter<T extends Data> extends TypeAdapter<DataC
             }
             switch (name) {
                 case "dataCollection":
-                    dataCollection.dataCollection = collectionTypeAdapter.read(reader);
+                    collection = collectionTypeAdapter.read(reader);
                     break;
                 default:
                     reader.skipValue();
@@ -77,6 +76,6 @@ public class DataCollectionTypeAdapter<T extends Data> extends TypeAdapter<DataC
         }
 
         reader.endObject();
-        return dataCollection;
+        return null != collection ? new DataCollection<>(collection) : null;
     }
 }
