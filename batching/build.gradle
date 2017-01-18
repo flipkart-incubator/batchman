@@ -38,7 +38,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 25
         versionCode 1
-        versionName "1.2.4"
+        versionName "1.3.0"
     }
 
     buildTypes {
@@ -61,7 +61,7 @@ dependencies {
     testCompile project(':batching-gson')
     testCompile 'com.google.code.gson:gson:2.8.0'
 
-    compile project(':batching-core')
+    compile 'com.github.flipkart-incubator.batchman:batching-core:1.3.0'
     compile 'com.android.support:support-annotations:25.1.0'
     errorprone 'com.google.errorprone:error_prone_core:2.0.9'
 }
