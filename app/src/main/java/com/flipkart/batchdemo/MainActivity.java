@@ -1,7 +1,7 @@
 /*
  *  The MIT License (MIT)
  *
- *  Copyright (c) 2016 Flipkart Internet Pvt. Ltd.
+ *  Copyright (c) 2017 Flipkart Internet Pvt. Ltd.
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -41,18 +41,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.ValueCallback;
 
+import com.flipkart.batchdemo.adapter.CustomTagDataAdapter;
 import com.flipkart.batching.TagBatchManager;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.batch.SizeBatch;
+import com.flipkart.batching.core.batch.TagBatch;
+import com.flipkart.batching.core.data.Tag;
+import com.flipkart.batching.core.data.TagData;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.PersistedBatchCallback;
 import com.flipkart.batching.listener.TrimmedBatchCallback;
 import com.flipkart.batching.persistence.TapePersistenceStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
-import com.flipkart.batching.core.Batch;
-import com.flipkart.batching.core.SerializationStrategy;
-import com.flipkart.batching.core.batch.TagBatch;
-import com.flipkart.batching.core.data.Tag;
-import com.flipkart.batching.core.data.TagData;
-import com.flipkart.batching.gson.GsonSerializationStrategy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,8 +77,8 @@ public class MainActivity extends AppCompatActivity
         handlerThread.start();
         Handler backgroundHandler = new Handler(handlerThread.getLooper());
 
-        SerializationStrategy serializationStrategy = new GsonSerializationStrategy<>();
-        serializationStrategy.registerDataType(CustomTagData.class);
+        GsonSerializationStrategy<CustomTagData, SizeBatch<CustomTagData>> serializationStrategy =
+                new GsonSerializationStrategy<>(new CustomTagDataAdapter(), null);
 
         debugTag = new Tag(DEBUG_LOGGER_GROUPID);
         perfTag = new Tag(PERF_LOGGER_GROUPID);
@@ -209,15 +210,13 @@ public class MainActivity extends AppCompatActivity
         });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
-
 
     @Override
     public void onBackPressed() {
@@ -260,27 +259,20 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             batchManager.addToBatch(Collections.singleton(new TagData(perfTag)));
-
         } else if (id == R.id.nav_gallery) {
             batchManager.addToBatch(Collections.singleton(new TagData(dgTag)));
-
         } else if (id == R.id.nav_slideshow) {
             batchManager.addToBatch(Collections.singleton(new TagData(debugTag)));
-
         } else if (id == R.id.nav_manage) {
             batchManager.addToBatch(Collections.singleton(new TagData(perfTag)));
-
         } else if (id == R.id.nav_share) {
             batchManager.addToBatch(Collections.singleton(new TagData(dgTag)));
-
         } else if (id == R.id.nav_send) {
             batchManager.addToBatch(Collections.singleton(new TagData(perfTag)));
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-
     }
 }

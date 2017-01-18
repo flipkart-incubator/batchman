@@ -1,7 +1,7 @@
 /*
  *  The MIT License (MIT)
  *
- *  Copyright (c) 2016 Flipkart Internet Pvt. Ltd.
+ *  Copyright (c) 2017 Flipkart Internet Pvt. Ltd.
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -61,7 +61,7 @@ dependencies {
     testCompile project(':batching-gson')
     //temp fix, will need to look into this dependency since batching-gson already has this dependency
     testCompile 'com.google.code.gson:gson:2.4'
-    compile 'com.github.flipkart-incubator.batchman:batching-core:1.2.2'
+    compile project(':batching-core')
     compile 'org.jetbrains:annotations-java5:15.0'
     compile 'org.slf4j:slf4j-api:1.7.6'
     errorprone 'com.google.errorprone:error_prone_core:2.0.9'

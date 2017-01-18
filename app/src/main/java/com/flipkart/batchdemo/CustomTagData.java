@@ -1,7 +1,7 @@
 /*
  *  The MIT License (MIT)
  *
- *  Copyright (c) 2016 Flipkart Internet Pvt. Ltd.
+ *  Copyright (c) 2017 Flipkart Internet Pvt. Ltd.
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ import org.json.JSONObject;
 
 public class CustomTagData extends TagData {
     @SerializedName("event")
-    private final JSONObject event;
+    public JSONObject event;
 
     public CustomTagData(Tag tag, JSONObject event) {
         super(tag);

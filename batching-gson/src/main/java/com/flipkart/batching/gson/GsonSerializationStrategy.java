@@ -1,7 +1,7 @@
 /*
  *  The MIT License (MIT)
  *
- *  Copyright (c) 2016 Flipkart Internet Pvt. Ltd.
+ *  Copyright (c) 2017 Flipkart Internet Pvt. Ltd.
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -24,39 +24,39 @@
 
 package com.flipkart.batching.gson;
 
-import com.flipkart.batching.gson.utils.Deserializer;
-import com.flipkart.batching.gson.utils.Serializer;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.BatchImpl;
 import com.flipkart.batching.core.Data;
-import com.flipkart.batching.core.DataCollection;
 import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.batch.SizeBatch;
+import com.flipkart.batching.core.batch.SizeTimeBatch;
+import com.flipkart.batching.core.batch.TagBatch;
+import com.flipkart.batching.core.batch.TimeBatch;
+import com.flipkart.batching.core.data.EventData;
+import com.flipkart.batching.core.data.TagData;
 import com.flipkart.batching.core.exception.DeserializeException;
 import com.flipkart.batching.core.exception.SerializeException;
+import com.flipkart.batching.gson.adapters.BatchImplTypeAdapter;
+import com.flipkart.batching.gson.adapters.BatchingTypeAdapterFactory;
+import com.flipkart.batching.gson.adapters.BatchingTypeAdapters;
+import com.flipkart.batching.gson.adapters.batch.SizeBatchTypeAdapter;
+import com.flipkart.batching.gson.adapters.batch.SizeTimeBatchTypeAdapter;
+import com.flipkart.batching.gson.adapters.batch.TagBatchTypeAdapter;
+import com.flipkart.batching.gson.adapters.batch.TimeBatchTypeAdapter;
+import com.flipkart.batching.gson.adapters.data.EventDataTypeAdapter;
+import com.flipkart.batching.gson.adapters.data.TagDataTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.google.gson.internal.LinkedTreeMap;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.TypeAdapter;
+import com.google.gson.internal.ObjectConstructor;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.lang.reflect.Type;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Implementation of {@link SerializationStrategy}.
@@ -64,201 +64,96 @@ import java.util.Set;
  * @see SerializationStrategy
  */
 public class GsonSerializationStrategy<E extends Data, T extends Batch> implements SerializationStrategy<E, T> {
-    private static final String IS_JSON_OBJECT = "_com.flipkart.batching.isJsonObject";
-    private static final String JSON_ARRAY_OBJECT = "_com.flipkart.batching.jsonArray";
 
-    Set<Class<E>> dataTypes = new HashSet<>();
-    Set<Class<T>> batchInfoTypes = new HashSet<>();
     private Gson gson;
+    @Nullable
+    private TypeAdapter<E> dataTypeAdapter;
+    @Nullable
+    private TypeAdapter<T> batchTypeAdapter;
+    @Nullable
+    private TypeAdapter<Collection<E>> collectionTypeAdapter;
+    @Nullable
+    private RuntimeTypeAdapterFactory<Data> runTimeDataTypeAdapter;
+    @Nullable
+    private RuntimeTypeAdapterFactory<Batch> runTimeBatchTypeAdapter;
 
-    public static JsonElement serializeJSONArray(JSONArray src, JsonSerializationContext context) {
-        JsonObject result = null;
-        try {
-            if (null != src) {
-                result = new JsonObject();
-                JsonArray jsonArray = new JsonArray();
-                for (int idx = 0; idx < src.length(); idx++) {
-                    Object value = src.get(idx);
-                    JsonElement element = forJSONGenericObject(value, context);
-                    jsonArray.add(element);
+    public GsonSerializationStrategy(@NonNull TypeAdapter<E> dataTypeAdapter, @NonNull TypeAdapter<T> batchTypeAdapter) {
+        this.dataTypeAdapter = dataTypeAdapter;
+        this.batchTypeAdapter = batchTypeAdapter;
+    }
+
+    public GsonSerializationStrategy() {
+        this.dataTypeAdapter = null;
+        this.batchTypeAdapter = null;
+    }
+
+    private TypeAdapter<Collection<E>> getCollectionTypeAdapter() {
+        if (collectionTypeAdapter == null) {
+            collectionTypeAdapter = new BatchingTypeAdapters.ListTypeAdapter<>(getDataTypeAdapter(), new ObjectConstructor<Collection<E>>() {
+                @Override
+                public Collection<E> construct() {
+                    return new ArrayList<>();
                 }
-                result.add(JSON_ARRAY_OBJECT, jsonArray);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+            });
         }
-
-        return result;
+        return collectionTypeAdapter;
     }
 
-    public static JSONArray deserializeJSONArray(JsonElement json, JsonDeserializationContext context) throws JsonParseException {
-        JSONArray result = null;
-        if (null != json) {
-            result = new JSONArray();
-            if (json.isJsonObject() && json.getAsJsonObject().has(JSON_ARRAY_OBJECT)) {
-                JsonArray jsonArray = json.getAsJsonObject().getAsJsonArray(JSON_ARRAY_OBJECT);
-                for (JsonElement element : jsonArray) {
-                    if (null != element) {
-                        result.put(getObjectFromJsonElement(element, context));
-                    } else {
-                        result.put(null);
-                    }
-                }
-            }
+    private TypeAdapter<T> getBatchTypeAdapter() {
+        if (batchTypeAdapter == null) {
+            batchTypeAdapter = (TypeAdapter<T>) gson.getAdapter(Batch.class);
         }
-        return result;
+        return batchTypeAdapter;
     }
 
-    public static JsonElement serializeJSONObject(JSONObject src, JsonSerializationContext context) {
-        JsonObject result = null;
-        if (null != src) {
-            try {
-                result = new JsonObject();
-                Iterator<String> iterator = src.keys();
-                while (iterator.hasNext()) {
-                    String key = iterator.next();
-                    Object value = src.get(key);
-                    JsonElement element = forJSONGenericObject(value, context);
-                    result.add(key, element);
-                    result.addProperty(IS_JSON_OBJECT, true);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+    private TypeAdapter<E> getDataTypeAdapter() {
+        if (dataTypeAdapter == null) {
+            dataTypeAdapter = (TypeAdapter<E>) gson.getAdapter(Data.class);
         }
-        return result;
-
+        return dataTypeAdapter;
     }
 
-    public static JSONObject deserializeJSONObject(JsonElement json, JsonDeserializationContext context) throws JsonParseException {
-        JSONObject result = null;
-        if (null != json && json.isJsonObject()) {
-            try {
-                result = new JSONObject();
-                JsonObject jsonObject = json.getAsJsonObject();
-                for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-                    JsonElement value = entry.getValue();
-                    if (null != value) {
-                        result.put(entry.getKey(), getObjectFromJsonElement(entry.getValue(), context));
-                    } else {
-                        result.put(entry.getKey(), null);
-                    }
-                }
-                result.remove(IS_JSON_OBJECT);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+    public void registerDataSubTypeAdapters(Class<? extends Data> subClass, TypeAdapter<? extends Data> typeAdapter) {
+        getDataRuntimeTypeAdapter().registerSubtype(subClass, typeAdapter);
+    }
 
+    public void registerBatchSubTypeAdapters(Class<? extends Batch> subClass, TypeAdapter<? extends Batch> typeAdapter) {
+        getBatchRuntimeTypeAdapter().registerSubtype(subClass, typeAdapter);
+    }
+
+    private RuntimeTypeAdapterFactory<Data> getDataRuntimeTypeAdapter() {
+        if (runTimeDataTypeAdapter == null) {
+            runTimeDataTypeAdapter = RuntimeTypeAdapterFactory.of(Data.class);
         }
-        return result;
+        return runTimeDataTypeAdapter;
     }
 
-
-    private static Object getObjectFromJsonElement(JsonElement value, JsonDeserializationContext context) {
-        Object result = null;
-        if (value.isJsonObject()) {
-            if (value.getAsJsonObject().has(IS_JSON_OBJECT)) {
-                JSONObject jsonObject = deserializeJSONObject(value, context);
-                if (null != jsonObject) {
-                    jsonObject.remove(IS_JSON_OBJECT);
-                }
-                return jsonObject;
-            } else if (value.getAsJsonObject().has(JSON_ARRAY_OBJECT)) {
-                return deserializeJSONArray(value, context);
-            } else {
-                result = getMapFromJson(value.getAsJsonObject(), context);
-            }
-
-        } else if (value.isJsonPrimitive()) {
-            JsonPrimitive primitiveValue = value.getAsJsonPrimitive();
-            if (primitiveValue.isBoolean()) {
-                result = primitiveValue.getAsBoolean();
-            } else if (primitiveValue.isNumber()) {
-                result = primitiveValue.getAsNumber();
-            } else {
-                result = primitiveValue.getAsString();
-            }
-        } else if (value.isJsonNull()) {
-            result = null;
-        } else if (value.isJsonArray()) {
-            JsonArray jsonArray = value.getAsJsonArray();
-            ArrayList<Object> list = new ArrayList<>(jsonArray.size());
-            for (JsonElement element : jsonArray) {
-                list.add(getObjectFromJsonElement(element, context));
-            }
-            result = list;
+    private RuntimeTypeAdapterFactory<Batch> getBatchRuntimeTypeAdapter() {
+        if (runTimeBatchTypeAdapter == null) {
+            runTimeBatchTypeAdapter = RuntimeTypeAdapterFactory.of(Batch.class);
         }
-        return result;
-    }
-
-    public static Map<String, Object> getMapFromJson(JsonObject data, JsonDeserializationContext context) {
-        Map<String, Object> result = null;
-        if (null != data) {
-            result = new LinkedTreeMap<>();
-            for (Map.Entry<String, JsonElement> entry : data.entrySet()) {
-                result.put(entry.getKey(), getObjectFromJsonElement(entry.getValue(), context));
-            }
-        }
-        return result;
-    }
-
-    public static JsonElement forJSONGenericObject(Object value, JsonSerializationContext context) {
-        JsonElement element;
-        if (null != value) {
-            if (value instanceof JSONObject) {
-                element = serializeJSONObject((JSONObject) value, context);
-            } else if (value instanceof JSONArray) {
-                element = serializeJSONArray((JSONArray) value, context);
-            } else if (value instanceof String) {
-                element = new JsonPrimitive((String) value);
-            } else if (value instanceof Number) {
-                element = new JsonPrimitive((Number) value);
-            } else if (value instanceof Boolean) {
-                element = new JsonPrimitive((Boolean) value);
-            } else {
-                element = context.serialize(value);
-            }
-        } else {
-            element = context.serialize(value);
-        }
-        return element;
-    }
-
-    @Override
-    public void registerDataType(Class<E> subClass) {
-        dataTypes.add(subClass);
-    }
-
-    @Override
-    public void registerBatch(Class<T> subClass) {
-        batchInfoTypes.add(subClass);
+        return runTimeBatchTypeAdapter;
     }
 
     @Override
     public void build() {
-        RuntimeTypeAdapterFactory<E> dataAdapter = (RuntimeTypeAdapterFactory<E>) RuntimeTypeAdapterFactory.of(Data.class);
-        for (Class<E> dataType : dataTypes) {
-            dataAdapter.registerSubtype(dataType);
-        }
-
-        RuntimeTypeAdapterFactory<T> batchInfoAdapter = (RuntimeTypeAdapterFactory<T>) RuntimeTypeAdapterFactory.of(Batch.class);
-        for (Class<T> batchInfoType : batchInfoTypes) {
-            batchInfoAdapter.registerSubtype(batchInfoType);
-        }
-
-        RuntimeTypeAdapterFactory<Collection> collectionAdapter = RuntimeTypeAdapterFactory.of(Collection.class);
-        collectionAdapter.registerSubtype(ArrayList.class);
-
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapterFactory(dataAdapter);
-        gsonBuilder.registerTypeAdapterFactory(batchInfoAdapter);
-        gsonBuilder.registerTypeAdapter(DataCollection.class, new Serializer());
-        gsonBuilder.registerTypeAdapter(DataCollection.class, new Deserializer());
-        gsonBuilder.registerTypeAdapter(JSONObject.class, new JSONObjectDeSerializer());
-        gsonBuilder.registerTypeAdapter(JSONObject.class, new JSONObjectSerializer());
-        gsonBuilder.registerTypeAdapter(JSONArray.class, new JSONArrayDeSerializer());
-        gsonBuilder.registerTypeAdapter(JSONArray.class, new JSONArraySerializer());
+        gsonBuilder.registerTypeAdapterFactory(getDataRuntimeTypeAdapter());
+        gsonBuilder.registerTypeAdapterFactory(getBatchRuntimeTypeAdapter());
+        gsonBuilder.registerTypeAdapterFactory(new BatchingTypeAdapterFactory());
+
+        TagDataTypeAdapter tagDataTypeAdapter = new TagDataTypeAdapter();
+        registerDataSubTypeAdapters(EventData.class, new EventDataTypeAdapter());
+        registerDataSubTypeAdapters(TagData.class, tagDataTypeAdapter);
+        registerBatchSubTypeAdapters(TagBatch.class, new TagBatchTypeAdapter<>(tagDataTypeAdapter));
+
         gson = gsonBuilder.create();
+
+        //Register Built in types
+        registerBatchSubTypeAdapters(SizeBatch.class, new SizeBatchTypeAdapter<>(getDataTypeAdapter()));
+        registerBatchSubTypeAdapters(BatchImpl.class, new BatchImplTypeAdapter<>(getDataTypeAdapter()));
+        registerBatchSubTypeAdapters(SizeTimeBatch.class, new SizeTimeBatchTypeAdapter<>(getDataTypeAdapter()));
+        registerBatchSubTypeAdapters(TimeBatch.class, new TimeBatchTypeAdapter<>(getDataTypeAdapter()));
     }
 
     private void checkIfBuildCalled() {
@@ -271,7 +166,7 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     public byte[] serializeData(E data) throws SerializeException {
         checkIfBuildCalled();
         try {
-            return gson.toJson(data, Data.class).getBytes();
+            return getDataTypeAdapter().toJson(data).getBytes();
         } catch (JsonParseException e) {
             throw new SerializeException(e);
         }
@@ -280,10 +175,8 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     @Override
     public byte[] serializeCollection(Collection<E> data) throws SerializeException {
         checkIfBuildCalled();
-        Type type = new TypeToken<Collection<Data>>() {
-        }.getType();
         try {
-            return gson.toJson(data, type).getBytes();
+            return getCollectionTypeAdapter().toJson(data).getBytes();
         } catch (JsonParseException e) {
             throw new SerializeException(e);
         }
@@ -293,7 +186,7 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     public byte[] serializeBatch(T batch) throws SerializeException {
         checkIfBuildCalled();
         try {
-            return gson.toJson(batch, Batch.class).getBytes();
+            return getBatchTypeAdapter().toJson(batch).getBytes();
         } catch (JsonParseException e) {
             throw new SerializeException(e);
         }
@@ -303,8 +196,8 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     public E deserializeData(byte[] data) throws DeserializeException {
         checkIfBuildCalled();
         try {
-            return (E) gson.fromJson(new String(data), Data.class);
-        } catch (JsonParseException e) {
+            return getDataTypeAdapter().fromJson(new String(data));
+        } catch (IOException e) {
             throw new DeserializeException(e);
         }
     }
@@ -312,11 +205,9 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     @Override
     public Collection<E> deserializeCollection(byte[] data) throws DeserializeException {
         checkIfBuildCalled();
-        Type type = new TypeToken<Collection<Data>>() {
-        }.getType();
         try {
-            return gson.fromJson(new String(data), type);
-        } catch (JsonParseException e) {
+            return getCollectionTypeAdapter().fromJson(new String(data));
+        } catch (IOException e) {
             throw new DeserializeException(e);
         }
     }
@@ -325,38 +216,9 @@ public class GsonSerializationStrategy<E extends Data, T extends Batch> implemen
     public T deserializeBatch(byte[] data) throws DeserializeException {
         checkIfBuildCalled();
         try {
-            return (T) gson.fromJson(new String(data), Batch.class);
-        } catch (JsonParseException e) {
+            return getBatchTypeAdapter().fromJson(new String(data));
+        } catch (IOException e) {
             throw new DeserializeException(e);
-        }
-    }
-
-    public static class JSONObjectSerializer implements JsonSerializer<JSONObject> {
-        @Override
-        public JsonElement serialize(JSONObject src, Type typeOfSrc, JsonSerializationContext context) {
-            return serializeJSONObject(src, context);
-        }
-    }
-
-
-    public static class JSONObjectDeSerializer implements JsonDeserializer<JSONObject> {
-        @Override
-        public JSONObject deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            return deserializeJSONObject(json, context);
-        }
-    }
-
-    public static class JSONArraySerializer implements JsonSerializer<JSONArray> {
-        @Override
-        public JsonElement serialize(JSONArray src, Type typeOfSrc, JsonSerializationContext context) {
-            return serializeJSONArray(src, context);
-        }
-    }
-
-    public static class JSONArrayDeSerializer implements JsonDeserializer<JSONArray> {
-        @Override
-        public JSONArray deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            return deserializeJSONArray(json, context);
         }
     }
 }

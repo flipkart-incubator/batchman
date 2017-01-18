@@ -1,7 +1,7 @@
 /*
  *  The MIT License (MIT)
  *
- *  Copyright (c) 2016 Flipkart Internet Pvt. Ltd.
+ *  Copyright (c) 2017 Flipkart Internet Pvt. Ltd.
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,10 @@ import android.os.Looper;
 import android.webkit.ValueCallback;
 
 import com.flipkart.Utils;
+import com.flipkart.batching.core.Batch;
+import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener.NetworkBatchListener;
 import com.flipkart.batching.listener.TrimPersistedBatchReadyListener;
@@ -40,11 +44,6 @@ import com.flipkart.batching.strategy.BaseBatchingStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.strategy.SizeTimeBatchingStrategy;
 import com.flipkart.batching.tape.ObjectQueue;
-import com.flipkart.batching.gson.GsonSerializationStrategy;
-import com.flipkart.batching.core.Batch;
-import com.flipkart.batching.core.BatchImpl;
-import com.flipkart.batching.core.Data;
-import com.flipkart.batching.core.SerializationStrategy;
 
 import junit.framework.Assert;
 
@@ -196,47 +195,6 @@ public class BatchManagerTest extends BaseTestClass {
     }
 
     /**
-     * Test for {@link BatchManager#registerSuppliedTypes(BatchManager.Builder, SerializationStrategy)}
-     */
-    @Test
-    public void testRegisterSuppliedTypes() {
-        PersistenceStrategy<Data> persistenceStrategy = mock(PersistenceStrategy.class);
-        Context context = RuntimeEnvironment.application;
-        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
-        OnBatchReadyListener<Data, Batch<Data>> onBatchReadyListener = mock(OnBatchReadyListener.class);
-        SerializationStrategy<Data, Batch<Data>> serializationStrategy = mock(SerializationStrategy.class);
-
-        BatchController batchController = new BatchManager.Builder()
-                .setSerializationStrategy(serializationStrategy)
-                .setBatchingStrategy(sizeBatchingStrategy)
-                .setHandler(null)
-                .setOnBatchReadyListener(onBatchReadyListener).registerDataType(Data.class)
-                .build(context);
-
-        verify(serializationStrategy, times(1)).registerDataType(Data.class);
-    }
-
-    /**
-     * Test for {@link BatchManager#registerBuiltInTypes(SerializationStrategy)}
-     */
-    @Test
-    public void testRegisterBatchInfoType() {
-        PersistenceStrategy<Data> persistenceStrategy = mock(PersistenceStrategy.class);
-        Context context = RuntimeEnvironment.application;
-        SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(5, persistenceStrategy);
-        OnBatchReadyListener<Data, Batch<Data>> onBatchReadyListener = mock(OnBatchReadyListener.class);
-        SerializationStrategy<Data, Batch<Data>> serializationStrategy = mock(SerializationStrategy.class);
-
-        new BatchManager.Builder<>()
-                .setSerializationStrategy(serializationStrategy)
-                .setBatchingStrategy(sizeBatchingStrategy)
-                .setHandler(null)
-                .setOnBatchReadyListener(onBatchReadyListener).registerBatchInfoType(BatchImpl.class)
-                .build(context);
-
-    }
-
-    /**
      * Test for {@link BatchManager#getSerializationStrategy()}
      */
     @Test
@@ -302,6 +260,7 @@ public class BatchManagerTest extends BaseTestClass {
                 callback.onReceiveValue(new NetworkPersistedBatchReadyListener.NetworkRequestResponse(false, 500));
             }
         };
+
         NetworkPersistedBatchReadyListener batchReadyListener = new NetworkPersistedBatchReadyListener(context, filePath, serializationStrategy, handler, batchListener, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null);
         BatchController batchController = new BatchManager.Builder()
                 .setSerializationStrategy(serializationStrategy)
@@ -348,6 +307,7 @@ public class BatchManagerTest extends BaseTestClass {
         NetworkBatchListener batchListener2Spy = spy(batchListener2);
         batchReadyListener = new NetworkPersistedBatchReadyListener(context, filePath, serializationStrategy, handler, batchListener2Spy, 2, 50, 50, TrimPersistedBatchReadyListener.MODE_TRIM_AT_START, null);
 
+        serializationStrategy = new GsonSerializationStrategy<>();
         batchController = new BatchManager.Builder()
                 .setSerializationStrategy(serializationStrategy)
                 .setBatchingStrategy(sizeTimeBatchingStrategy)
@@ -363,6 +323,4 @@ public class BatchManagerTest extends BaseTestClass {
         Assert.assertTrue(outputData.size() == 6);
 
     }
-
-
 }

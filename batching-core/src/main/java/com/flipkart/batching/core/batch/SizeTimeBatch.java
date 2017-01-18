@@ -9,7 +9,7 @@ public class SizeTimeBatch<T extends Data> extends BatchImpl<T> {
     private int maxBatchSize;
     private long timeOut;
 
-    public SizeTimeBatch(Collection dataCollection, int maxBatchSize, long timeOut) {
+    public SizeTimeBatch(Collection<T> dataCollection, int maxBatchSize, long timeOut) {
         super(dataCollection);
         this.maxBatchSize = maxBatchSize;
         this.timeOut = timeOut;

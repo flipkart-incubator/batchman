@@ -1,7 +1,7 @@
 /*
  *  The MIT License (MIT)
  *
- *  Copyright (c) 2016 Flipkart Internet Pvt. Ltd.
+ *  Copyright (c) 2017 Flipkart Internet Pvt. Ltd.
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -76,8 +76,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
         int TRIM_TO_SIZE = 1;
 
         File file = createRandomFile();
-        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>( );
         serializationStrategy.build();
         final ArrayList<Data> dataList = Utils.fakeAdsCollection(10);
 
@@ -114,8 +113,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
         int TRIM_TO_SIZE = 1;
 
         File file = createRandomFile();
-        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>( );
         serializationStrategy.build();
         final ArrayList<Data> dataList = Utils.fakeAdsCollection(10);
 
@@ -151,8 +149,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
         int TRIM_TO_SIZE = 1;
 
         File file = createRandomFile();
-        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>( );
         serializationStrategy.build();
         final ArrayList<Data> dataList = Utils.fakeAdsCollection(10);
 
@@ -195,8 +192,7 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
         int MAX_QUEUE_SIZE = 3;
 
         File file = createRandomFile();
-        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
+        GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>( );
         serializationStrategy.build();
         final ArrayList<Data> dataList = Utils.fakeAdsCollection(10);
 

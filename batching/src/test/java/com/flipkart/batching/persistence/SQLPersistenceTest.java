@@ -1,7 +1,7 @@
 /*
  *  The MIT License (MIT)
  *
- *  Copyright (c) 2016 Flipkart Internet Pvt. Ltd.
+ *  Copyright (c) 2017 Flipkart Internet Pvt. Ltd.
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -97,7 +97,6 @@ public class SQLPersistenceTest extends BaseTestClass {
         Context context;
         context = RuntimeEnvironment.application;
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         persistenceStrategy = new SQLPersistenceStrategy<>(serializationStrategy, createRandomString(), context);
         persistenceStrategy.onInitialized();

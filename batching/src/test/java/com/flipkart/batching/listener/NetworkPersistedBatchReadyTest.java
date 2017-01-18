@@ -1,7 +1,7 @@
 /*
  *  The MIT License (MIT)
  *
- *  Copyright (c) 2016 Flipkart Internet Pvt. Ltd.
+ *  Copyright (c) 2017 Flipkart Internet Pvt. Ltd.
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -101,7 +101,6 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
         SizeBatch<Data> firstBatch = new SizeBatch<>(Utils.fakeCollection(5), 5);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
 
         TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
@@ -171,7 +170,6 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
         SizeBatch<Data> firstBatch = new SizeBatch<>(Utils.fakeCollection(5), 5);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
 
@@ -207,7 +205,6 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
         SizeBatch<Data> firstBatch = new SizeBatch<>(Utils.fakeCollection(5), 5);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
 
@@ -240,7 +237,6 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
         SizeBatch<Data> firstBatch = new SizeBatch<>(Utils.fakeCollection(5), 3);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
 
@@ -291,7 +287,6 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         ShadowLooper shadowLooper = Shadows.shadowOf(Looper.getMainLooper());
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
 
@@ -335,7 +330,6 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
         SizeBatch<Data> firstBatch = new SizeBatch<>(Utils.fakeCollection(5), 5);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         NetworkPersistedBatchReadyListener.NetworkRequestResponse requestResponse = new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, errorCode);
         TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
@@ -398,7 +392,6 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
         SizeBatch<Data> firstBatch = new SizeBatch<>(Utils.fakeCollection(5), 5);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         NetworkPersistedBatchReadyListener.NetworkRequestResponse requestResponse = new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, errorCode);
         TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
@@ -450,7 +443,6 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         SizeBatchingStrategy strategy = mock(SizeBatchingStrategy.class);
         SizeBatch<Data> firstBatch = new SizeBatch<>(Utils.fakeCollection(5), 5);
         SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
         NetworkPersistedBatchReadyListener.NetworkRequestResponse requestResponse = new NetworkPersistedBatchReadyListener.NetworkRequestResponse(true, errorCode);
         TrimmedBatchCallback trimmedBatchCallback = mock(TrimmedBatchCallback.class);
@@ -515,7 +507,6 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         Context context = RuntimeEnvironment.application;
 
         GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
-        BatchManager.registerBuiltInTypes(serializationStrategy);
         serializationStrategy.build();
 
         HandlerThread handlerThread = new HandlerThread(createRandomString());

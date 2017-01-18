@@ -1,7 +1,7 @@
 /*
  *  The MIT License (MIT)
  *
- *  Copyright (c) 2016 Flipkart Internet Pvt. Ltd.
+ *  Copyright (c) 2017 Flipkart Internet Pvt. Ltd.
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ import java.util.Collection;
 
 public class BatchImpl<T extends Data> implements Batch<T> {
 
-    private DataCollection<T> dataCollection;
+    public DataCollection<T> dataCollection;
 
     public BatchImpl(Collection<T> dataCollection) {
         this.dataCollection = new DataCollection<>(dataCollection);
