@@ -4,14 +4,14 @@ import android.support.annotation.NonNull;
 
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.DataCollection;
-import com.google.gson.Gson;
+import com.flipkart.batching.gson.RuntimeTypeAdapterFactory;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.ObjectConstructor;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -20,9 +20,8 @@ public class DataCollectionTypeAdapter<T extends Data> extends TypeAdapter<DataC
     @NonNull
     private TypeAdapter<Collection<T>> collectionTypeAdapter;
 
-    public DataCollectionTypeAdapter(@NonNull Gson gson) {
-        collectionTypeAdapter = new BatchingTypeAdapters.ListTypeAdapter<>(gson.getAdapter(new TypeToken<T>() {
-        }), new ObjectConstructor<Collection<T>>() {
+    public DataCollectionTypeAdapter(@NonNull TypeAdapter<T> typeAdapter) {
+        collectionTypeAdapter = new BatchingTypeAdapters.ListTypeAdapter<>(typeAdapter, new ObjectConstructor<Collection<T>>() {
             @Override
             public Collection<T> construct() {
                 return new ArrayList<>();

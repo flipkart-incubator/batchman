@@ -15,6 +15,9 @@
  */
 package com.flipkart.batching.gson.adapters;
 
+import android.support.annotation.Nullable;
+
+import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.LazilyParsedNumber;
@@ -29,10 +32,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
 import static com.google.gson.stream.JsonToken.BEGIN_OBJECT;
@@ -71,35 +72,61 @@ public class BatchingTypeAdapters {
         }
     }.nullSafe();
 
-    public static final TypeAdapter<JSONArray> JSON_ARRAY_TYPE_ADAPTER = new TypeAdapter<JSONArray>() {
+    private static TypeAdapter<JSONObject> jsonObjectTypeAdapter;
+    private static TypeAdapter<JSONArray> jsonArrayTypeAdapter;
+
+    private static void write(Gson gson, JsonWriter out, @Nullable Object value) throws IOException {
+        if (value == null) {
+            out.nullValue();
+        } else if (value instanceof JSONObject) {
+            getJSONObjectTypeAdapter(gson).write(out, (JSONObject) value);
+        } else if (value instanceof JSONArray) {
+            getJSONArrayTypeAdapter(gson).write(out, (JSONArray) value);
+        } else if (value instanceof String) {
+            TypeAdapters.STRING.write(out, (String) value);
+        } else if (value instanceof Number) {
+            TypeAdapters.NUMBER.write(out, (Number) value);
+        } else if (value instanceof Boolean) {
+            TypeAdapters.BOOLEAN.write(out, (Boolean) value);
+        } else {
+            gson.toJson(value, value.getClass(), out);
+        }
+    }
+
+    public static TypeAdapter<JSONArray> getJSONArrayTypeAdapter(Gson gson) {
+        if (jsonArrayTypeAdapter == null) {
+            jsonArrayTypeAdapter = new JSONArrayTypeAdapter(gson);
+        }
+        return jsonArrayTypeAdapter;
+    }
+
+    public static TypeAdapter<JSONObject> getJSONObjectTypeAdapter(Gson gson) {
+        if (jsonObjectTypeAdapter == null) {
+            jsonObjectTypeAdapter = new JSONObjectTypeAdapter(gson);
+        }
+        return jsonObjectTypeAdapter;
+    }
+
+    public static final class JSONArrayTypeAdapter extends TypeAdapter<JSONArray> {
+
+        private final Gson gson;
+
+        public JSONArrayTypeAdapter(Gson gson) {
+            this.gson = gson;
+        }
 
         @Override
         public void write(JsonWriter out, JSONArray jsonArray) throws IOException {
-            out.beginArray();
-
-            for (int idx = 0; idx < jsonArray.length(); idx++) {
-                Object value = null;
-                try {
-                    value = jsonArray.get(idx);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            try {
+                out.beginArray();
+                for (int idx = 0; idx < jsonArray.length(); idx++) {
+                    Object value = jsonArray.get(idx);
+                    BatchingTypeAdapters.write(gson, out, value);
                 }
-                if (value instanceof JSONObject) {
-                    JSON_OBJECT_TYPE_ADAPTER.write(out, (JSONObject) value);
-                } else if (value instanceof JSONArray) {
-                    write(out, (JSONArray) value);
-                } else if (value instanceof String) {
-                    TypeAdapters.STRING.write(out, (String) value);
-                } else if (value instanceof Number) {
-                    TypeAdapters.NUMBER.write(out, (Number) value);
-                } else if (value instanceof Boolean) {
-                    TypeAdapters.BOOLEAN.write(out, (Boolean) value);
-                } else {
-                    out.nullValue();
-                }
+                out.endArray();
+            } catch (JSONException e) {
+                throw new IOException(e);
             }
-
-            out.endArray();
         }
 
         @Override
@@ -133,7 +160,7 @@ public class BatchingTypeAdapters {
                         jsonArray.put(read(reader));
                         break;
                     case BEGIN_OBJECT:
-                        jsonArray.put(JSON_OBJECT_TYPE_ADAPTER.read(reader));
+                        jsonArray.put(getJSONArrayTypeAdapter(gson).read(reader));
                         break;
                 }
             }
@@ -141,9 +168,15 @@ public class BatchingTypeAdapters {
             reader.endArray();
             return jsonArray;
         }
-    }.nullSafe();
+    }
 
-    public static final TypeAdapter<JSONObject> JSON_OBJECT_TYPE_ADAPTER = new TypeAdapter<JSONObject>() {
+    public static final class JSONObjectTypeAdapter extends TypeAdapter<JSONObject> {
+
+        private final Gson gson;
+
+        public JSONObjectTypeAdapter(Gson gson) {
+            this.gson = gson;
+        }
 
         @Override
         public void write(JsonWriter out, JSONObject jsonObject) throws IOException {
@@ -155,19 +188,7 @@ public class BatchingTypeAdapters {
                 try {
                     Object value = jsonObject.get(key);
                     out.name(key);
-                    if (value instanceof JSONObject) {
-                        write(out, (JSONObject) value);
-                    } else if (value instanceof JSONArray) {
-                        JSON_ARRAY_TYPE_ADAPTER.write(out, (JSONArray) value);
-                    } else if (value instanceof String) {
-                        TypeAdapters.STRING.write(out, (String) value);
-                    } else if (value instanceof Number) {
-                        TypeAdapters.NUMBER.write(out, (Number) value);
-                    } else if (value instanceof Boolean) {
-                        TypeAdapters.BOOLEAN.write(out, (Boolean) value);
-                    } else {
-                        out.nullValue();
-                    }
+                    BatchingTypeAdapters.write(gson, out, value);
                 } catch (JSONException e) {
                     throw new IOException(e);
                 }
@@ -205,50 +226,20 @@ public class BatchingTypeAdapters {
                             jsonObject.put(name, TypeAdapters.STRING.read(reader));
                             break;
                         case BEGIN_ARRAY:
-                            JSONArray jsonArray = JSON_ARRAY_TYPE_ADAPTER.read(reader);
+                            JSONArray jsonArray = getJSONArrayTypeAdapter(gson).read(reader);
                             jsonObject.put(name, jsonArray);
                             break;
                         case BEGIN_OBJECT:
-                            JSONObject object = read(reader);
-                            jsonObject.put(name, object);
+                            jsonObject.put(name, read(reader));
                             break;
                     }
                 }
             } catch (JSONException jse) {
                 throw new IOException(jse);
             }
+
             reader.endObject();
             return jsonObject;
-        }
-    }.nullSafe();
-
-    /**
-     * Default Instantiater for List, by default it will create the Map of {@link ArrayList} type
-     */
-    public static class ListInstantiater<V> implements ObjectConstructor<List<V>> {
-        @Override
-        public List<V> construct() {
-            return new ArrayList<V>();
-        }
-    }
-
-    /**
-     * Instantiater for {@link Collection}
-     */
-    public static class CollectionInstantiater<V> implements ObjectConstructor<Collection<V>> {
-        @Override
-        public Collection<V> construct() {
-            return new ArrayList<V>();
-        }
-    }
-
-    /**
-     * Instantiater for {@link ArrayList}
-     */
-    public static class ArrayListInstantiater<V> implements ObjectConstructor<ArrayList<V>> {
-        @Override
-        public ArrayList<V> construct() {
-            return new ArrayList<V>();
         }
     }
 

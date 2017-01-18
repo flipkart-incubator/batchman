@@ -3,24 +3,24 @@ package com.flipkart.batching.gson.adapters.batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.DataCollection;
 import com.flipkart.batching.core.batch.TimeBatch;
+import com.flipkart.batching.gson.RuntimeTypeAdapterFactory;
 import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
 import com.flipkart.batching.gson.adapters.BatchingTypeAdapters;
-import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 
-public final class TimeBatchTypeAdapter<D extends Data> extends TypeAdapter<TimeBatch<D>> {
-    private final TypeAdapter<DataCollection<D>> typeAdapter;
+public final class TimeBatchTypeAdapter<T extends Data> extends TypeAdapter<TimeBatch<T>> {
+    private final TypeAdapter<DataCollection<T>> typeAdapter;
 
-    public TimeBatchTypeAdapter(Gson gson) {
-        typeAdapter = new DataCollectionTypeAdapter<D>(gson);
+    public TimeBatchTypeAdapter(TypeAdapter<T> typeAdapter) {
+        this.typeAdapter = new DataCollectionTypeAdapter<T>(typeAdapter);
     }
 
     @Override
-    public void write(JsonWriter writer, TimeBatch<D> object) throws IOException {
+    public void write(JsonWriter writer, TimeBatch<T> object) throws IOException {
         writer.beginObject();
         if (object == null) {
             writer.endObject();
@@ -39,7 +39,7 @@ public final class TimeBatchTypeAdapter<D extends Data> extends TypeAdapter<Time
     }
 
     @Override
-    public TimeBatch<D> read(JsonReader reader) throws IOException {
+    public TimeBatch<T> read(JsonReader reader) throws IOException {
         if (reader.peek() == com.google.gson.stream.JsonToken.NULL) {
             reader.nextNull();
             return null;
@@ -50,7 +50,7 @@ public final class TimeBatchTypeAdapter<D extends Data> extends TypeAdapter<Time
         }
         reader.beginObject();
 
-        TimeBatch<D> object = new TimeBatch<D>();
+        TimeBatch<T> object = new TimeBatch<T>();
         while (reader.hasNext()) {
             String name = reader.nextName();
             com.google.gson.stream.JsonToken jsonToken = reader.peek();

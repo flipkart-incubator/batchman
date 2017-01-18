@@ -4,9 +4,9 @@ import com.flipkart.batching.core.DataCollection;
 import com.flipkart.batching.core.batch.TagBatch;
 import com.flipkart.batching.core.data.Tag;
 import com.flipkart.batching.core.data.TagData;
+import com.flipkart.batching.gson.RuntimeTypeAdapterFactory;
 import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
 import com.flipkart.batching.gson.adapters.data.TagTypeAdapter;
-import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -17,8 +17,8 @@ public final class TagBatchTypeAdapter<T extends TagData> extends TypeAdapter<Ta
     private final TypeAdapter<DataCollection<T>> typeAdapter;
     private final TypeAdapter<Tag> tagTypeAdapter;
 
-    public TagBatchTypeAdapter(Gson gson) {
-        this.typeAdapter = new DataCollectionTypeAdapter<T>(gson);
+    public TagBatchTypeAdapter(TypeAdapter<T> typeAdapter) {
+        this.typeAdapter = new DataCollectionTypeAdapter<>(typeAdapter);
         this.tagTypeAdapter = new TagTypeAdapter();
     }
 

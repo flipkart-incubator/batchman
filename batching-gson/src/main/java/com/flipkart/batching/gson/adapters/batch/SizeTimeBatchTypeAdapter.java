@@ -3,6 +3,7 @@ package com.flipkart.batching.gson.adapters.batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.DataCollection;
 import com.flipkart.batching.core.batch.SizeTimeBatch;
+import com.flipkart.batching.gson.RuntimeTypeAdapterFactory;
 import com.flipkart.batching.gson.adapters.DataCollectionTypeAdapter;
 import com.flipkart.batching.gson.adapters.BatchingTypeAdapters;
 import com.google.gson.Gson;
@@ -15,8 +16,8 @@ import java.io.IOException;
 public final class SizeTimeBatchTypeAdapter<T extends Data> extends TypeAdapter<SizeTimeBatch<T>> {
     private final TypeAdapter<DataCollection<T>> typeAdapter;
 
-    public SizeTimeBatchTypeAdapter(Gson gson) {
-        typeAdapter = new DataCollectionTypeAdapter<T>(gson);
+    public SizeTimeBatchTypeAdapter(TypeAdapter<T> typeAdapter) {
+        this.typeAdapter = new DataCollectionTypeAdapter<T>(typeAdapter);
     }
 
     @Override

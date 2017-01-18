@@ -3,8 +3,10 @@ package com.flipkart.batching.gson.adapters;
 import com.flipkart.batching.core.BatchImpl;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.DataCollection;
+import com.flipkart.batching.gson.RuntimeTypeAdapterFactory;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
@@ -13,8 +15,8 @@ import java.io.IOException;
 public final class BatchImplTypeAdapter<T extends Data> extends TypeAdapter<BatchImpl<T>> {
     private final TypeAdapter<DataCollection<T>> typeAdapter;
 
-    public BatchImplTypeAdapter(Gson gson) {
-        typeAdapter = new DataCollectionTypeAdapter<T>(gson);
+    public BatchImplTypeAdapter(TypeAdapter<T> typeAdapter) {
+        this.typeAdapter = new DataCollectionTypeAdapter<>(typeAdapter);
     }
 
     @Override

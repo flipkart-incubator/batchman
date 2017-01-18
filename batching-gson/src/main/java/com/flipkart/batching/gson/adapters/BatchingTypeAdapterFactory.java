@@ -1,5 +1,6 @@
 package com.flipkart.batching.gson.adapters;
 
+import com.flipkart.batching.core.DataCollection;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -13,9 +14,9 @@ public class BatchingTypeAdapterFactory implements TypeAdapterFactory {
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         Class<? super T> rawType = type.getRawType();
         if (rawType.isAssignableFrom(JSONObject.class)) {
-            return (TypeAdapter<T>) BatchingTypeAdapters.JSON_OBJECT_TYPE_ADAPTER;
+            return (TypeAdapter<T>) BatchingTypeAdapters.getJSONObjectTypeAdapter(gson);
         } else if (rawType.isAssignableFrom(JSONArray.class)) {
-            return (TypeAdapter<T>) BatchingTypeAdapters.JSON_ARRAY_TYPE_ADAPTER;
+            return (TypeAdapter<T>) BatchingTypeAdapters.getJSONArrayTypeAdapter(gson);
         }
         return null;
     }
