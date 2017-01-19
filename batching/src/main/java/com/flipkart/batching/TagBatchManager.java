@@ -133,8 +133,6 @@ public class TagBatchManager<E extends Data, T extends Batch<E>> implements Batc
     }
 
     public static class Builder<E extends Data, T extends Batch<E>> {
-        Set<Class<E>> dataTypes = new HashSet<>();
-        Set<Class<T>> batchInfoTypes = new HashSet<>();
         private Handler handler;
         private SerializationStrategy serializationStrategy;
         private ArrayList<TagInfo> tagInfoList = new ArrayList<>();
@@ -168,16 +166,6 @@ public class TagBatchManager<E extends Data, T extends Batch<E>> implements Batc
 
         public Builder setHandler(Handler handler) {
             this.handler = handler;
-            return this;
-        }
-
-        public Builder registerDataType(Class<E> subClass) {
-            dataTypes.add(subClass);
-            return this;
-        }
-
-        public Builder registerBatchInfoType(Class<T> subClass) {
-            batchInfoTypes.add(subClass);
             return this;
         }
 
