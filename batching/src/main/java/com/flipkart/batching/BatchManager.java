@@ -141,8 +141,6 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
     }
 
     public static class Builder<E extends Data, T extends Batch<E>> {
-        Set<Class<E>> dataTypes = new HashSet<>();
-        Set<Class<T>> batchInfoTypes = new HashSet<>();
         private Handler handler;
         private BatchingStrategy batchingStrategy;
         private OnBatchReadyListener onBatchReadyListener;
@@ -193,16 +191,6 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
 
         public Builder setHandler(Handler handler) {
             this.handler = handler;
-            return this;
-        }
-
-        public Builder registerDataType(Class<E> subClass) {
-            dataTypes.add(subClass);
-            return this;
-        }
-
-        public Builder registerBatchInfoType(Class<T> subClass) {
-            batchInfoTypes.add(subClass);
             return this;
         }
 
