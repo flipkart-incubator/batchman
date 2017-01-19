@@ -168,7 +168,10 @@ public class BatchingTypeAdapters {
                         jsonArray.put(read(reader));
                         break;
                     case BEGIN_OBJECT:
-                        jsonArray.put(getJSONArrayTypeAdapter(gson).read(reader));
+                        jsonArray.put(getJSONObjectTypeAdapter(gson).read(reader));
+                        break;
+                    default:
+                        reader.skipValue();
                         break;
                 }
             }
@@ -239,6 +242,9 @@ public class BatchingTypeAdapters {
                             break;
                         case BEGIN_OBJECT:
                             jsonObject.put(name, read(reader));
+                            break;
+                        default:
+                            reader.skipValue();
                             break;
                     }
                 }
