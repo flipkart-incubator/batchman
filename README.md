@@ -1,4 +1,10 @@
-#BatchMan  [![Build Status](https://travis-ci.org/flipkart-incubator/batchman.svg?branch=master)](https://travis-ci.org/flipkart-incubator/batchman)  [![](https://jitpack.io/v/flipkart-incubator/batchman.svg)](https://jitpack.io/#flipkart-incubator/batchman)
+#BatchMan [![](https://jitpack.io/v/flipkart-incubator/batchman.svg)](https://jitpack.io/#flipkart-incubator/batchman)
+
+| Branch | Build Status |
+|--------|--------------|
+| master | [![Build Status](https://travis-ci.org/flipkart-incubator/batchman.svg?branch=master)](https://travis-ci.org/flipkart-incubator/batchman) |
+| develop    | [![Build Status](https://travis-ci.org/flipkart-incubator/batchman.svg?branch=develop)](https://travis-ci.org/flipkart-incubator/batchman) |
+
 BatchMan (short for batch manager) is an android library implementation responsible for batching of events based on the configurations done by the client, and giving the batch back to the client.
 
 The library has been written in a more flexible way, so that the client can plugin his own implementations for batching.
@@ -18,12 +24,14 @@ Get BatchMan
 
 Add it in your root build.gradle at the end of repositories :
 
+````java
 	allprojects {
 		repositories {
 			...
 			maven { url "https://jitpack.io" }
 		}
 	}
+````	
 
 Add the dependencies :
 
@@ -31,7 +39,7 @@ Add the dependencies :
 
 ````java
 	dependencies {
-	        compile 'com.github.flipkart-incubator:batchman:1.3.0'
+	        compile 'com.github.flipkart-incubator.batchman:batching:1.3.1'
 	}
 ````
 
@@ -40,7 +48,7 @@ Add the dependencies :
 ````java
 
 	dependencies {
-	        compile 'com.github.flipkart-incubator:batchman-gson:1.3.0'
+	        compile 'com.github.flipkart-incubator.batchman:batching-gson:1.3.1'
 	}
 ````
 
