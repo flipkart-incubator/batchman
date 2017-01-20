@@ -34,9 +34,8 @@ import android.text.TextUtils;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.SerializationStrategy;
-import com.flipkart.batching.core.exception.DeserializeException;
-import com.flipkart.batching.core.exception.SerializeException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -80,9 +79,9 @@ public class DatabaseHelper<E extends Data, T extends Batch> extends SQLiteOpenH
      * the database.
      *
      * @param dataCollection collection of {@link Data} objects.
-     * @throws SerializeException
+     * @throws IOException
      */
-    public void addData(Collection<E> dataCollection) throws SerializeException {
+    public void addData(Collection<E> dataCollection) throws IOException {
         SQLiteDatabase db = this.getWritableDatabase();
         try {
             db.beginTransaction();
@@ -105,9 +104,9 @@ public class DatabaseHelper<E extends Data, T extends Batch> extends SQLiteOpenH
      * This method gets all the data in database and return them after deserialize.
      *
      * @return collection of {@link Data} objects
-     * @throws DeserializeException
+     * @throws IOException
      */
-    public Collection<E> getAllData() throws DeserializeException {
+    public Collection<E> getAllData() throws IOException {
         ArrayList<E> allEventData = new ArrayList<>();
         SQLiteDatabase db = getWritableDatabase();
         Cursor cursor = db.query(TABLE_EVENT_DATA, new String[]{KEY_DATA}, null, null, null, null, null);
