@@ -38,7 +38,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 25
         versionCode 1
-        versionName "1.3.2"
+        versionName "1.3.3"
     }
 
     buildTypes {
@@ -58,10 +58,10 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.10.19'
     testCompile 'org.robolectric:robolectric:3.2.2'
-    testCompile project(':batching-gson')
+    testCompile 'com.github.flipkart-incubator.batchman:batching-core:1.3.3'
     testCompile 'com.google.code.gson:gson:2.8.0'
 
-    compile project(':batching-core')
+    compile 'com.github.flipkart-incubator.batchman:batching-core:1.3.3'
     compile 'com.android.support:support-annotations:25.1.0'
     errorprone 'com.google.errorprone:error_prone_core:2.0.9'
 }
