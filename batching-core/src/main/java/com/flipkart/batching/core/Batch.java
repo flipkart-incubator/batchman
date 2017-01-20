@@ -24,8 +24,11 @@
 
 package com.flipkart.batching.core;
 
+import android.support.annotation.Keep;
+
 import java.util.Collection;
 
+@Keep
 public interface Batch<T extends Data> {
     Collection<T> getDataCollection();
 }

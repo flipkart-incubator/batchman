@@ -25,6 +25,8 @@
 package com.flipkart.batching.core;
 
 
+import android.support.annotation.Keep;
+
 import java.io.IOException;
 import java.util.Collection;
 
@@ -32,6 +34,7 @@ import java.util.Collection;
  * This is an interface for serialization strategy. An implementation of this class
  * must override all it's methods.
  */
+@Keep
 public interface SerializationStrategy<E extends Data, T extends Batch> {
 
     /**
