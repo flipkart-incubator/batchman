@@ -25,6 +25,8 @@
 package com.flipkart.batching.core;
 
 
+import android.support.annotation.Keep;
+
 import com.flipkart.batching.core.data.Tag;
 
 import java.io.Serializable;
@@ -38,7 +40,7 @@ import java.io.Serializable;
  * @see Tag
  * @see Object
  */
-
+@Keep
 public abstract class Data implements Serializable {
     private long eventId;
 
