@@ -32,8 +32,6 @@ import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.data.EventData;
-import com.flipkart.batching.core.exception.DeserializeException;
-import com.flipkart.batching.core.exception.SerializeException;
 import com.flipkart.batching.gson.GsonSerializationStrategy;
 
 import junit.framework.Assert;
@@ -44,6 +42,7 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -60,11 +59,10 @@ public class DatabaseHelperTest {
     /**
      * Test to verify the {@link DatabaseHelper#addData(Collection)} adds the data in the db
      *
-     * @throws DeserializeException
-     * @throws SerializeException
+     * @throws IOException
      */
     @Test
-    public void testAddData() throws DeserializeException, SerializeException {
+    public void testAddData() throws IOException {
         DatabaseHelper<Data, Batch<Data>> databaseHelper;
         Context context;
         GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
@@ -82,12 +80,11 @@ public class DatabaseHelperTest {
     /**
      * Test to verify the {@link DatabaseHelper#getAllData()} return the data from the db
      *
-     * @throws DeserializeException
-     * @throws SerializeException
+     * @throws IOException
      */
 
     @Test
-    public void testGetAllData() throws DeserializeException, SerializeException {
+    public void testGetAllData() throws IOException{
         DatabaseHelper<Data, Batch<Data>> databaseHelper;
         Context context;
         GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
@@ -107,11 +104,10 @@ public class DatabaseHelperTest {
     /**
      * Test to verify the {@link DatabaseHelper#deleteDataList(Collection)} deletes the given list of data from db
      *
-     * @throws SerializeException
-     * @throws DeserializeException
+     * @throws IOException
      */
     @Test
-    public void testDeleteParticularData() throws SerializeException, DeserializeException {
+    public void testDeleteParticularData() throws IOException{
         DatabaseHelper<Data, Batch<Data>> databaseHelper;
         Context context;
         GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
@@ -133,11 +129,10 @@ public class DatabaseHelperTest {
     /**
      * Test to verify the {@link DatabaseHelper#deleteAll()} deletes all the entries from the db
      *
-     * @throws SerializeException
-     * @throws DeserializeException
+     * @throws IOException
      */
     @Test
-    public void testDeleteAllData() throws SerializeException, DeserializeException {
+    public void testDeleteAllData() throws IOException {
         DatabaseHelper<Data, Batch<Data>> databaseHelper;
         Context context;
         GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
@@ -159,10 +154,10 @@ public class DatabaseHelperTest {
     /**
      * Test to verify the {@link DatabaseHelper#isDataInDB(String)} returns true if data is present in db.
      *
-     * @throws SerializeException
+     * @throws IOException
      */
     @Test
-    public void testIfDataInDB() throws SerializeException {
+    public void testIfDataInDB() throws IOException {
         DatabaseHelper<Data, Batch<Data>> databaseHelper;
         Context context;
         GsonSerializationStrategy<Data, Batch<Data>> gsonSerializationStrategy;
