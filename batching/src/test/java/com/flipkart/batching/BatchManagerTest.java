@@ -34,6 +34,8 @@ import com.flipkart.Utils;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.batch.TagBatch;
+import com.flipkart.batching.core.data.TagData;
 import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener.NetworkBatchListener;

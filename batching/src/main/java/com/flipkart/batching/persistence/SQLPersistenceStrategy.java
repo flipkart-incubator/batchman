@@ -29,10 +29,9 @@ import android.content.Context;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.SerializationStrategy;
-import com.flipkart.batching.core.exception.DeserializeException;
-import com.flipkart.batching.core.exception.SerializeException;
 import com.flipkart.batching.toolbox.LogUtil;
 
+import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -61,7 +60,7 @@ public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceS
         super.add(dataCollection);
         try {
             databaseHelper.addData(dataCollection);
-        } catch (SerializeException e) {
+        } catch (IOException e) {
             LogUtil.log(TAG, e.getLocalizedMessage());
         }
         return true;
@@ -75,7 +74,7 @@ public class SQLPersistenceStrategy<E extends Data> extends InMemoryPersistenceS
     private void syncData() {
         try {
             super.add(databaseHelper.getAllData());
-        } catch (DeserializeException e) {
+        } catch (IOException e) {
             LogUtil.log(TAG, e.getLocalizedMessage());
         }
     }

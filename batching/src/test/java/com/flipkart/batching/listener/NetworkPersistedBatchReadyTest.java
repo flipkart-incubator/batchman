@@ -39,7 +39,6 @@ import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.SerializationStrategy;
 import com.flipkart.batching.core.batch.SizeBatch;
-import com.flipkart.batching.core.exception.SerializeException;
 import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.tape.ObjectQueue;
@@ -82,7 +81,6 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
      * Test to verify the retry policy for 5XX server errors
      *
      * @throws IOException
-     * @throws SerializeException
      */
     @Test
     public void test5XXRetryPolicy() throws IOException {

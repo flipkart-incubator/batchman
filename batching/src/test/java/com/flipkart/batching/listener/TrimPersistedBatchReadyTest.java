@@ -34,7 +34,6 @@ import com.flipkart.batching.BuildConfig;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.batch.SizeBatch;
-import com.flipkart.batching.core.exception.SerializeException;
 import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 
@@ -67,7 +66,6 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
      * Test to verify {@link TrimmedBatchCallback#onTrimmed(int, int)} is called
      *
      * @throws IOException
-     * @throws SerializeException
      */
     @Test
     public void testOnTrimmedCalled() throws IOException {
@@ -104,7 +102,6 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
      * Test to verify {@link TrimmedBatchCallback#onTrimmed(int, int)} is not called
      *
      * @throws IOException
-     * @throws SerializeException
      */
     @Test
     public void testTrimmedNotCalled() throws IOException {
@@ -140,7 +137,6 @@ public class TrimPersistedBatchReadyTest extends BaseTestClass {
      * Test to verify {@link TrimPersistedBatchReadyListener#mode}
      *
      * @throws IOException
-     * @throws SerializeException
      */
     @Test
     public void testTrimMode() throws IOException {

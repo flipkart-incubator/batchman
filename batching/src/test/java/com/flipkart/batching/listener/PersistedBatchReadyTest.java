@@ -35,7 +35,6 @@ import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.SerializationStrategy;
 import com.flipkart.batching.core.batch.SizeBatch;
-import com.flipkart.batching.core.exception.SerializeException;
 import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import com.flipkart.batching.tape.QueueFile;
@@ -122,7 +121,6 @@ public class PersistedBatchReadyTest extends BaseTestClass {
      * Test if Finish method gets called
      *
      * @throws IOException
-     * @throws SerializeException
      */
     @Test
     public void testFinishCalled() throws IOException {
@@ -162,7 +160,6 @@ public class PersistedBatchReadyTest extends BaseTestClass {
      * Test that persist success is not called until finish is called.
      *
      * @throws IOException
-     * @throws SerializeException
      */
     @Test
     public void testPersistSuccessNotCalledMoreThanOnce() throws IOException {
@@ -209,7 +206,6 @@ public class PersistedBatchReadyTest extends BaseTestClass {
      * <p>
      * UPDATE : not throwing this exception anymore, thus ignore.
      *
-     * @throws SerializeException
      * @throws IOException
      */
     @Ignore
@@ -247,7 +243,6 @@ public class PersistedBatchReadyTest extends BaseTestClass {
     /**
      * Test to verify {@link PersistedBatchCallback#onPersistFailure(Batch, Exception)}
      *
-     * @throws SerializeException
      * @throws IOException
      */
     @Test

@@ -24,9 +24,8 @@
 
 package com.flipkart.batching.core;
 
-import com.flipkart.batching.core.exception.DeserializeException;
-import com.flipkart.batching.core.exception.SerializeException;
 
+import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -45,24 +44,24 @@ public interface SerializationStrategy<E extends Data, T extends Batch> {
      *
      * @param data {@link Data} object to be serialized
      * @return byte array
-     * @throws SerializeException
+     * @throws IOException
      */
-    byte[] serializeData(E data) throws SerializeException;
+    byte[] serializeData(E data) throws IOException;
 
-    byte[] serializeCollection(Collection<E> data) throws SerializeException;
+    byte[] serializeCollection(Collection<E> data) throws IOException;
 
-    byte[] serializeBatch(T batch) throws SerializeException;
+    byte[] serializeBatch(T batch) throws IOException;
 
     /**
      * This method deserialize the provided byte array of data.
      *
      * @param data byte[] type data
      * @return {@link Object} type data
-     * @throws DeserializeException
+     * @throws IOException
      */
-    E deserializeData(byte[] data) throws DeserializeException;
+    E deserializeData(byte[] data) throws IOException;
 
-    Collection<E> deserializeCollection(byte[] data) throws DeserializeException;
+    Collection<E> deserializeCollection(byte[] data) throws IOException;
 
-    T deserializeBatch(byte[] data) throws DeserializeException;
+    T deserializeBatch(byte[] data) throws IOException;
 }
