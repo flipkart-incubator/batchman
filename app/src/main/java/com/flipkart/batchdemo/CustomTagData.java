@@ -24,12 +24,15 @@
 
 package com.flipkart.batchdemo;
 
+import android.support.annotation.Keep;
+
 import com.flipkart.batching.core.data.Tag;
 import com.flipkart.batching.core.data.TagData;
 import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONObject;
 
+@Keep
 public class CustomTagData extends TagData {
     @SerializedName("event")
     public JSONObject event;
