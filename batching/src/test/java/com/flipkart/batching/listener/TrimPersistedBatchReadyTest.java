@@ -41,7 +41,7 @@ import com.flipkart.batching.strategy.SizeBatchingStrategy;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLooper;
@@ -58,7 +58,7 @@ import static org.mockito.Mockito.verify;
  * Test for {@link TrimPersistedBatchReadyListener}
  */
 
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
 public class TrimPersistedBatchReadyTest extends BaseTestClass {
 

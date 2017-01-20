@@ -50,7 +50,7 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
@@ -74,7 +74,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 /**
  * Test for {@link NetworkPersistedBatchReadyListener}
  */
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
 public class NetworkPersistedBatchReadyTest extends BaseTestClass {
 
