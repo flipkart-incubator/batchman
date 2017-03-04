@@ -109,19 +109,19 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         //verify that it gets called once
         verify(networkBatchListener, times(1)).performNetworkRequest(any(Batch.class), any(ValueCallback.class));
         //verify that it gets called 2 times
-        shadowLooper.idle(networkPersistedBatchReadyListener.getDefaultTimeoutMs());
+        shadowLooper.idle(networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 2);
         verify(networkBatchListener, times(2)).performNetworkRequest(any(Batch.class), any(ValueCallback.class));
         //verify that it gets called 3 times
-        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 2);
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 4);
         verify(networkBatchListener, times(3)).performNetworkRequest(any(Batch.class), any(ValueCallback.class));
         //verify that it gets called 4 times
-        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 4);
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 8);
         verify(networkBatchListener, times(4)).performNetworkRequest(any(Batch.class), any(ValueCallback.class));
         //verify that it gets called 5 times
-        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 8);
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 16);
         verify(networkBatchListener, times(5)).performNetworkRequest(any(Batch.class), any(ValueCallback.class));
         //verify that it does not gets called after 5 times
-        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 16);
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 32);
 
         ArgumentCaptor<ValueCallback> valueCallbackCapture = ArgumentCaptor.forClass(ValueCallback.class);
         verify(networkBatchListener, times(5)).performNetworkRequest(any(Batch.class), valueCallbackCapture.capture());
@@ -338,18 +338,18 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
 
         //verify that it gets called 1 times
         verify(networkBatchListener, times(1)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
-        shadowLooper.idle(networkPersistedBatchReadyListener.getDefaultTimeoutMs());
+        shadowLooper.idle(networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 2);
         //verify that it gets called 2 times after waiting for specified time
         verify(networkBatchListener, times(2)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
-        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 2);
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 4);
         //verify that it gets called 3 times after waiting for specified time
         verify(networkBatchListener, times(3)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
         //verify that it gets called 3 times after waiting for specified time
-        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 4);
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 8);
         //verify that it gets called 4 times after waiting for specified time
         verify(networkBatchListener, times(4)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
         sendFakeNetworkBroadcast(context);
-        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 8);
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 16);
         // now it should have stopped retrying anymore since max retry is reached
         verify(networkBatchListener, times(4)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
 
@@ -401,17 +401,17 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
 
         //verify that it gets called 1 times
         verify(networkBatchListener, times(1)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
-        shadowLooper.idle(networkPersistedBatchReadyListener.getDefaultTimeoutMs());
+        shadowLooper.idle(networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 2);
         //verify that it gets called 2 times after waiting for specified time
         verify(networkBatchListener, times(2)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
-        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 2);
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 4);
         //verify that it gets called 3 times after waiting for specified time
         verify(networkBatchListener, times(3)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
         //verify that it gets called 3 times after waiting for specified time
-        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 4);
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 8);
         //verify that it gets called 4 times after waiting for specified time
         verify(networkBatchListener, times(4)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
-        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 8);
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 16);
         // now it should have stopped retrying anymore since max retry is reached
         verify(networkBatchListener, times(4)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
 
