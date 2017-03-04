@@ -166,7 +166,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
                         public void run() {
                             waitingForCallback = false;
                             LogUtil.log(TAG, "callback received for {}" + this);
-                            if (!value.complete || (value.httpErrorCode >= HTTP_SERVER_ERROR_CODE_RANGE_START) && value.httpErrorCode <= HTTP_SERVER_ERROR_CODE_RANGE_END) {
+                            if (!value.complete || (value.httpErrorCode >= HTTP_SERVER_ERROR_CODE_RANGE_START && value.httpErrorCode <= HTTP_SERVER_ERROR_CODE_RANGE_END)) {
                                 retryCount++;
                                 if (retryCount < maxRetryCount) {
                                     int backOff = exponentialBackOff();
