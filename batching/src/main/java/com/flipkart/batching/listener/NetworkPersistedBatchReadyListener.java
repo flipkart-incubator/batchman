@@ -218,7 +218,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
      * @return new timeOut
      */
     int exponentialBackOff() {
-        mCurrentTimeoutMs = (int) (mCurrentTimeoutMs + (mCurrentTimeoutMs * defaultBackoffMultiplier));
+        mCurrentTimeoutMs += (mCurrentTimeoutMs * defaultBackoffMultiplier);
         return mCurrentTimeoutMs;
     }
 
