@@ -52,12 +52,10 @@ public class Utils {
      * @param size
      * @return dataList
      */
-    private static Data eventData;
-
     public static ArrayList<Data> fakeCollection(int size) {
         ArrayList<Data> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            eventData = new EventData();
+            Data eventData = new EventData();
             eventData.setEventId(System.currentTimeMillis() + System.nanoTime() + i);
             dataList.add(eventData);
         }
@@ -71,10 +69,6 @@ public class Utils {
         public CustomTagData(Tag tag, JSONObject event) {
             super(tag);
             this.event = event;
-        }
-
-        public JSONObject getEvent() {
-            return event;
         }
 
         @Override

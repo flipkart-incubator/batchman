@@ -127,7 +127,7 @@ public class DatabaseHelper<E extends Data, T extends Batch> extends SQLiteOpenH
      * @param dataCollection collection of {@link Data} objects to be deleted
      */
     public void deleteDataList(Collection<E> dataCollection) {
-        List<String> eventIdList = new ArrayList<>();
+        List<String> eventIdList = new ArrayList<>(dataCollection.size());
         for (E data : dataCollection) {
             eventIdList.add(String.valueOf(data.getEventId()));
         }

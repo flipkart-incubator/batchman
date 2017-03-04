@@ -44,8 +44,7 @@ import com.flipkart.batching.toolbox.LogUtil;
  */
 public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends TrimPersistedBatchReadyListener<E, T> {
     private static final String TAG = "NetworkPersistedBatchReadyListener";
-    private static final int HTTP_SERVER_ERROR_CODE_RANGE_START = 500;
-    private static final int HTTP_SERVER_ERROR_CODE_RANGE_END = 599;
+    private static final int HTTP_SERVER_ERROR_CODE_RANGE_START = 300;
     public int defaultTimeoutMs = 2500;
     public float defaultBackoffMultiplier = 1f;
     T lastBatch;
@@ -58,7 +57,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     boolean callFinishAfterMaxRetry = false;
     private NetworkBatchListener<E, T> networkBatchListener;
     private Context context;
-    private NetworkBroadcastReceiver networkBroadcastReceiver = new NetworkBroadcastReceiver();
+    private NetworkBroadcastReceiver networkBroadcastReceiver;
     private PersistedBatchCallback<T> persistedBatchCallback = new PersistedBatchCallback<T>() {
         @Override
         public void onPersistFailure(T batch, Exception e) {
@@ -129,6 +128,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     void registerReceiverIfRequired() {
         if (!receiverRegistered) {
             //Register the broadcast receiver
+            networkBroadcastReceiver = new NetworkBroadcastReceiver();
             IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
             context.registerReceiver(networkBroadcastReceiver, filter);
             receiverRegistered = true;
@@ -165,7 +165,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
                         public void run() {
                             waitingForCallback = false;
                             LogUtil.log(TAG, "callback received for {}" + this);
-                            if (!value.complete || (value.httpErrorCode >= HTTP_SERVER_ERROR_CODE_RANGE_START && value.httpErrorCode <= HTTP_SERVER_ERROR_CODE_RANGE_END)) {
+                            if (!value.complete || (value.httpErrorCode >= HTTP_SERVER_ERROR_CODE_RANGE_START)) {
                                 retryCount++;
                                 if (retryCount < maxRetryCount) {
                                     int backOff = exponentialBackOff();
@@ -217,9 +217,8 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
      * @return new timeOut
      */
     int exponentialBackOff() {
-        int timeOut = mCurrentTimeoutMs;
         mCurrentTimeoutMs = (int) (mCurrentTimeoutMs + (mCurrentTimeoutMs * defaultBackoffMultiplier));
-        return timeOut;
+        return mCurrentTimeoutMs;
     }
 
     @Override

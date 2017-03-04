@@ -34,8 +34,6 @@ import com.flipkart.batching.core.SerializationStrategy;
 import com.flipkart.batching.toolbox.LogUtil;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * BatchManager that implements {@link BatchController} interface. BatchManager uses builder pattern
@@ -202,5 +200,6 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
         public BatchManager<E, T> build(Context context) {
             return new BatchManager<>(this, context);
         }
+
     }
 }

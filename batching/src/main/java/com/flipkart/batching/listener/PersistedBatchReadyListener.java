@@ -186,11 +186,12 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if (queueFile.size() > 0) {
+                int queueSize = queueFile.size();
+                if (queueSize > 0) {
                     try {
                         if (peekedBatch != null) {
                             if (batch != null && batch.equals(peekedBatch)) {
-                                boolean isCached = cachedQueue.size() == queueFile.size();
+                                boolean isCached = cachedQueue.size() == queueSize;
                                 queueFile.remove();
                                 if (isCached) {
                                     cachedQueue.remove();
