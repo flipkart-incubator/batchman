@@ -44,7 +44,8 @@ import com.flipkart.batching.toolbox.LogUtil;
  */
 public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<E>> extends TrimPersistedBatchReadyListener<E, T> {
     private static final String TAG = "NetworkPersistedBatchReadyListener";
-    private static final int HTTP_SERVER_ERROR_CODE_RANGE_START = 300;
+    private static final int HTTP_SERVER_ERROR_CODE_RANGE_START = 500;
+    private static final int HTTP_SERVER_ERROR_CODE_RANGE_END = 599;
     public int defaultTimeoutMs = 2500;
     public float defaultBackoffMultiplier = 1f;
     T lastBatch;
@@ -165,7 +166,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
                         public void run() {
                             waitingForCallback = false;
                             LogUtil.log(TAG, "callback received for {}" + this);
-                            if (!value.complete || (value.httpErrorCode >= HTTP_SERVER_ERROR_CODE_RANGE_START)) {
+                            if (!value.complete || (value.httpErrorCode >= HTTP_SERVER_ERROR_CODE_RANGE_START) && value.httpErrorCode <= HTTP_SERVER_ERROR_CODE_RANGE_END) {
                                 retryCount++;
                                 if (retryCount < maxRetryCount) {
                                     int backOff = exponentialBackOff();
