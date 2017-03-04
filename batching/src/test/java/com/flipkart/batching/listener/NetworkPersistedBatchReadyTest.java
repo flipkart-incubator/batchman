@@ -141,7 +141,7 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         //verify that it gets called once
         verify(networkBatchListener, times(6)).performNetworkRequest(any(Batch.class), any(ValueCallback.class));
         //verify that it gets called 2 times
-        shadowLooper.idle(networkPersistedBatchReadyListener.getDefaultTimeoutMs());
+        shadowLooper.idle(networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 2);
         verify(networkBatchListener, times(7)).performNetworkRequest(any(Batch.class), any(ValueCallback.class));
     }
 
@@ -360,14 +360,14 @@ public class NetworkPersistedBatchReadyTest extends BaseTestClass {
         shadowLooper.idle();
         // note : now flow will get resumed, which mean network request for first batch is retried (NOT second batch)
         verify(networkBatchListener, times(5)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
-        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs());
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 2);
         sendFakeNetworkBroadcast(context);
         verify(networkBatchListener, times(6)).performNetworkRequest(eq(firstBatch), any(ValueCallback.class));
 
         requestResponse.complete = true;
         requestResponse.httpErrorCode = 200;
         sendFakeNetworkBroadcast(context);
-        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 2); // this will call second batch
+        shadowLooper.idle(callbackIdle + networkPersistedBatchReadyListener.getDefaultTimeoutMs() * 4); // this will call second batch
         //verify that it gets called 1 time with new batch
         verify(networkBatchListener, times(1)).performNetworkRequest(eq(secondBatch), any(ValueCallback.class));
         shadowLooper.runToEndOfTasks();
