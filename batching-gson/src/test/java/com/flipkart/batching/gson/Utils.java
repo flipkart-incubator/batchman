@@ -28,7 +28,17 @@ import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.data.EventData;
 import com.flipkart.batching.core.data.Tag;
 import com.flipkart.batching.core.data.TagData;
+import com.flipkart.batching.gson.adapters.BatchingTypeAdapters;
+import com.flipkart.batching.gson.adapters.data.TagTypeAdapter;
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -42,66 +52,106 @@ public class Utils {
      * @param size
      * @return dataList
      */
-    static Data eventData;
-
     public static ArrayList<Data> fakeCollection(int size) {
         ArrayList<Data> dataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            eventData = new EventData();
+            Data eventData = new EventData();
             eventData.setEventId(System.currentTimeMillis() + System.nanoTime() + i);
             dataList.add(eventData);
         }
         return dataList;
     }
 
-    public static ArrayList<Data> fakeAdsCollection(int size) {
-        ArrayList<Data> dataList = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            eventData = new EventData();
-            eventData.setEventId(System.currentTimeMillis() + System.nanoTime() + i);
-            dataList.add(eventData);
+    public static class CustomTagData extends TagData {
+        @SerializedName("event")
+        public JSONObject event;
+
+        public CustomTagData(Tag tag, JSONObject event) {
+            super(tag);
+            this.event = event;
         }
-        return dataList;
+
+        @Override
+        public String toString() {
+            return super.toString() + ":" + getEventId();
+        }
     }
 
-    public static ArrayList<Data> fakeDebugCollection(int size) {
-        ArrayList<Data> dataList = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            eventData = new EventData();
-            eventData.setEventId(System.currentTimeMillis() + System.nanoTime() + i);
-            dataList.add(eventData);
-        }
-        return dataList;
-    }
+    public static class CustomTagDataAdapter extends TypeAdapter<CustomTagData> {
 
-    public static ArrayList<Data> fakeBuisnessCollection(int size) {
-        ArrayList<Data> dataList = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            eventData = new EventData();
-            eventData.setEventId(System.currentTimeMillis() + System.nanoTime() + i);
-            dataList.add(eventData);
-        }
-        return dataList;
-    }
+        private final Gson gson = new Gson();
+        private TypeAdapter<Tag> tagTypeAdapter;
 
-    public static ArrayList<TagData> fakeTagAdsCollection(int size) {
-        ArrayList<TagData> dataList = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            TagData eventData = new TagData(new Tag("ADS"));
-            eventData.setEventId(System.currentTimeMillis() + System.nanoTime() + i);
-            dataList.add(eventData);
+        public CustomTagDataAdapter() {
+            this.tagTypeAdapter = new TagTypeAdapter();
         }
-        return dataList;
-    }
 
-    public static ArrayList<TagData> fakeTagDebugCollection(int size) {
-        ArrayList<TagData> dataList = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            TagData eventData = new TagData(new Tag("DEBUG"));
-            eventData.setEventId(System.currentTimeMillis() + System.nanoTime() + i);
-            dataList.add(eventData);
+        @Override
+        public void write(JsonWriter writer, CustomTagData object) throws IOException {
+            writer.beginObject();
+            if (object == null) {
+                writer.endObject();
+                return;
+            }
+
+            if (object.getTag() != null) {
+                writer.name("tag");
+                tagTypeAdapter.write(writer, object.getTag());
+            }
+
+            if (object.event != null) {
+                writer.name("event");
+                BatchingTypeAdapters.getJSONObjectTypeAdapter(gson).write(writer, object.event);
+            }
+
+            writer.name("eventId");
+            writer.value(object.getEventId());
+
+            writer.endObject();
         }
-        return dataList;
-    }
 
+        @Override
+        public CustomTagData read(JsonReader reader) throws IOException {
+            if (reader.peek() == com.google.gson.stream.JsonToken.NULL) {
+                reader.nextNull();
+                return null;
+            }
+            if (reader.peek() != com.google.gson.stream.JsonToken.BEGIN_OBJECT) {
+                reader.skipValue();
+                return null;
+            }
+            reader.beginObject();
+
+            Tag tag = null;
+            Long eventId = 0L;
+            JSONObject event = null;
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                com.google.gson.stream.JsonToken jsonToken = reader.peek();
+                if (jsonToken == com.google.gson.stream.JsonToken.NULL) {
+                    reader.skipValue();
+                    continue;
+                }
+                switch (name) {
+                    case "tag":
+                        tag = tagTypeAdapter.read(reader);
+                        break;
+                    case "eventId":
+                        eventId = BatchingTypeAdapters.LONG.read(reader);
+                        break;
+                    case "event":
+                        event = BatchingTypeAdapters.getJSONObjectTypeAdapter(gson).read(reader);
+                        break;
+                    default:
+                        reader.skipValue();
+                        break;
+                }
+            }
+
+            reader.endObject();
+            CustomTagData customTagData = new CustomTagData(tag, event);
+            customTagData.setEventId(eventId);
+            return customTagData;
+        }
+    }
 }

@@ -34,6 +34,8 @@ import com.flipkart.Utils;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.SerializationStrategy;
+import com.flipkart.batching.core.batch.TagBatch;
+import com.flipkart.batching.core.data.TagData;
 import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener.NetworkBatchListener;
@@ -49,7 +51,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
@@ -69,7 +71,7 @@ import static org.mockito.Mockito.when;
 /**
  * Test for {@link BatchManager}
  */
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
 public class BatchManagerTest extends BaseTestClass {
 

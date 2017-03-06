@@ -24,6 +24,8 @@
 
 package com.flipkart.batching.core.data;
 
+import android.support.annotation.Keep;
+
 import com.flipkart.batching.core.Data;
 
 import java.io.Serializable;
@@ -32,6 +34,7 @@ import java.io.Serializable;
  * Tag represents a group of {@link Data} objects to batch together.
  * It takes a {@link String} type ID as parameter in constructor.
  */
+@Keep
 public class Tag implements Serializable {
 
     private String id;
