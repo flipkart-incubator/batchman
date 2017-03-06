@@ -54,7 +54,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     int maxRetryCount;
     boolean needsResumeOnReady = false;
     boolean waitingForCallback = false;
-    boolean receiverRegistered;
     boolean callFinishAfterMaxRetry = false;
     private NetworkBatchListener<E, T> networkBatchListener;
     private Context context;
@@ -119,20 +118,19 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     }
 
     void unregisterReceiver() {
-        if (receiverRegistered) {
+        if (null != networkBroadcastReceiver) {
             context.unregisterReceiver(networkBroadcastReceiver);
-            receiverRegistered = false;
+            networkBroadcastReceiver = null;
             LogUtil.log(TAG, "Unregistered network broadcast receiver {}" + this);
         }
     }
 
     void registerReceiverIfRequired() {
-        if (!receiverRegistered) {
+        if (null == networkBroadcastReceiver) {
             //Register the broadcast receiver
             networkBroadcastReceiver = new NetworkBroadcastReceiver();
             IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
             context.registerReceiver(networkBroadcastReceiver, filter);
-            receiverRegistered = true;
             LogUtil.log(TAG, "Registered network broadcast receiver {}" + this);
         }
     }
