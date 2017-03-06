@@ -39,8 +39,6 @@ import com.flipkart.batching.strategy.TagBatchingStrategy;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * TagBatchManager class that extends {@link BatchController}.
@@ -53,13 +51,12 @@ public class TagBatchManager<E extends Data, T extends Batch<E>> implements Batc
     SerializationStrategy<E, T> serializationStrategy;
     TagBatchingStrategy<TagData> tagBatchingStrategy;
     TagBatchReadyListener<TagData> tagBatchReadyListener;
-    private ArrayList<TagInfo> tagParametersList = new ArrayList<>();
 
     protected TagBatchManager(Builder builder, final Context context) {
         tagBatchingStrategy = new TagBatchingStrategy<>();
         tagBatchReadyListener = new TagBatchReadyListener<>();
 
-        tagParametersList = builder.getTagInfoList();
+        ArrayList<TagInfo> tagParametersList = builder.getTagInfoList();
 
         for (int i = 0; i < tagParametersList.size(); i++) {
             tagBatchReadyListener.addListenerForTag(tagParametersList.get(i).tag, tagParametersList.get(i).tagBatchReadyListener);
