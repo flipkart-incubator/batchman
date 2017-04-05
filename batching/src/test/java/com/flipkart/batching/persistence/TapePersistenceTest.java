@@ -40,6 +40,7 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -97,6 +98,24 @@ public class TapePersistenceTest extends BaseTestClass {
 
         //verify that the data that was added, has been persisted and it correct form
         Assert.assertEquals(dataArrayList, persistenceStrategy.getData());
+    }
+
+    @Test
+    public void testIfQueueCreatedAgain() throws Exception {
+        SerializationStrategy serializationStrategy = new GsonSerializationStrategy();
+        serializationStrategy.build();
+        TapePersistenceStrategy<Data> persistenceStrategy = new TapePersistenceStrategy<>(createRandomFile().getPath(), serializationStrategy);
+        persistenceStrategy.onInitialized();
+        //add data list to the persistence
+        ArrayList<Data> dataArrayList = Utils.fakeCollection(1000);
+        persistenceStrategy.add(dataArrayList);
+
+        //trying to re create the queue file, which may happen due to low memory available to create the queue file
+        persistenceStrategy.createInMemoryQueueFile(new IOException());
+
+        //now try to remove the data from the queue file. Since due to the low memory, we did create an in-memory queue. This will remove the list
+        //from the in-memory queue file as well.
+        persistenceStrategy.removeData(dataArrayList);
     }
 
     /**
