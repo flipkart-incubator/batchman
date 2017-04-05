@@ -24,6 +24,8 @@
 
 package com.flipkart.batching.persistence;
 
+import android.support.annotation.VisibleForTesting;
+
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.SerializationStrategy;
@@ -125,9 +127,25 @@ public class TapePersistenceStrategy<E extends Data> extends InMemoryPersistence
             File file = new File(filePath);
             this.queueFile = new LenientFileObjectQueue(file, converter, this);
         } catch (IOException e) {
-            this.queueFile = new InMemoryObjectQueue<E>();
-            LogUtil.log(TAG, e.getLocalizedMessage());
+            createInMemoryQueueFile(e);
         }
+    }
+
+    @VisibleForTesting
+    void createInMemoryQueueFile(IOException e) {
+        this.queueFile = new InMemoryObjectQueue<E>();
+        /*
+         * Due to an exception while creating a tape queue file (which may happen due to low available memory), we are creating an in-memory queue file,
+         * and adding the dataList to the in-memory queue.
+         */
+        for (E data: dataList) {
+            try {
+                this.queueFile.add(data);
+            } catch (IOException e1) {
+                LogUtil.log(TAG, e.getLocalizedMessage());
+            }
+        }
+        LogUtil.log(TAG, e.getLocalizedMessage());
     }
 
     /**
