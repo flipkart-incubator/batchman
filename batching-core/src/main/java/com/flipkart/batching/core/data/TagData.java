@@ -24,12 +24,15 @@
 
 package com.flipkart.batching.core.data;
 
+import android.support.annotation.Keep;
+
 import com.flipkart.batching.core.Data;
 
 /**
  * TagData Class that extends {@link Data}.
  * It takes {@link Tag} as a parameter in constructor.
  */
+@Keep
 public class TagData extends Data {
 
     private Tag tag;

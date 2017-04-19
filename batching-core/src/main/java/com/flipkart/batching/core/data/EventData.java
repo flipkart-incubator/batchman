@@ -24,11 +24,14 @@
 
 package com.flipkart.batching.core.data;
 
+import android.support.annotation.Keep;
+
 import com.flipkart.batching.core.Data;
 
 /**
  * EventData class that extends {@link Data}.
  */
+@Keep
 public class EventData extends Data {
     public EventData() {
         super();

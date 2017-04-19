@@ -43,15 +43,12 @@ public class TagBasedPersistenceStrategy<E extends Data> implements PersistenceS
     public TagBasedPersistenceStrategy(Tag tag, PersistenceStrategy<E> persistenceStrategy) {
         if (tag == null) {
             throw new IllegalArgumentException("Tag cannot be null");
-        } else {
-            this.tag = tag;
         }
-
         if (persistenceStrategy == null) {
             throw new IllegalArgumentException("PersistenceStrategy cannot be null");
-        } else {
-            this.persistenceStrategy = persistenceStrategy;
         }
+        this.tag = tag;
+        this.persistenceStrategy = persistenceStrategy;
     }
 
     @Override

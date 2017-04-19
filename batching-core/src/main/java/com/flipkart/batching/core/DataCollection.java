@@ -24,12 +24,14 @@
 
 package com.flipkart.batching.core;
 
+import android.support.annotation.Keep;
+
 import java.util.Collection;
 
 /**
  * DataCollection class
  */
-
+@Keep
 public class DataCollection<T extends Data> {
     public Collection<T> dataCollection;
 

@@ -1,10 +1,13 @@
 package com.flipkart.batching.core.batch;
 
+import android.support.annotation.Keep;
+
 import com.flipkart.batching.core.BatchImpl;
 import com.flipkart.batching.core.Data;
 
 import java.util.Collection;
 
+@Keep
 public class TimeBatch<D extends Data> extends BatchImpl<D> {
     private long timeOut;
 
