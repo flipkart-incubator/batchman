@@ -1,4 +1,4 @@
-#BatchMan [![](https://jitpack.io/v/flipkart-incubator/batchman.svg)](https://jitpack.io/#flipkart-incubator/batchman)
+# BatchMan [![](https://jitpack.io/v/flipkart-incubator/batchman.svg)](https://jitpack.io/#flipkart-incubator/batchman)
 
 | Branch | Build Status |
 |--------|--------------|
@@ -55,7 +55,7 @@ Add the dependencies :
 How to use
 ----------
 
-###Step 1 :
+### Step 1 :
 
 Initialize persistence strategy, batching strategy will take persistence strategy as one of it's parameters.
 
@@ -66,7 +66,7 @@ PersistenceStrategy persistenceStrategy = new InMemoryPersistenceStrategy();
 
 ````
 
-###Step 2 :
+### Step 2 :
 
 Initialize batching strategy with a max batch size and persistence strategy.
 
@@ -79,7 +79,7 @@ SizeBatchingStrategy sizeBatchingStrategy = new SizeBatchingStrategy(MAX_BATCH_S
 
 ````
 
-###Step 3 :
+### Step 3 :
 
 Initialize serialization strategy and background handler thread. To include GsonSerializationStrategy, you must have its dependency in your gradle file. To get dependency, look into the Getting Started section.
 
@@ -95,7 +95,7 @@ Handler backgroundHandler = new Handler(handlerThread.getLooper());
 
 ````
 
-###Step 4 :
+### Step 4 :
 
 Build batch manager with all the strategies and handler thread we initialized in previous steps. Batch manger will also take a listener for giving callbacks when a batch is ready.
 
@@ -117,7 +117,7 @@ BatchManager batchManager = new BatchManager.Builder<>()
 
 ````
 
-###Step 5 :
+### Step 5 :
 
 Use addToBatch() for adding events to batch manager.
 
@@ -131,7 +131,7 @@ batchManager.addToBatch(Collections.singleton(new EventData()));
 Getting Started
 ---------------
 
-###[Wiki](https://github.com/Flipkart/fk-android-batchnetworking/wiki)
+### [Wiki](https://github.com/Flipkart/fk-android-batchnetworking/wiki)
 
 
 Dependencies
