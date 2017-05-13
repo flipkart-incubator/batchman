@@ -42,12 +42,14 @@ import android.view.View;
 import android.webkit.ValueCallback;
 
 import com.flipkart.batchdemo.adapter.CustomTagDataAdapter;
+import com.flipkart.batchdemo.flatbuff.CustomFlatBufSStrategy;
 import com.flipkart.batching.TagBatchManager;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.batch.SizeBatch;
 import com.flipkart.batching.core.batch.TagBatch;
 import com.flipkart.batching.core.data.Tag;
 import com.flipkart.batching.core.data.TagData;
+import com.flipkart.batching.flatbuffer.FlatBufSerializationStrategy;
 import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.PersistedBatchCallback;
@@ -66,6 +68,8 @@ public class MainActivity extends AppCompatActivity
     public Tag debugTag, perfTag, dgTag;
     public TagBatchManager batchManager;
     int count = 1;
+    long startTime = -1;
+    long endTime = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,13 +81,16 @@ public class MainActivity extends AppCompatActivity
         handlerThread.start();
         Handler backgroundHandler = new Handler(handlerThread.getLooper());
 
+
+
         GsonSerializationStrategy<CustomTagData, SizeBatch<CustomTagData>> serializationStrategy =
                 new GsonSerializationStrategy<>(new CustomTagDataAdapter(), null);
+
+//        FlatBufSerializationStrategy serializationStrategy = new FlatBufSerializationStrategy();
 
         debugTag = new Tag(DEBUG_LOGGER_GROUPID);
         perfTag = new Tag(PERF_LOGGER_GROUPID);
         dgTag = new Tag(DG_LOGGER_GROUPID);
-
 
         final NetworkPersistedBatchReadyListener perfListener = new NetworkPersistedBatchReadyListener(getApplicationContext(), getCacheDir() + "/" + "perf",
                 serializationStrategy, backgroundHandler, new NetworkPersistedBatchReadyListener.NetworkBatchListener() {
@@ -113,6 +120,9 @@ public class MainActivity extends AppCompatActivity
                 for (CustomTagData data : dataArrayList) {
                     Log.e("OUT", data.getEvent().toString());
                 }
+
+                endTime = System.currentTimeMillis();
+                Log.d("Overall Time Taken ", "onPersistSuccess: " + (endTime - startTime));
             }
 
             @Override
@@ -201,6 +211,9 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (startTime == -1) {
+                    startTime = System.currentTimeMillis();
+                }
                 Log.e("IN", TrackingHelper.getProductPageViewEvent(String.valueOf(count), "dfg", "fgh").toString());
                 batchManager.addToBatch(Collections.singleton(new CustomTagData(perfTag, TrackingHelper.getProductPageViewEvent(String.valueOf(count), "dfg", "fgh"))));
                 Snackbar.make(view, "Replace with your own action " + count, Snackbar.LENGTH_LONG)
