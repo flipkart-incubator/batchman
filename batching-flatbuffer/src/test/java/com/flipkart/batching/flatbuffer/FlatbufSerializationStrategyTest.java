@@ -35,12 +35,12 @@ public class FlatbufSerializationStrategyTest {
 
     @Test
     public void testBatchSerialization() throws Exception {
-        FlatBufSerializationStrategy flatBufSerializationStrategy = new FlatBufSerializationStrategy();
+        FlatBufferSerializationStrategy flatBufferSerializationStrategy = new FlatBufferSerializationStrategy();
 
         SizeBatch batch = new SizeBatch<>(fakeCollection(3), 3);
-        byte[] bytes = flatBufSerializationStrategy.serializeBatch(batch);
+        byte[] bytes = flatBufferSerializationStrategy.serializeBatch(batch);
 
-        com.flipkart.batching.core.Batch deserializeBatch = flatBufSerializationStrategy.deserializeBatch(bytes);
+        com.flipkart.batching.core.Batch deserializeBatch = flatBufferSerializationStrategy.deserializeBatch(bytes);
 
         Assert.assertEquals(batch.getDataCollection().size(), deserializeBatch.getDataCollection().size());
         Assert.assertEquals(batch.getMaxBatchSize(), ((SizeBatch) deserializeBatch).getMaxBatchSize());
@@ -48,7 +48,7 @@ public class FlatbufSerializationStrategyTest {
 
     @Test
     public void testDataSerialization() throws Exception {
-        FlatBufSerializationStrategy flatBufSerializationStrategy = new FlatBufSerializationStrategy();
+        FlatBufferSerializationStrategy flatBufferSerializationStrategy = new FlatBufferSerializationStrategy();
 
         Data data = new Data() {
             @Override
@@ -57,9 +57,9 @@ public class FlatbufSerializationStrategyTest {
             }
         };
 
-        byte[] bytes = flatBufSerializationStrategy.serializeData(data);
+        byte[] bytes = flatBufferSerializationStrategy.serializeData(data);
 
-        com.flipkart.batching.core.Data deserializeData = flatBufSerializationStrategy.deserializeData(bytes);
+        com.flipkart.batching.core.Data deserializeData = flatBufferSerializationStrategy.deserializeData(bytes);
 
         Assert.assertEquals(10, deserializeData.getEventId());
     }
