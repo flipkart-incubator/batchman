@@ -42,14 +42,13 @@ import android.view.View;
 import android.webkit.ValueCallback;
 
 import com.flipkart.batchdemo.adapter.CustomTagDataAdapter;
-import com.flipkart.batchdemo.flatbuff.CustomFlatBufSStrategy;
 import com.flipkart.batching.TagBatchManager;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.batch.SizeBatch;
 import com.flipkart.batching.core.batch.TagBatch;
 import com.flipkart.batching.core.data.Tag;
 import com.flipkart.batching.core.data.TagData;
-import com.flipkart.batching.flatbuffer.FlatBufSerializationStrategy;
+import com.flipkart.batching.flatbuffer.FlatBufferSerializationStrategy;
 import com.flipkart.batching.gson.GsonSerializationStrategy;
 import com.flipkart.batching.listener.NetworkPersistedBatchReadyListener;
 import com.flipkart.batching.listener.PersistedBatchCallback;
@@ -83,10 +82,10 @@ public class MainActivity extends AppCompatActivity
 
 
 
-        GsonSerializationStrategy<CustomTagData, SizeBatch<CustomTagData>> serializationStrategy =
-                new GsonSerializationStrategy<>(new CustomTagDataAdapter(), null);
+//        GsonSerializationStrategy<CustomTagData, SizeBatch<CustomTagData>> serializationStrategy =
+//                new GsonSerializationStrategy<>(new CustomTagDataAdapter(), null);
 
-//        FlatBufSerializationStrategy serializationStrategy = new FlatBufSerializationStrategy();
+        FlatBufferSerializationStrategy serializationStrategy = new FlatBufferSerializationStrategy();
 
         debugTag = new Tag(DEBUG_LOGGER_GROUPID);
         perfTag = new Tag(PERF_LOGGER_GROUPID);
