@@ -38,7 +38,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import static org.mockito.Matchers.any;
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verify;
 /**
  * Test for {@link TagBatchReadyListener}
  */
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
 public class TagBatchReadyTest {
 

@@ -1,10 +1,13 @@
 package com.flipkart.batching.core.batch;
 
+import android.support.annotation.Keep;
+
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.BatchImpl;
 import com.flipkart.batching.core.data.Tag;
 import com.flipkart.batching.core.data.TagData;
 
+@Keep
 public class TagBatch<T extends TagData> extends BatchImpl<T> {
     private Tag tag;
 

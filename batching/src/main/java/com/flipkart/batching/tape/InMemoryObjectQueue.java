@@ -65,10 +65,7 @@ public class InMemoryObjectQueue<T> implements ObjectQueue<T> {
     @Override
     public void remove(int n) {
         for (int i = 0; i < n; i++) {
-            removeFromQueue();
-            if (listener != null) {
-                listener.onRemove(this);
-            }
+            remove();
         }
     }
 

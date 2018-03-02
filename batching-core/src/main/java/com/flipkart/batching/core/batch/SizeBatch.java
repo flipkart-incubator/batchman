@@ -1,11 +1,13 @@
 package com.flipkart.batching.core.batch;
 
+import android.support.annotation.Keep;
 
 import com.flipkart.batching.core.BatchImpl;
 import com.flipkart.batching.core.Data;
 
 import java.util.Collection;
 
+@Keep
 public class SizeBatch<T extends Data> extends BatchImpl<T> {
     private int maxBatchSize;
 
