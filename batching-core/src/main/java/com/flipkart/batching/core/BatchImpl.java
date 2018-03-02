@@ -24,12 +24,14 @@
 
 package com.flipkart.batching.core;
 
+import android.support.annotation.Keep;
+
 import java.util.Collection;
 
 /**
  * A simple implementation of Batch interface
  */
-
+@Keep
 public class BatchImpl<T extends Data> implements Batch<T> {
 
     public DataCollection<T> dataCollection;

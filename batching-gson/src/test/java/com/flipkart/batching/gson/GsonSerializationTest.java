@@ -27,23 +27,32 @@ package com.flipkart.batching.gson;
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.BatchImpl;
 import com.flipkart.batching.core.Data;
+import com.flipkart.batching.core.batch.TagBatch;
 import com.flipkart.batching.core.data.EventData;
-import com.flipkart.batching.core.exception.DeserializeException;
-import com.flipkart.batching.core.exception.SerializeException;
+import com.flipkart.batching.core.data.Tag;
 import com.google.gson.JsonSyntaxException;
 
 import junit.framework.Assert;
 
+import org.json.JSONObject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 
 /**
  * Test for {@link GsonSerializationStrategy}
  */
+
+@RunWith(RobolectricTestRunner.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class GsonSerializationTest {
 
     /**
@@ -61,21 +70,18 @@ public class GsonSerializationTest {
             serializedData = serializationStrategy.serializeBatch(batch);
             Batch batchReturned = (Batch) serializationStrategy.deserializeBatch(serializedData);
             Assert.assertEquals(batch.getClass(), batchReturned.getClass());
-        } catch (SerializeException e) {
-            e.getRealException().printStackTrace();
-        } catch (DeserializeException e) {
-            e.getRealException().printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     /**
      * Test to verify {@link JsonSyntaxException} is thrown, when the byte to be deserialized gets corrupted
      *
-     * @throws SerializeException
-     * @throws DeserializeException
+     * @throws IOException
      */
     @Test
-    public void testIfExceptionThrownWhenCorrupt() throws SerializeException, DeserializeException {
+    public void testIfExceptionThrownWhenCorrupt() throws IOException {
         GsonSerializationStrategy<EventData, BatchImpl<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         serializationStrategy.build();
 
@@ -112,9 +118,7 @@ public class GsonSerializationTest {
             serializedData = serializationStrategy.serializeCollection(fakeCollection);
             Collection<Data> collectionReturned = serializationStrategy.deserializeCollection(serializedData);//todo not deserialize collection
             Assert.assertEquals(fakeCollection, collectionReturned);
-        } catch (SerializeException e) {
-            e.getRealException().printStackTrace();
-        } catch (DeserializeException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -134,7 +138,7 @@ public class GsonSerializationTest {
         ArrayList<Data> fakeCollection = Utils.fakeCollection(4);
         try {
             serializationStrategy.serializeCollection(fakeCollection);
-        } catch (SerializeException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -142,11 +146,10 @@ public class GsonSerializationTest {
     /**
      * Test the working of {@link GsonSerializationStrategy} for Custom Data
      *
-     * @throws SerializeException
-     * @throws DeserializeException
+     * @throws IOException
      */
     @Test
-    public void testGSONSerializationForData() throws SerializeException, DeserializeException {
+    public void testGSONSerializationForData() throws IOException {
         //test to serialize hashmap
         GsonSerializationStrategy<Data, Batch<Data>> serializationStrategy = new GsonSerializationStrategy<>();
         serializationStrategy.build();
@@ -166,5 +169,28 @@ public class GsonSerializationTest {
         serializedData = serializationStrategy.serializeData(eventData);
         data = serializationStrategy.deserializeData(serializedData);
         Assert.assertEquals(eventData, data);
+    }
+
+    @Test
+    public void testTagBatchWithSubType() throws Exception {
+
+        Tag tag = new Tag("demo");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("key", "value");
+        Utils.CustomTagData customTagData = new Utils.CustomTagData(tag, jsonObject);
+
+        GsonSerializationStrategy<Utils.CustomTagData, TagBatch<Utils.CustomTagData>> gsonSerializationStrategy =
+                new GsonSerializationStrategy<>();
+        gsonSerializationStrategy.registerDataSubTypeAdapters(Utils.CustomTagData.class, new Utils.CustomTagDataAdapter());
+        gsonSerializationStrategy.build();
+
+        TagBatch<Utils.CustomTagData> tagBatch = new TagBatch<>(tag, new BatchImpl<>(Collections.singleton(customTagData)));
+
+        byte[] bytes = gsonSerializationStrategy.serializeBatch(tagBatch);
+        TagBatch<Utils.CustomTagData> customTagDataTagBatch = gsonSerializationStrategy.deserializeBatch(bytes);
+
+        Collection<Utils.CustomTagData> dataCollection = customTagDataTagBatch.getDataCollection();
+        Collection<Utils.CustomTagData> dataCollection1 = tagBatch.getDataCollection();
+        org.junit.Assert.assertTrue(dataCollection.size() == dataCollection1.size());
     }
 }
