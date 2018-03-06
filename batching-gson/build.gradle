@@ -17,7 +17,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.android.support:support-annotations:25.1.0'
-    compile 'com.github.flipkart-incubator.batchman:batching-core:1.3.6'
+    compile 'com.github.flipkart-incubator.batchman:batching-core:1.3.7'
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:3.2.2'
@@ -31,7 +31,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 25
         versionCode 1
-        versionName "1.3.6"
+        versionName "1.3.7"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
