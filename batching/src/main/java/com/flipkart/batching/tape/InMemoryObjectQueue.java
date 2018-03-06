@@ -15,6 +15,8 @@
  */
 package com.flipkart.batching.tape;
 
+import com.flipkart.batching.toolbox.LogUtil;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +29,7 @@ import java.util.Queue;
  * @param <T> The type of elements in the queue.
  */
 public class InMemoryObjectQueue<T> implements ObjectQueue<T> {
+    private static final String TAG = "InMemoryObjectQueue";
     private final Queue<T> tasks;
     private Listener<T> listener;
 
@@ -53,8 +56,10 @@ public class InMemoryObjectQueue<T> implements ObjectQueue<T> {
 
     @Override
     public void remove() {
-        tasks.remove();
-        if (listener != null) listener.onRemove(this);
+        removeFromQueue();
+        if (listener != null) {
+            listener.onRemove(this);
+        }
     }
 
     @Override
@@ -62,6 +67,15 @@ public class InMemoryObjectQueue<T> implements ObjectQueue<T> {
         for (int i = 0; i < n; i++) {
             remove();
         }
+    }
+
+    private void removeFromQueue() {
+        if (tasks.isEmpty()) {
+            LogUtil.log(TAG, "The queue is empty");
+            return;
+        }
+
+        tasks.remove();
     }
 
     @Override
