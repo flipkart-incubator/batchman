@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="/Users/anirudh.r/Development/Android/Flipkart/batchman/batching-flatbuffer/src/main/assets"/><source path="/Users/anirudh.r/Development/Android/Flipkart/batchman/batching-flatbuffer/build/generated/assets/shaders/debug"/></dataSet><dataSet config="debug"><source path="/Users/anirudh.r/Development/Android/Flipkart/batchman/batching-flatbuffer/src/debug/assets"/></dataSet></merger>
