@@ -262,7 +262,7 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
          */
         public boolean isNetworkConnected(Context context) {
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            NetworkInfo networkInfo = null != connectivityManager ? connectivityManager.getActiveNetworkInfo() : null;
             return null != networkInfo && networkInfo.isConnected();
         }
     }
