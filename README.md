@@ -39,7 +39,7 @@ Add the dependencies :
 
 ````java
 	dependencies {
-	        compile 'com.github.flipkart-incubator.batchman:batching:1.3.7'
+	        compile 'com.github.flipkart-incubator.batchman:batching:1.3.9'
 	}
 ````
 
@@ -48,7 +48,7 @@ Add the dependencies :
 ````java
 
 	dependencies {
-	        compile 'com.github.flipkart-incubator.batchman:batching-gson:1.3.7'
+	        compile 'com.github.flipkart-incubator.batchman:batching-gson:1.3.9'
 	}
 ````
 
