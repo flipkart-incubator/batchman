@@ -1,6 +1,6 @@
 package com.flipkart.batching.core.batch;
 
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.BatchImpl;

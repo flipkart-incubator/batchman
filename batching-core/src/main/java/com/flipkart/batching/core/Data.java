@@ -25,7 +25,7 @@
 package com.flipkart.batching.core;
 
 
-import android.support.annotation.Keep;
+import androidx.annotation.Keep;
 
 import com.flipkart.batching.core.data.Tag;
 
