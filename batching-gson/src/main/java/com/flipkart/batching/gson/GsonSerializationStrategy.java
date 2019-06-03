@@ -24,8 +24,8 @@
 
 package com.flipkart.batching.gson;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.BatchImpl;

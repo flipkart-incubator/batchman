@@ -24,7 +24,7 @@
 
 package com.flipkart.batching.persistence;
 
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
 import com.flipkart.batching.core.Batch;
 import com.flipkart.batching.core.Data;

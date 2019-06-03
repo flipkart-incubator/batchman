@@ -25,7 +25,7 @@
 package com.flipkart.batching.listener;
 
 import android.os.Handler;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.flipkart.batching.BatchingStrategy;
 import com.flipkart.batching.OnBatchReadyListener;

@@ -23,7 +23,7 @@
  */
 package com.flipkart.batching.gson.adapters;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.flipkart.batching.core.Data;
 import com.flipkart.batching.core.DataCollection;
