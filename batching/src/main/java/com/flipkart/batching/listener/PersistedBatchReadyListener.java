@@ -216,7 +216,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
         });
     }
 
-    void checkPendingAndContinue() {
+    public void checkPendingAndContinue() {
         initializeIfRequired();
         if (queueFile.size() > 0) {
             try {

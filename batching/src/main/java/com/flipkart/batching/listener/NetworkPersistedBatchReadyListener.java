@@ -55,7 +55,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     boolean needsResumeOnReady = false;
     boolean waitingForCallback = false;
     boolean callFinishAfterMaxRetry = false;
-    boolean handleOOMException = false;
     private NetworkBatchListener<E, T> networkBatchListener;
     private Context context;
     private NetworkBroadcastReceiver networkBroadcastReceiver;
@@ -209,24 +208,6 @@ public class NetworkPersistedBatchReadyListener<E extends Data, T extends Batch<
     private void resetRetryCounters() {
         retryCount = 0;
         mCurrentTimeoutMs = defaultTimeoutMs;
-    }
-
-    @Override
-    void checkPendingAndContinue() {
-        if (handleOOMException) {
-            try {
-                super.checkPendingAndContinue();
-            } catch (OutOfMemoryError e) {
-                LogUtil.log(TAG, e.getLocalizedMessage());
-                onQueueFileOperationError(e);
-            }
-        } else {
-            super.checkPendingAndContinue();
-        }
-    }
-
-    public void setHandleOutOfMemoryException(boolean handleOOMException) {
-        this.handleOOMException = handleOOMException;
     }
 
     /**
