@@ -57,6 +57,7 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
     ObjectQueue<T> queueFile;
     BatchObjectConverter<E, T> converter;
     boolean isWaitingToFinish;
+    int count = 0;
     T peekedBatch;
 
     public PersistedBatchReadyListener(String filePath, SerializationStrategy<E, T> serializationStrategy, Handler handler, @Nullable PersistedBatchCallback<T> listener) {
@@ -220,6 +221,11 @@ public class PersistedBatchReadyListener<E extends Data, T extends Batch<E>> imp
         if (queueFile.size() > 0) {
             try {
                 if (!isWaitingToFinish) {
+                    if (count == 10) {
+                        count = 0;
+                        throw new OutOfMemoryError("Failed to allocated 600 Mb of memory");
+                    }
+                    count += 1;
                     peekedBatch = (queueFile.size() == cachedQueue.size())
                             ? cachedQueue.peek()
                             : queueFile.peek();
