@@ -130,6 +130,40 @@ batchManager.addToBatch(Collections.singleton(new EventData()));
 
 ````
 
+### Typical usage
+This library can also be used for just batching events. 
+At Flipkart, this library is used for pushing analytics events to an in-house backend. For this usecase, you can make create an instance of `NetworkPersistedBatchReadyListener` and pass it to `setOnBatchReadyListener`. 
+Dont forget to pass an instance of `NetworkBatchListener` by implementing `performNetworkRequest` method. 
+Details of this class is in the comments section below.
+
+```java
+public static abstract class NetworkBatchListener<E extends Data, T extends Batch<E>> {
+
+        /**
+         * Implement this method and make your network request here. Once request is complete, call the {@link ValueCallback#onReceiveValue(Object)} method.
+         * This method will be called once the batch has been persisted. The batch will be removed or retried once you invoke the networkBatchListener.
+         * While invoking the networkBatchListener, pass a {@link NetworkRequestResponse} object with the following data.
+         * If the network response was successfully received, set complete to true, and set httpErrorCode to the status code from server. If status code is 5XX, this batch will be retried. If status code is 200 or 4XX the batch will be discarded and next batch will be processed.
+         * If the network response was not received (timeout or not connected or any other network error), set complete to false. This will cause a retry until max retries are reached.
+         * <p>
+         * Note: If there is a network redirect, do not call the networkBatchListener, and wait for the final redirected response and pass that one.
+         *
+         * @param batch    batch of data
+         * @param callback callback
+         */
+        public abstract void performNetworkRequest(final T batch, final ValueCallback<NetworkRequestResponse> callback);
+
+        /**
+         * @return true if network is connected
+         */
+        public boolean isNetworkConnected(Context context) {
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            return null != networkInfo && networkInfo.isConnected();
+        }
+    }
+```
+
 Getting Started
 ---------------
 
