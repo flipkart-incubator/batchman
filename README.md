@@ -19,6 +19,8 @@ The library has been written in a more flexible way, so that the client can plug
 * <b>Data</b> : It is an abstract class, wherein the client will need to extend this class for his events.
 
 
+![Diagram](Batchman.png?raw=true "High level diagram")
+
 Get BatchMan
 ------------
 
