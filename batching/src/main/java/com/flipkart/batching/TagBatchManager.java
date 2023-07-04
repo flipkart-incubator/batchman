@@ -87,13 +87,18 @@ public class TagBatchManager<E extends Data, T extends Batch<E>> implements Batc
 
     @Override
     public void addToBatch(final Collection<E> dataCollection) {
+        addToBatch(dataCollection, false);
+    }
+
+    @Override
+    public void addToBatch(final Collection<E> dataCollection, final boolean forced) {
         handler.post(new Runnable() {
             @Override
             public void run() {
                 assignEventIds(dataCollection);
                 if (tagBatchingStrategy.isInitialized()) {
                     tagBatchingStrategy.onDataPushed((Collection<TagData>) dataCollection);
-                    tagBatchingStrategy.flush(false);
+                    tagBatchingStrategy.flush(forced);
                 } else {
                     throw new IllegalAccessError("BatchingStrategy is not initialized");
                 }

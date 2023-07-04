@@ -44,8 +44,16 @@ public interface BatchController<E extends Data, T extends Batch<E>> {
      *
      * @param dataCollection collection of {@link Data}
      */
-
     void addToBatch(Collection<E> dataCollection);
+
+    /**
+     * This method takes {@link Data} type {@link Collection} and a boolean as parameter and notifies the provided
+     * {@link BatchingStrategy} about the added data.
+     *
+     * @param dataCollection collection of {@link Data}
+     * @param forced whether to forcefully trigger the event call
+     */
+    void addToBatch(Collection<E> dataCollection, boolean forced);
 
     /**
      * This method returns the initialized {@link Handler}.
