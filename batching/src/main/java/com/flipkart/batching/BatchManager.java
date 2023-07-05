@@ -80,13 +80,18 @@ public class BatchManager<E extends Data, T extends Batch<E>> implements BatchCo
 
     @Override
     public void addToBatch(final Collection<E> dataCollection) {
+        addToBatch(dataCollection, false);
+    }
+
+    @Override
+    public void addToBatch(final Collection<E> dataCollection, final boolean forced) {
         handler.post(new Runnable() {
             @Override
             public void run() {
                 assignEventIds(dataCollection);
                 if (batchingStrategy.isInitialized()) {
                     batchingStrategy.onDataPushed(dataCollection);
-                    batchingStrategy.flush(false);
+                    batchingStrategy.flush(forced);
                 } else {
                     throw new IllegalAccessError("BatchingStrategy is not initialized");
                 }
